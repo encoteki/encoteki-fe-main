@@ -15,7 +15,7 @@ const LIVE_LOGO = process.env.LIVE_LOGO || ''
 export const metadata: Metadata = {
   metadataBase: new URL(LIVE_DOMAIN),
   title: {
-    default: 'Encoteki - Join the Community and Save the World',
+    default: 'Encoteki',
     template: '%s | Encoteki',
   },
   description:
