@@ -21,6 +21,7 @@
   --green-90: #f0faf3;
 
   /* Khaki */
+  --khaki-50: #cdcd7e;
   --khaki-60: #dada9f;
   --khaki-70: #e7e7c0;
   --khaki-80: #efefd6;
@@ -42,4 +43,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@layer components {
+  .home-container {
+    @apply h-full w-full border-b border-black px-8 py-24 md:min-h-screen md:px-16 md:py-32 xl:py-48;
+  }
+  .home-section {
+    @apply mx-auto min-h-screen w-full max-w-[1440px] px-6 py-18 md:px-8 md:py-24 lg:py-32;
+  }
 }

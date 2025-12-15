@@ -1,13 +1,15 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import gsap from 'gsap'
 import Link from 'next/link'
 import InstagramIcon from '@/assets/socials/Instagram'
 import ThreadsIcon from '@/assets/socials/Threads'
 import XIcon from '@/assets/socials/X'
 import TiktokIcon from '@/assets/socials/Tiktok'
 import TelegramIcon from '@/assets/socials/Telegram'
-import { cn } from '@/lib/utils'
+import { useGSAP } from '@gsap/react'
+import { useEffect, useRef, useState } from 'react'
+import { TextPlugin } from 'gsap/TextPlugin'
 
 type SocialMediaItem = {
   name: string
@@ -37,51 +39,91 @@ const SOCIAL_MEDIA: SocialMediaItem[] = [
 
 const CURRENT_YEAR = new Date().getFullYear()
 
-export default function Footer() {
-  const pathname = usePathname()
-  const isHome = pathname === '/'
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(TextPlugin, useGSAP)
+}
+
+export function Footer() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const element = containerRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.1 },
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  useGSAP(
+    () => {
+      const targets = gsap.utils.toArray('.reveal-text')
+      gsap.set(targets, { y: 100, autoAlpha: 0 })
+      const tl = gsap.timeline({ paused: true })
+
+      tl.to(targets, {
+        y: 0,
+        autoAlpha: 1,
+        duration: 1.5,
+        stagger: 0.2,
+        ease: 'power3.out',
+        delay: 0.2,
+      })
+
+      if (isVisible) {
+        tl.restart()
+      } else {
+        tl.pause(0)
+      }
+    },
+    { scope: containerRef, dependencies: [isVisible] },
+  )
 
   return (
-    <footer className="mx-auto w-full rounded-t-3xl bg-(--primary-green) px-16 py-16 md:rounded-t-[64px] md:px-32 lg:px-32 lg:py-48">
-      <div className="flex h-auto flex-col justify-between gap-10 md:flex-row">
-        {/* Left Content: Title & Socials */}
-        <section className="flex flex-col gap-4 md:w-1/2 md:justify-between md:gap-10">
-          <h1 className="text-xl font-medium text-white lg:text-4xl">
-            Join the community and save the world!
-          </h1>
+    <footer
+      ref={containerRef}
+      className="home-container flex flex-col justify-between gap-10 bg-(--green-10)"
+    >
+      <div className="w-full text-left md:text-left">
+        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+          Join the community
+        </h1>
+        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+          and
+        </h1>
+        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+          save the world!
+        </h1>
+      </div>
 
-          <nav className="flex gap-9" aria-label="Social media links">
-            {SOCIAL_MEDIA.map((item) => (
-              <Link
-                key={item.name}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Follow us on ${item.name}`}
-                className="text-white transition-transform duration-300 hover:scale-125"
-              >
-                {item.icon}
-              </Link>
-            ))}
-          </nav>
-        </section>
-
-        {/* Right Content: Copyright */}
-        <div
-          className={cn(
-            'flex flex-col justify-end md:w-1/2',
-            isHome ? 'text-right' : 'items-end',
-          )}
+      <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+        <nav
+          className="reveal-text flex flex-row items-center justify-center gap-4 md:gap-12"
+          aria-label="Social media links"
         >
-          <p
-            className={cn(
-              'text-sm font-normal text-white',
-              isHome ? 'text-left md:text-right' : '',
-            )}
-          >
-            Encoteki © {CURRENT_YEAR} All rights reserved
-          </p>
-        </div>
+          {SOCIAL_MEDIA.map((item) => (
+            <Link
+              key={item.name}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-2xl text-white transition-transform duration-300 hover:scale-125"
+            >
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+
+        <p className="reveal-text text-center text-base font-normal text-white md:text-lg">
+          Encoteki © {CURRENT_YEAR} All rights reserved
+        </p>
       </div>
     </footer>
   )
