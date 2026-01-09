@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef } from 'react'
-import Image from 'next/image'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -24,7 +23,7 @@ export default function About() {
     () => {
       const mm = gsap.matchMedia()
 
-      // DESKTOP ANIMATION (>= XL / 1280px)
+      // Desktop (>= XL / 1280px)
       mm.add('(min-width: 1280px)', () => {
         gsap.set(
           [leftCardRef.current, rightCardRef.current, aboutCardRef.current],
@@ -65,7 +64,7 @@ export default function About() {
         )
       })
 
-      // MOBILE ANIMATION (< XL / 1279px)
+      // Mobile & Tab (< XL / 1279px)
       mm.add('(max-width: 1279px)', () => {
         gsap.set(
           [leftCardRef.current, rightCardRef.current, aboutCardRef.current],
@@ -109,83 +108,75 @@ export default function About() {
     'mt-6 flex flex-col space-y-4 font-mono text-xs leading-relaxed font-medium text-black/90 sm:text-sm'
 
   return (
-    <section className="border-b-2 border-black bg-[#f7f3fa]">
-      <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#F3F4F6] p-4 py-20">
+    <section className="home-container flex items-center justify-center overflow-hidden bg-[#F3F4F6]">
+      <div
+        ref={containerRef}
+        className="relative flex w-full max-w-360 flex-col items-center justify-center gap-12 xl:block xl:h-[500px] xl:gap-0"
+      >
+        {/* --- About --- */}
         <div
-          ref={containerRef}
-          className="relative flex w-full max-w-360 flex-col items-center justify-center gap-12 xl:block xl:h-[500px] xl:gap-0"
+          ref={aboutCardRef}
+          className={`${cardDimensions} relative z-0 flex flex-col justify-between bg-[#FFD94A] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
         >
-          {/* --- About --- */}
-          <div
-            ref={aboutCardRef}
-            className={`${cardDimensions} relative z-0 flex flex-col justify-between bg-[#FFD94A] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
-          >
-            <div className="flex flex-col">
-              <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
-                About
-              </h2>
-              <div className={textStyle}>
-                <p>
-                  ENCOTEKI is a combination of ‘EN’ (Environment), ‘CO’
-                  (Community), and ‘TEKI’ (Teman Kita, meaning ‘our friend’ in
-                  Bahasa).
-                </p>
-                <p>
-                  The name reflects our belief that both the environment and
-                  community are our friends, making them the core of ENCOTEKI.
-                </p>
-              </div>
-            </div>
-            <BrutalismButton label="View Whitepaper" href={whitePaperUrl} />
-          </div>
-
-          {/* --- Vision --- */}
-          <div
-            ref={rightCardRef}
-            className={`${cardDimensions} relative z-10 flex flex-col justify-between bg-[#60A5FA] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
-          >
-            <div className="flex flex-col">
-              <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
-                Vision
-              </h2>
-              <div className={textStyle}>
-                <p>
-                  Develop a self-sustainable environment and community through
-                  technology.
-                </p>
-                <p>
-                  Creating a future where wildlife conservation and blockchain
-                  innovation go hand in hand.
-                </p>
-              </div>
-            </div>
-            <div className="relative h-48 w-full overflow-hidden rounded-xl border-2 border-black bg-blue-950">
-              {/* <Image src="" alt="" fill className=" object-cover" /> */}
+          <div className="flex flex-col">
+            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+              About
+            </h2>
+            <div className={textStyle}>
+              <p>
+                ENCOTEKI is a combination of ‘EN’ (Environment), ‘CO’
+                (Community), and ‘TEKI’ (Teman Kita, meaning ‘our friend’ in
+                Bahasa).
+              </p>
+              <p>
+                The name reflects our belief that both the environment and
+                community are our friends, making them the core of ENCOTEKI.
+              </p>
             </div>
           </div>
+          <BrutalismButton label="View Whitepaper" href={whitePaperUrl} />
+        </div>
 
-          {/* --- Mission --- */}
-          <div
-            ref={leftCardRef}
-            className={`${cardDimensions} relative z-20 flex flex-col justify-between bg-[#FF9E00] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
-          >
-            <div className="flex flex-col">
-              <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
-                Mission
-              </h2>
-              <div className={textStyle}>
-                <p>
-                  Conserve endangered Indonesian animals through real
-                  contribution and action.
-                </p>
-                <p>
-                  Benefit environment, community, and holders through
-                  value-added initiatives.
-                </p>
-              </div>
+        {/* --- Vision --- */}
+        <div
+          ref={rightCardRef}
+          className={`${cardDimensions} relative z-10 flex flex-col justify-between bg-[#60A5FA] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
+        >
+          <div className="flex flex-col">
+            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+              Vision
+            </h2>
+            <div className={textStyle}>
+              <p>
+                Develop a self-sustainable environment and community through
+                technology.
+              </p>
+              <p>
+                Creating a future where wildlife conservation and blockchain
+                innovation go hand in hand.
+              </p>
             </div>
-            <div className="relative h-48 w-full overflow-hidden rounded-xl border-2 border-black bg-blue-950">
-              {/* <Image src="" alt="" fill className=" object-cover" /> */}
+          </div>
+        </div>
+
+        {/* --- Mission --- */}
+        <div
+          ref={leftCardRef}
+          className={`${cardDimensions} relative z-20 flex flex-col justify-between bg-[#FF9E00] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
+        >
+          <div className="flex flex-col">
+            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+              Mission
+            </h2>
+            <div className={textStyle}>
+              <p>
+                Conserve endangered Indonesian animals through real contribution
+                and action.
+              </p>
+              <p>
+                Benefit environment, community, and holders through value-added
+                initiatives.
+              </p>
             </div>
           </div>
         </div>

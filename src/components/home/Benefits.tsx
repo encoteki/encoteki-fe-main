@@ -4,7 +4,9 @@ import SectionHeading from '@/ui/text/SectionHeading'
 import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowUpRight, Lock, Layers, Zap } from 'lucide-react'
+import { Lock, Layers, Zap } from 'lucide-react'
+import { AbstractSeparator } from '@/ui/AbstractSeparator'
+import { BrutalismButton } from '@/ui/Button'
 
 const cards = [
   {
@@ -153,19 +155,26 @@ export default function Benefits() {
         return -(amount + 48)
       }
 
-      const tween = gsap.to(wrapper, {
-        x: getScrollAmount,
-        ease: 'none',
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: () =>
+            `+=${Math.abs(getScrollAmount()) + window.innerHeight * 0.5}`,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
       })
 
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: 'top top',
-        end: () => `+=${getScrollAmount() * -1}`,
-        pin: true,
-        animation: tween,
-        scrub: 1,
-        invalidateOnRefresh: true,
+      // Delay
+      tl.to({}, { duration: 0.2 })
+
+      // Horizontal scroll
+      tl.to(wrapper, {
+        x: getScrollAmount,
+        ease: 'none',
+        duration: 1,
       })
     }, sectionRef)
 
@@ -173,33 +182,37 @@ export default function Benefits() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-[#dceeff] to-[#f7f3fa]">
-      <div
-        ref={sectionRef}
-        className="flex h-screen w-full flex-col justify-center overflow-hidden"
-      >
-        <div className="mb-8 w-full px-4 text-center sm:mb-12">
-          <SectionHeading
-            title="Benefits"
-            desc="Discover the benefits as an owner of The Satwas Band NFT"
-            align="center"
-          />
-        </div>
+    <div className="bg-[#dceeff]">
+      <AbstractSeparator fillColor="#f6f6ec" />
 
-        <div ref={wrapperRef} className="flex w-max gap-6 px-4 md:px-16">
-          {cards.map((card, index) => (
-            <CardItem key={`${card.id}-${index}`} data={card} />
-          ))}
+      <section className="relative overflow-hidden bg-linear-to-b from-[#dceeff] to-[#F3F4F6]">
+        <div
+          ref={sectionRef}
+          className="flex h-screen w-full flex-col justify-center overflow-hidden"
+        >
+          <div className="mb-8 w-full px-4 text-center md:mb-16 lg:mb-20">
+            <SectionHeading
+              title="Benefits"
+              desc="Discover the benefits as an owner of The Satwas Band NFT"
+              align="center"
+            />
+          </div>
+
+          <div ref={wrapperRef} className="flex w-max gap-6 px-4 md:px-16">
+            {cards.map((card, index) => (
+              <CardItem key={`${card.id}-${index}`} data={card} />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   )
 }
 
 function CardItem({ data }: { data: Partial<(typeof cards)[0]> }) {
   return (
     <div
-      className={`relative flex h-[300px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-[3px] border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform duration-300 hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] sm:h-[350px] sm:w-[320px] sm:p-7 md:h-[400px] md:w-[360px] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] xl:h-[450px] xl:w-[400px] ${data.color}`}
+      className={`relative flex h-[300px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-[3px] border-black p-6 shadow transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] sm:h-[350px] sm:w-[320px] sm:p-7 md:h-[400px] md:w-[360px] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] xl:h-[450px] xl:w-[400px] ${data.color} `}
     >
       <div>
         <h3 className="mb-2 text-4xl leading-[0.85] font-bold tracking-tighter text-black uppercase italic sm:mb-3 sm:text-5xl md:mb-4 md:text-6xl">
@@ -209,10 +222,9 @@ function CardItem({ data }: { data: Partial<(typeof cards)[0]> }) {
 
       <div className="flex items-end justify-between">
         {data.buttonText && (
-          <button className="flex cursor-pointer items-center gap-1.5 rounded-full bg-black px-4 py-2.5 text-xs font-medium text-white transition-transform duration-300 hover:scale-105 sm:gap-2 sm:px-5 sm:py-3 sm:text-sm md:px-6">
-            {data.buttonText}
-            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
-          </button>
+          <div>
+            <BrutalismButton label={data.buttonText} className="bg-white" />
+          </div>
         )}
 
         <div className="pointer-events-none ml-auto translate-x-1 translate-y-1 transform sm:translate-x-2 sm:translate-y-2">

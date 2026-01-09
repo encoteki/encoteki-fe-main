@@ -25,7 +25,7 @@ const anton = Anton({
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-(--khaki-90) pt-16 md:pt-20">
+    <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-red-50 pt-16 md:pt-20">
       {/* Marquee Header */}
       <div className="w-full shrink-0 border-b-2 border-black bg-red-50 py-2 md:py-3">
         <TextMarquee
@@ -111,9 +111,9 @@ function HeroGrid() {
   return (
     <section
       ref={containerRef}
-      className={`relative flex h-full w-full flex-col items-center justify-center gap-8 overflow-hidden bg-transparent p-6 md:flex-row md:gap-12 md:p-12 ${anton.variable}`}
+      className={`relative flex h-full w-full flex-col items-center justify-center gap-8 overflow-hidden bg-transparent p-6 ${anton.variable}`}
     >
-      <div className="flex w-full flex-col items-start justify-center space-y-6 md:w-1/2">
+      <div className="flex w-full max-w-5xl flex-col items-center justify-center space-y-6 text-center">
         <div className="overflow-hidden">
           <h1 className="hero-text-anim font-anton invisible text-5xl leading-[1.1] font-bold tracking-tight text-[#1a1a1a] uppercase opacity-0 sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl">
             A community building wildlife confidence.
