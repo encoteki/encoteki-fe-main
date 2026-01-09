@@ -5,7 +5,7 @@ import { TextButton } from '@/ui/Button'
 
 export default function Header() {
   return (
-    <header className="fixed top-0 right-0 left-0 z-9999 flex h-16 items-center justify-between border-b border-black bg-white px-4 md:h-20 md:px-6">
+    <header className="fixed top-0 right-0 left-0 z-9999 flex h-16 items-center justify-between border-b-2 border-black bg-white px-4 md:h-20 md:px-6">
       <Link href="/">
         <Image
           src={Encoteki}

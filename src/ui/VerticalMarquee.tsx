@@ -124,7 +124,7 @@ export default function VerticalMarquee({ className }: { className?: string }) {
 
 function CardItem({ src }: { src: StaticImageData }) {
   return (
-    <div className="relative aspect-3/4 w-full shrink-0 overflow-hidden rounded-xl bg-white">
+    <div className="relative aspect-3/4 w-full shrink-0 overflow-hidden rounded-xl border-2 border-black bg-white">
       <Image
         src={src}
         alt="Gallery"
