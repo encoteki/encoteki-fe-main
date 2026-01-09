@@ -1,6 +1,11 @@
-import AnimateText from '@/ui/AnimateText'
+'use client'
+
+import { useRef } from 'react'
+import { gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
 import TextMarquee from '@/ui/TextMarquee'
 import Image, { StaticImageData } from 'next/image'
+import { Anton } from 'next/font/google'
 
 // Icons
 import Base from '@/assets/chains/base.jpeg'
@@ -8,10 +13,21 @@ import Arbitrum from '@/assets/chains/arbitrum.svg'
 import Lisk from '@/assets/chains/lisk.webp'
 import Manta from '@/assets/chains/manta.png'
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(useGSAP)
+}
+
+const anton = Anton({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-anton',
+})
+
 export default function Hero() {
   return (
-    <section className="relative flex h-screen w-full flex-col pt-16 md:pt-20">
-      <div className="w-full shrink-0 bg-red-50 py-2 md:py-3">
+    <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-(--khaki-90) pt-16 md:pt-20">
+      {/* Marquee Header */}
+      <div className="w-full shrink-0 border-b-2 border-black bg-red-50 py-2 md:py-3">
         <TextMarquee
           texts={[
             {
@@ -37,36 +53,15 @@ export default function Hero() {
             'Join the Revolution!',
             'Mint Your NFT Today!',
           ]}
-          className="text-base font-medium uppercase md:text-xl"
+          className="text-sm font-medium uppercase sm:text-base md:text-xl"
           speed={125}
           repeat={6}
         />
       </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col border-y border-black">
-        <div className="flex h-full w-full flex-col md:flex-row">
-          {/* LEFT (Desktop) / TOP (Mobile) */}
-          <div className="flex h-full w-full flex-col items-center justify-center border-b border-black bg-[#e7fad3] text-black md:w-1/2 md:border-r md:border-b-0">
-            <div className="flex flex-col p-10 text-left text-white md:gap-4 md:p-20">
-              <AnimateText
-                text="Encoteki"
-                className="mb-4 text-4xl font-bold text-black md:text-6xl"
-                delay={0}
-              />
-              <AnimateText
-                text="Innovation for Future"
-                className="mb-4 text-4xl font-bold text-black md:text-6xl"
-                delay={0.5}
-                duration={1}
-              />
-            </div>
-          </div>
-
-          {/* RIGHT (Desktop) / BOTTOM (Mobile) */}
-          <div className="w-full bg-[#d2e2e7] md:w-1/2">
-            <div className="relative flex h-full min-h-[300px] items-center justify-center md:min-h-full"></div>
-          </div>
-        </div>
+      {/* Main Content Wrapper */}
+      <div className="flex w-full flex-1 items-center justify-center bg-linear-to-b from-blue-200 to-(--khaki-90)">
+        <HeroGrid />
       </div>
     </section>
   )
@@ -80,7 +75,7 @@ const MarqueeIcon = ({
   alt: string
 }) => {
   return (
-    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
+    <div className="relative flex h-6 w-6 shrink-0 items-center justify-center md:h-8 md:w-8">
       <Image
         src={src}
         alt={alt}
@@ -90,5 +85,41 @@ const MarqueeIcon = ({
         priority
       />
     </div>
+  )
+}
+
+function HeroGrid() {
+  const containerRef = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
+
+      gsap.set('.hero-text-anim', { y: 100, autoAlpha: 0 })
+      gsap.set('.grid-card-anim', { scale: 0.8, autoAlpha: 0 })
+
+      tl.to('.hero-text-anim', {
+        y: 0,
+        autoAlpha: 1,
+        duration: 1.2,
+        stagger: 0.15,
+      })
+    },
+    { scope: containerRef },
+  )
+
+  return (
+    <section
+      ref={containerRef}
+      className={`relative flex h-full w-full flex-col items-center justify-center gap-8 overflow-hidden bg-transparent p-6 md:flex-row md:gap-12 md:p-12 ${anton.variable}`}
+    >
+      <div className="flex w-full flex-col items-start justify-center space-y-6 md:w-1/2">
+        <div className="overflow-hidden">
+          <h1 className="hero-text-anim font-anton invisible text-5xl leading-[1.1] font-bold tracking-tight text-[#1a1a1a] uppercase opacity-0 sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl">
+            A community building wildlife confidence.
+          </h1>
+        </div>
+      </div>
+    </section>
   )
 }

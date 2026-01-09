@@ -137,3 +137,28 @@ export const ArrowRoundedButton = ({
     </button>
   )
 }
+
+interface BrutalismButtonProps {
+  label?: string
+  href?: string
+  bgColor?: string
+  className?: string
+}
+
+export function BrutalismButton({
+  label = 'Whitepaper',
+  href = '#',
+  bgColor = 'bg-[#FF9E00]',
+  className = '',
+}: BrutalismButtonProps) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={` ${bgColor} ${className} mt-4 inline-block cursor-pointer rounded-full border-2 border-black px-8 py-3 text-center text-sm font-bold text-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-y-1 hover:shadow-none`}
+    >
+      {label}
+    </a>
+  )
+}

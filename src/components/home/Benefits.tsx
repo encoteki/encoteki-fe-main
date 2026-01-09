@@ -3,7 +3,7 @@
 import SectionHeading from '@/ui/text/SectionHeading'
 import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
-import { Draggable } from 'gsap/Draggable'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, Lock, Layers, Zap } from 'lucide-react'
 
 const cards = [
@@ -138,57 +138,55 @@ const cards = [
 ]
 
 export default function Benefits() {
-  return (
-    <section className="home-container bg-[#dceeff] px-0">
-      <SectionHeading
-        title="Benefits"
-        desc="Discover the benefits as an owner of The Satwas Band NFT"
-        align="center"
-        className="px-8 md:px-0"
-      />
-      <DraggableCarousel />
-    </section>
-  )
-}
-
-function DraggableCarousel() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const sliderRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    gsap.registerPlugin(Draggable)
+    gsap.registerPlugin(ScrollTrigger)
 
     const ctx = gsap.context(() => {
-      Draggable.create(sliderRef.current, {
-        type: 'x',
-        bounds: containerRef.current,
-        edgeResistance: 0.65,
-        inertia: true,
-        cursor: 'grab',
-        activeCursor: 'grabbing',
-        allowContextMenu: false,
-        onDragStart: () => {
-          gsap.to(sliderRef.current, { scale: 0.98, duration: 0.2 })
-        },
-        onDragEnd: () => {
-          gsap.to(sliderRef.current, { scale: 1, duration: 0.2 })
-        },
+      const wrapper = wrapperRef.current
+      if (!wrapper) return
+
+      const getScrollAmount = () => {
+        let amount = wrapper.scrollWidth - window.innerWidth
+        return -(amount + 48)
+      }
+
+      const tween = gsap.to(wrapper, {
+        x: getScrollAmount,
+        ease: 'none',
       })
-    }, containerRef)
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: () => `+=${getScrollAmount() * -1}`,
+        pin: true,
+        animation: tween,
+        scrub: 1,
+        invalidateOnRefresh: true,
+      })
+    }, sectionRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section className="flex min-h-[400px] flex-col items-center justify-center sm:min-h-[500px] md:min-h-[600px]">
+    <section className="relative overflow-hidden bg-linear-to-b from-[#dceeff] to-[#f7f3fa]">
       <div
-        ref={containerRef}
-        className="w-full cursor-grab overflow-hidden px-4 py-8 active:cursor-grabbing sm:px-8 sm:py-10 md:px-12"
+        ref={sectionRef}
+        className="flex h-screen w-full flex-col justify-center overflow-hidden"
       >
-        <div
-          ref={sliderRef}
-          className="flex w-max gap-4 px-8 sm:gap-5 md:gap-6 md:px-16"
-        >
+        <div className="mb-8 w-full px-4 text-center sm:mb-12">
+          <SectionHeading
+            title="Benefits"
+            desc="Discover the benefits as an owner of The Satwas Band NFT"
+            align="center"
+          />
+        </div>
+
+        <div ref={wrapperRef} className="flex w-max gap-6 px-4 md:px-16">
           {cards.map((card, index) => (
             <CardItem key={`${card.id}-${index}`} data={card} />
           ))}
@@ -201,21 +199,18 @@ function DraggableCarousel() {
 function CardItem({ data }: { data: Partial<(typeof cards)[0]> }) {
   return (
     <div
-      className={`relative flex h-[280px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-[3px] border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 select-none hover:translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] sm:h-80 sm:w-[320px] sm:p-7 md:h-[360px] md:w-[360px] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] xl:h-[400px] xl:w-[400px] ${data.color}`}
+      className={`relative flex h-[300px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-[3px] border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform duration-300 hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] sm:h-[350px] sm:w-[320px] sm:p-7 md:h-[400px] md:w-[360px] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] xl:h-[450px] xl:w-[400px] ${data.color}`}
     >
       <div>
-        <h3
-          className={`mb-2 text-4xl leading-[0.85] font-bold tracking-tighter text-black uppercase italic sm:mb-3 sm:text-5xl md:mb-4 md:text-6xl`}
-        >
+        <h3 className="mb-2 text-4xl leading-[0.85] font-bold tracking-tighter text-black uppercase italic sm:mb-3 sm:text-5xl md:mb-4 md:text-6xl">
           {data.title}
         </h3>
       </div>
 
       <div className="flex items-end justify-between">
         {data.buttonText && (
-          <button className="pointer-events-auto flex cursor-pointer items-center gap-1.5 rounded-full bg-black px-4 py-2.5 text-xs font-medium text-white transition-transform duration-300 hover:scale-105 sm:gap-2 sm:px-5 sm:py-3 sm:text-sm md:px-6">
+          <button className="flex cursor-pointer items-center gap-1.5 rounded-full bg-black px-4 py-2.5 text-xs font-medium text-white transition-transform duration-300 hover:scale-105 sm:gap-2 sm:px-5 sm:py-3 sm:text-sm md:px-6">
             {data.buttonText}
-
             <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
         )}

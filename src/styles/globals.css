@@ -47,9 +47,24 @@ body {
 
 @layer components {
   .home-container {
-    @apply h-full w-full border-b border-black px-8 py-24 md:min-h-screen md:px-16 md:py-32 xl:py-48;
+    @apply h-full w-full border-b-2 border-black px-8 py-24 md:px-16 md:py-32 xl:min-h-screen xl:py-48;
   }
   .home-section {
     @apply mx-auto min-h-screen w-full max-w-[1440px] px-6 py-18 md:px-8 md:py-24 lg:py-32;
+  }
+}
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
