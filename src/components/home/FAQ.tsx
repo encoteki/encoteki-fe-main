@@ -23,21 +23,21 @@ const FAQ_DATA: FAQItemData[] = [
   {
     question: 'What is NFT ?',
     answer:
-      'NFTs (non-fungible tokens) are unique cryptographic tokens that exist on a blockchain and cannot be replicated. NFTs represent real-world objects like real estate and artwork, or digital objects like graphic art, videos, and music. With NFTs, people can buy, sell, and trade their assets more efficiently while reducing the probability of fraud. NFTs also have utilities that include things like a digital asset, a service, membership, access to specific events, and any other advantages, depending on the creator.',
+      'NFTs (non-fungible tokens) are unique cryptographic tokens that exist on a blockchain and cannot be replicated. NFTs represent real-world objects like real estate and artwork, or digital objects like graphic art, videos, and music. With NFTs, people can buy, sell, and trade their assets more efficiently while reducing the probability of fraud.',
   },
   {
     question: 'What is The Satwas Band NFTs ?',
     answer:
-      'The Satwas Band is our first NFTs collection, which consists of 3653 randomly generated art, consisting of 5 endangered Indonesian animals that formed into a music group. The Satwas Band will be generated on Polygon Blockchain. Forty percent of the royalties will be donated to the national park that will be chosen by the holders.',
+      'The Satwas Band is our first NFTs collection, which consists of 3653 randomly generated art, consisting of 5 endangered Indonesian animals that formed into a music group. The Satwas Band will be generated on Polygon Blockchain.',
   },
   {
     question: 'Can The Satwa Band NFTs act as an investment ?',
     answer:
-      'Every investment has its own risk and rewards, and so do NFTs. The Satwas Band NFTs and ENCOTEKI itself are not an exception to that. We ourselves place ENCOTEKI as an Impact Investing. As we believe that providing value as much as we can to the environment, community, as well as the holders will also increase the value of The Satwas Band NFTs and ENCOTEKI in return.',
+      'Every investment has its own risk and rewards, and so do NFTs. The Satwas Band NFTs and ENCOTEKI itself are not an exception to that. We ourselves place ENCOTEKI as an Impact Investing. As we believe that providing value as much as we can to the environment will return value to holders.',
   },
   {
     question: 'How to buy The Satwas Band NFTs ?',
-    answer: 'Get whitelisted!',
+    answer: 'Get whitelisted! Join our Discord for more information.',
   },
 ]
 
@@ -58,7 +58,7 @@ export default function FAQ() {
 
       ScrollTrigger.batch(cards, {
         scroller: scroller || window,
-        start: 'top bottom',
+        start: 'top 85%',
 
         onEnter: (batch) => {
           gsap.to(batch, {
@@ -66,7 +66,7 @@ export default function FAQ() {
             autoAlpha: 1,
             stagger: 0.15,
             duration: 0.8,
-            ease: 'power3.out',
+            ease: 'back.out(1.2)',
             overwrite: true,
           })
         },
@@ -93,15 +93,16 @@ export default function FAQ() {
     <section
       id="faq"
       ref={containerRef}
-      className="home-container flex w-full flex-col gap-12 bg-sky-50"
+      className="home-container flex w-full flex-col gap-12 bg-[#F3F4F6] py-16 md:py-24"
     >
       <SectionHeading
         title="FAQ"
         desc="Find quick answers to commonly asked questions about Encoteki"
         align="center"
+        className="text-4xl font-black md:text-6xl"
       />
 
-      <div className="mx-auto grid w-full max-w-3xl gap-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         {FAQ_DATA.map((item, index) => (
           <FAQItem
             key={index}
@@ -120,38 +121,62 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
     <div
       onClick={onClick}
       className={cn(
-        'faq-card group cursor-pointer rounded-3xl border border-[#E0E0E0] bg-white px-8 py-4 text-black opacity-0 md:rounded-4xl md:p-8',
-        'transition-colors duration-300',
-        'hover:border-primary-green hover:text-primary-green',
+        // Base Layout & GSAP Prep
+        'faq-card group relative cursor-pointer opacity-0',
+        'flex flex-col justify-center',
+
+        // Brutalism Borders & Shape
+        'rounded-4xl border-3 border-black bg-white p-6 md:rounded-[2.5rem] md:p-8',
+
+        // Brutalism Shadows
+        'shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]',
+
+        // Hover Effects
+        'transition-all duration-300 ease-out',
+        'hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]',
+
+        // Active State Styling
+        isOpen && 'border-black bg-white',
       )}
     >
-      <div className="flex items-center justify-between">
-        <span
+      {/* --- Question & Icon --- */}
+      <div className="flex items-center justify-between gap-4">
+        <h3
           className={cn(
-            'md:"w-3/4 w-fit text-left text-base font-medium duration-300 md:text-xl',
-            isOpen && 'text-primary-green',
+            'text-base leading-tight font-black text-black transition-colors duration-300 md:text-2xl',
           )}
         >
           {item.question}
-        </span>
-        <div className="cursor-pointer">
-          <ArrowDownIcon
-            className={cn(
-              'text-(--primary-green) duration-500',
-              isOpen ? 'rotate-180' : 'rotate-0',
-            )}
-          />
+        </h3>
+
+        {/* Icon Wrapper */}
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-black transition-all duration-300 md:h-12 md:w-12',
+            isOpen
+              ? 'rotate-180 bg-(--primary-green) text-white'
+              : 'bg-white text-black group-hover:bg-(--primary-green) group-hover:text-white',
+          )}
+        >
+          <ArrowDownIcon strokeWidth={3} className="h-5 w-5 md:h-6 md:w-6" />
         </div>
       </div>
 
-      <p
+      {/* --- Content Answer --- */}
+      <div
         className={cn(
-          'overflow-hidden text-justify text-sm font-normal transition-all duration-500 ease-in-out md:text-base',
-          isOpen ? 'max-h-96 pt-6' : 'max-h-0 pt-0',
+          'grid overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]',
+          isOpen
+            ? 'grid-rows-[1fr] pt-4 opacity-100 md:pt-6'
+            : 'grid-rows-[0fr] pt-0 opacity-0',
         )}
       >
-        {item.answer}
-      </p>
+        <div className="min-h-0">
+          <p className="font-mono text-sm leading-relaxed font-medium text-gray-700 md:text-base md:leading-loose">
+            {item.answer}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

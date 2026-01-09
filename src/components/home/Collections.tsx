@@ -1,4 +1,4 @@
-import { ArrowRoundedButton } from '@/ui/Button'
+import { BrutalismButton } from '@/ui/Button'
 import SectionHeading from '@/ui/text/SectionHeading'
 import VerticalMarquee from '@/ui/VerticalMarquee'
 import Link from 'next/link'
@@ -18,7 +18,7 @@ export default function Collections() {
             <Link
               href={process.env.ARTIST_PORTFOLIO as string}
               target="_blank"
-              className="underline decoration-transparent decoration-2 underline-offset-8 transition-all delay-150 duration-300 hover:text-(--green-10) hover:decoration-(--green-10)"
+              className="font-medium text-(--primary-green) underline decoration-transparent decoration-2 underline-offset-8 transition-all delay-150 duration-300 hover:decoration-(--primary-green)"
             >
               Rahel Kristhea
             </Link>{' '}
@@ -28,12 +28,11 @@ export default function Collections() {
       />
 
       <div>
-        <ArrowRoundedButton
+        <BrutalismButton
+          bgColor="bg-(--green-90)"
+          label="Mint Now"
           className="text-base md:text-xl"
-          variant="secondary"
-        >
-          Mint Now
-        </ArrowRoundedButton>
+        />
       </div>
     </section>
   )

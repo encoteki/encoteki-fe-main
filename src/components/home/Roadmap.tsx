@@ -1,182 +1,191 @@
 'use client'
 
 import SectionHeading from '@/ui/text/SectionHeading'
-import { useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { useRef, useState, useEffect } from 'react'
+import {
+  ArrowRight,
+  ArrowLeft,
+  Rocket,
+  Globe2,
+  Building2,
+  Infinity,
+} from 'lucide-react'
+import { AbstractSeparator } from '@/ui/AbstractSeparator'
 
 const services = [
   {
     id: 1,
-    title: 'Genesis & Launch',
+    title: 'Genesis',
     description:
       "Establishing the ecosystem's foundation through platform deployment, strategic alliances, and the debut of exclusive physical collectibles.",
-    theme: 'foundation',
     color: '#FFD94A',
+    Icon: Rocket,
   },
   {
     id: 2,
     title: 'Expansion',
     description:
       'Scaling the ecosystem by enhancing digital utility, fostering community through local collaborations, and laying the groundwork for subsidiaries.',
-    theme: 'scaling',
     color: '#60A5FA',
+    Icon: Globe2,
   },
   {
     id: 3,
-    title: 'Maturity & Impact',
+    title: 'Impact',
     description:
       'Solidifying the ecosystem structure through the official launch of subsidiaries and evolved NFT utility, while driving tangible change via community projects.',
-    theme: 'structure',
     color: '#E9D5FF',
+    Icon: Building2,
   },
   {
     id: 4,
     title: 'Legacy',
     description:
       'Expanding boundaries through a fully immersive Metaverse presence and a specialized educational platform, culminating in full DAO governance.',
-    theme: 'metaverse',
     color: '#FB7185',
+    Icon: Infinity,
   },
 ]
 
 export default function Roadmap() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const itemsRef = useRef<(HTMLDivElement | null)[]>([])
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const scrollToItem = (index: number) => {
+    const container = scrollContainerRef.current
+    const item = itemsRef.current[index]
+
+    if (container && item) {
+      const scrollLeft =
+        item.offsetLeft - container.clientWidth / 2 + item.clientWidth / 2
+
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  const handleNav = (direction: 'left' | 'right') => {
+    let newIndex = activeIndex
+    if (direction === 'left') {
+      newIndex = Math.max(0, activeIndex - 1)
+    } else {
+      newIndex = Math.min(services.length - 1, activeIndex + 1)
+    }
+    setActiveIndex(newIndex)
+  }
+
+  useEffect(() => {
+    scrollToItem(activeIndex)
+  }, [activeIndex])
+
   return (
-    <section className="home-container min-h-screen bg-(--khaki-90) py-16 md:py-24 lg:py-32">
-      <div className="mb-12 px-4 pb-8 text-center md:mb-16 lg:mb-24">
-        <SectionHeading
-          title="Roadmap"
-          desc="The blueprint of our sustainable growth ahead"
-          className="text-4xl font-black md:text-6xl lg:text-7xl"
-          align="center"
-        />
-      </div>
+    <section className="border-b-2 border-black bg-(--khaki-90) md:min-h-screen">
+      <AbstractSeparator className="w-full" fillColor="#F3F4F6" />
 
-      <ServicesHover />
-    </section>
-  )
-}
+      {/* --- Heading --- */}
+      <div className="py-16 md:py-24 lg:py-32">
+        <div className="px-4 pb-8 text-center">
+          <SectionHeading
+            title="Roadmap"
+            desc="The blueprint of our sustainable growth ahead"
+            className="text-4xl font-black md:text-6xl lg:text-7xl"
+            align="center"
+          />
+        </div>
 
-function ServicesHover() {
-  const [activeService, setActiveService] = useState(services[0])
-
-  return (
-    <div className="container mx-auto">
-      <div className="grid grid-cols-1 gap-8 md:gap-12 xl:grid-cols-12 xl:gap-8">
-        <div className="flex w-full flex-col xl:col-span-5">
-          <div className="border-t-2 border-black md:border-t-4">
-            {services.map((service) => {
-              const isActive = activeService.id === service.id
+        {/* --- Carousel Area --- */}
+        <div className="relative">
+          <div
+            ref={scrollContainerRef}
+            className="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-[calc(50%-140px)] py-6 md:gap-8 md:px-[calc(50%-175px)] md:py-12 xl:gap-12 xl:px-[calc(50%-190px)]"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {services.map((service, index) => {
+              const isActive = index === activeIndex
 
               return (
                 <div
                   key={service.id}
-                  onClick={() => setActiveService(service)}
-                  onMouseEnter={() => setActiveService(service)}
-                  style={{
-                    backgroundColor: isActive ? service.color : 'transparent',
+                  ref={(el) => {
+                    itemsRef.current[index] = el
                   }}
-                  className={`group relative cursor-pointer border-b-4 border-black py-5 pl-0 transition-all duration-200 hover:border-black hover:pl-2 md:py-8 md:hover:pl-6 lg:py-10 xl:hover:pl-4 ${
-                    isActive
-                      ? 'border-l-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] xl:translate-x-2.5 xl:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]'
-                      : 'hover:bg-black/5'
-                  } `}
+                  onClick={() => setActiveIndex(index)}
+                  className={`Tinggi ini disesuaikan agar cukup menampung kartu saat scale max */ relative flex h-[450px] w-[280px] shrink-0 cursor-pointer snap-center items-center justify-center md:h-[550px] md:w-[350px] xl:h-[600px] xl:w-[380px]`}
                 >
-                  {/* Header Item */}
-                  <div className="flex items-center justify-between px-3 md:px-6 xl:px-4">
-                    <h3
-                      className={`flex items-baseline text-xl font-black tracking-tight uppercase transition-colors duration-200 md:text-4xl lg:text-5xl xl:text-4xl ${isActive ? 'text-black' : 'text-black'} `}
+                  {/* Inner Cards*/}
+                  <div
+                    className={`flex w-full flex-col items-center rounded-4xl border-4 border-black bg-white p-6 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-500 ease-out will-change-transform md:rounded-[2.5rem] md:p-10 xl:p-12 ${
+                      isActive
+                        ? 'z-10 scale-100 opacity-100 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] md:scale-110 md:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]'
+                        : 'z-0 scale-90 opacity-60 blur-[1px] hover:opacity-90 hover:blur-none'
+                    } `}
+                  >
+                    {/* Icon Circle */}
+                    <div
+                      className={`mb-4 flex items-center justify-center rounded-full border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 md:mb-6 md:h-24 md:w-24 xl:mb-8 ${
+                        isActive
+                          ? 'h-20 w-20 scale-110 md:h-24 md:w-24'
+                          : 'h-16 w-16 scale-100 md:h-20 md:w-20'
+                      } `}
+                      style={{ backgroundColor: service.color }}
                     >
-                      {/* Number Badge */}
-                      <span
-                        className={`mr-3 border-2 border-black px-1.5 py-0.5 font-mono text-sm transition-colors md:mr-6 md:px-3 md:py-1 md:text-xl ${
-                          isActive
-                            ? 'bg-black text-white'
-                            : 'bg-transparent text-black/50'
-                        } `}
-                      >
-                        0{service.id}
-                      </span>
+                      <service.Icon
+                        className="h-8 w-8 text-black md:h-12 md:w-12 xl:h-14 xl:w-14"
+                        strokeWidth={2}
+                      />
+                    </div>
+
+                    {/* Phase Tag */}
+                    <div className="mb-3 rounded-full border-2 border-black bg-black px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase md:mb-4 md:px-4 md:text-xs xl:mb-5">
+                      Phase 0{service.id}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="mb-3 text-xl leading-tight font-black tracking-tight text-black uppercase md:mb-4 md:text-3xl xl:mb-5 xl:text-4xl">
                       {service.title}
                     </h3>
 
-                    {/* Arrow Icon */}
-                    <div
-                      className={`transition-all duration-200 ${
-                        isActive
-                          ? 'translate-x-0 opacity-100'
-                          : '-translate-x-2 opacity-0 md:-translate-x-4 xl:translate-x-0 xl:opacity-100'
-                      }`}
-                    >
-                      <div
-                        className={`/* Icon Box Size */ /* Mobile */ /* Tablet+ */ /* Desktop Split */ flex h-8 w-8 items-center justify-center border-2 border-black transition-colors duration-200 md:h-12 md:w-12 xl:h-10 xl:w-10 ${
-                          isActive
-                            ? 'bg-black'
-                            : 'bg-transparent group-hover:bg-black'
-                        } `}
-                      >
-                        <ArrowRight
-                          strokeWidth={3}
-                          className={`/* Mobile Icon */ /* Tablet Icon */ h-4 w-4 transition-transform duration-200 md:h-6 md:w-6 ${
-                            isActive
-                              ? 'rotate-90 text-white xl:rotate-0'
-                              : 'text-black group-hover:text-white'
-                          } `}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Accordion Content (Visible on Mobile, Tablet, Laptop | Hidden on XL Desktop) */}
-                  <div
-                    className={`grid overflow-hidden transition-all duration-300 ease-linear xl:hidden ${
-                      isActive
-                        ? 'mt-4 grid-rows-[1fr] opacity-100 md:mt-8'
-                        : 'mt-0 grid-rows-[0fr] opacity-0'
-                    } `}
-                  >
-                    <div className="min-h-0 px-3 pb-2 md:px-6 md:pb-4">
-                      <div
-                        className="border-4 border-black p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:p-10 lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
-                        style={{ backgroundColor: service.color }}
-                      >
-                        <h4 className="mb-2 inline-block border-b-2 border-black font-black uppercase md:mb-4 md:text-2xl lg:text-3xl">
-                          Mission Brief:
-                        </h4>
-                        <p className="font-mono text-sm leading-relaxed font-normal text-black md:text-xl md:leading-loose lg:text-2xl">
-                          <span className="mr-2 font-black md:mr-4">&gt;</span>
-                          {service.description}
-                        </p>
-                      </div>
-                    </div>
+                    {/* Description */}
+                    <p className="font-mono text-xs leading-relaxed text-gray-700 md:text-base xl:text-lg">
+                      {service.description}
+                    </p>
                   </div>
                 </div>
               )
             })}
           </div>
-        </div>
 
-        {/* --- RIGHT COLUMN: TEXT BOX AREA (Desktop XL Only) --- */}
-        <div className="hidden w-full pl-12 xl:col-span-7 xl:flex xl:flex-col">
-          <div
-            className="flex h-full w-full flex-col justify-center border-4 border-black p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-colors duration-300"
-            style={{ backgroundColor: activeService.color }}
-          >
-            <div>
-              <h4 className="mb-6 inline-block self-start border-b-4 border-black pb-4 text-3xl font-black tracking-tighter uppercase">
-                PHASE 0{activeService.id} DETAILS:
-              </h4>
-            </div>
-
-            <p
-              key={activeService.id}
-              className="animate-in fade-in slide-in-from-bottom-4 font-mono text-2xl leading-relaxed text-black"
+          {/* --- Buttons --- */}
+          <div className="mt-4 flex items-center justify-center gap-4 md:mt-12 md:gap-6">
+            <button
+              onClick={() => handleNav('left')}
+              disabled={activeIndex === 0}
+              className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-3 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none md:h-14 md:w-14"
+              aria-label="Scroll Left"
             >
-              <span className="mr-3 text-4xl font-black">&gt;</span>
-              {activeService.description}
-            </p>
+              <ArrowLeft
+                className="h-5 w-5 text-black transition-transform group-hover:-translate-x-1 md:h-6 md:w-6"
+                strokeWidth={3}
+              />
+            </button>
+
+            <button
+              onClick={() => handleNav('right')}
+              disabled={activeIndex === services.length - 1}
+              className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-3 border-black bg-[#FF9E00] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none md:h-14 md:w-14"
+              aria-label="Scroll Right"
+            >
+              <ArrowRight
+                className="h-5 w-5 text-black transition-transform group-hover:translate-x-1 md:h-6 md:w-6"
+                strokeWidth={3}
+              />
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

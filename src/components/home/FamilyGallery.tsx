@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
-import Button from '@/ui/Button'
+import { BrutalismButton } from '@/ui/Button'
 
 // Image
 import Bittime from '@/assets/family/Bittime.webp'
@@ -45,14 +45,15 @@ export default function FamilyGallery() {
 
   const [radius, setRadius] = useState(800)
 
-  // --- 1. RESPONSIVE LOGIC ---
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth
       if (width < 768) {
         setRadius(340)
-      } else if (width < 1280) {
+      } else if (width < 1024) {
         setRadius(600)
+      } else if (width < 1280) {
+        setRadius(700)
       } else {
         setRadius(800)
       }
@@ -64,7 +65,7 @@ export default function FamilyGallery() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // --- 2. INTERSECTION OBSERVER ---
+  // INTERSECTION OBSERVER
   useEffect(() => {
     const element = textRef.current
     if (!element) return
@@ -76,7 +77,7 @@ export default function FamilyGallery() {
     return () => observer.disconnect()
   }, [])
 
-  // --- 3. GSAP TEXT ---
+  // GSAP TEXT
   useGSAP(
     () => {
       const targets = gsap.utils.toArray('.reveal-text')
@@ -96,13 +97,13 @@ export default function FamilyGallery() {
     { scope: textRef, dependencies: [isTextVisible] },
   )
 
-  // --- 4. GSAP ORBIT ---
+  // GSAP ORBIT
   useGSAP(
     () => {
       if (!circleRef.current) return
       gsap.to(circleRef.current, {
         rotation: 360,
-        duration: 120,
+        duration: 50,
         repeat: -1,
         ease: 'linear',
       })
@@ -110,13 +111,12 @@ export default function FamilyGallery() {
     { scope: containerRef },
   )
 
-  const totalItems = images.length
-  const angleIncrement = 360 / totalItems
+  const angleIncrement = 360 / images.length
 
   return (
     <div
       ref={containerRef}
-      className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-black py-16 text-white md:min-h-screen md:py-24"
+      className="relative flex w-full flex-col items-center justify-center overflow-hidden border-b-2 border-black bg-[#dceeff] py-16 text-white md:min-h-screen md:py-24"
     >
       {/* --- Orbit Container --- */}
       <div
@@ -134,18 +134,19 @@ export default function FamilyGallery() {
           return (
             <div
               key={index}
-              className={`absolute top-1/2 left-1/2 -mt-10 -ml-10 h-20 w-20 origin-center md:-mt-16 md:-ml-16 md:h-32 md:w-32 xl:-mt-22 xl:-ml-22 xl:h-44 xl:w-44`}
+              className={`/* MOBILE (<768px): Size 28 (112px) */ /* TABLET (MD >=768px): Size 40 (160px) */ /* LAPTOP (LG >=1024px): Size 44 (176px) - Dipromosikan ke ukuran desktop */ /* DESKTOP (XL >=1280px): Size 44 (176px) */ absolute top-1/2 left-1/2 -mt-14 -ml-14 h-28 w-28 origin-center md:-mt-20 md:-ml-20 md:h-40 md:w-40 lg:-mt-22 lg:-ml-22 lg:h-44 lg:w-44 xl:-mt-22 xl:-ml-22 xl:h-44 xl:w-44`}
               style={{
                 transform: `rotate(${rotationAngle}deg) translateY(-${radius}px)`,
               }}
             >
-              <div className="h-full w-full p-2 transition-transform duration-300 hover:scale-110">
-                <div className="relative flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white p-2 shadow-2xl backdrop-blur-sm md:rounded-2xl md:p-4">
+              {/* Wrapper */}
+              <div className="group h-full w-full p-2 transition-transform duration-300 hover:scale-110">
+                <div className="relative flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] md:rounded-3xl md:border-3 md:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] md:group-hover:shadow-[7px_7px_0px_0px_rgba(0,0,0,1)]">
                   <Image
                     src={src}
                     alt={`Gallery ${index}`}
-                    className="pointer-events-none object-cover object-center"
-                    sizes="(max-width: 768px) 100px, (max-width: 1280px) 150px, 200px"
+                    className="pointer-events-none object-contain object-center p-3 md:p-5"
+                    sizes="(max-width: 768px) 120px, (max-width: 1280px) 180px, 200px"
                     loading="lazy"
                   />
                 </div>
@@ -160,21 +161,24 @@ export default function FamilyGallery() {
         className="pointer-events-none absolute inset-0 z-20"
         style={{
           background:
-            'linear-gradient(to right, black 0%, transparent 10%, transparent 90%, black 100%)',
+            'linear-gradient(to right, #dceeff 0%, transparent 10%, transparent 90%, #dceeff 100%)',
         }}
       />
-      <div className="pointer-events-none absolute bottom-0 z-10 h-3/4 w-full bg-linear-to-t from-black via-black/80 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 z-10 h-3/4 w-full bg-linear-to-t from-[#dceeff] via-[#dceeff] to-transparent" />
 
-      {/* --- Spacer Responsif --- */}
+      {/* --- Spacer --- */}
       <div className="h-[200px] bg-transparent md:h-[300px]"></div>
 
-      {/* --- TEXT CONTENT --- */}
-      <div ref={textRef} className="relative z-30 max-w-4xl px-6 text-center">
+      {/* --- Text Content--- */}
+      <div
+        ref={textRef}
+        className="relative z-30 max-w-4xl px-6 text-center text-black"
+      >
         <h1 className="reveal-text invisible mb-6 text-4xl font-bold tracking-tight md:text-6xl xl:text-8xl">
           Join the family
         </h1>
 
-        <p className="reveal-text invisible mx-auto mb-12 max-w-2xl text-base leading-relaxed text-gray-400 md:mb-20 md:text-xl">
+        <p className="reveal-text invisible mx-auto mb-12 max-w-2xl text-base leading-relaxed text-gray-800 md:mb-20 md:text-xl">
           Our platform is currently in beta and invite-only
           <span className="inline md:block">
             Contact us to join our family of early adopters
@@ -182,12 +186,10 @@ export default function FamilyGallery() {
         </p>
 
         <div className="reveal-text invisible">
-          <Button
-            variant="secondary"
+          <BrutalismButton
             className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
-          >
-            Our Family
-          </Button>
+            label="Our Family"
+          />
         </div>
       </div>
     </div>
