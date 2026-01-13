@@ -70,6 +70,7 @@ const cards = [
   {
     id: 4,
     title: 'Partner Discount',
+    href: '/partners',
     color: 'bg-[#FF9CA6]',
     buttonText: 'View Deals',
     icon: <Layers size={48} className="text-black" />,
@@ -223,7 +224,11 @@ function CardItem({ data }: { data: Partial<(typeof cards)[0]> }) {
       <div className="flex items-end justify-between">
         {data.buttonText && (
           <div>
-            <BrutalismButton label={data.buttonText} className="bg-white" />
+            <BrutalismButton
+              label={data.buttonText}
+              className="bg-white"
+              href={data.href}
+            />
           </div>
         )}
 
