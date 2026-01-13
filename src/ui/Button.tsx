@@ -139,26 +139,66 @@ export const ArrowRoundedButton = ({
 }
 
 interface BrutalismButtonProps {
-  label?: string
+  label: string
   href?: string
   bgColor?: string
+  textColor?: string
   className?: string
+  onClick?: () => void
+  type?: 'button' | 'submit' | 'reset'
+  target?: '_blank' | '_self' | '_parent' | '_top'
 }
 
 export function BrutalismButton({
-  label = 'Whitepaper',
-  href = '#',
+  label = 'Button',
+  href,
   bgColor = 'bg-[#FF9E00]',
+  textColor = 'text-black',
   className = '',
+  onClick,
+  type = 'button',
+  target,
 }: BrutalismButtonProps) {
+  const baseStyles = `
+    ${bgColor} ${textColor} ${className} 
+    inline-block cursor-pointer rounded-full 
+    border-2 border-black px-8 py-3 
+    text-center text-sm font-bold uppercase 
+    shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
+    transition-all duration-200 
+    hover:translate-y-1 hover:shadow-none
+    active:translate-y-2 active:shadow-none
+  `
+
+  const isExternal = href
+    ? href.startsWith('http') || href.startsWith('https')
+    : false
+
+  if (href && isExternal) {
+    return (
+      <a
+        href={href}
+        target={target || '_blank'} // Default _blank kalau external
+        rel="noopener noreferrer"
+        className={baseStyles}
+        onClick={onClick}
+      >
+        {label}
+      </a>
+    )
+  }
+
+  if (href && !isExternal) {
+    return (
+      <Link href={href} className={baseStyles} onClick={onClick}>
+        {label}
+      </Link>
+    )
+  }
+
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={` ${bgColor} ${className} mt-4 inline-block cursor-pointer rounded-full border-2 border-black px-8 py-3 text-center text-sm font-bold text-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-y-1 hover:shadow-none`}
-    >
+    <button type={type} className={baseStyles} onClick={onClick}>
       {label}
-    </a>
+    </button>
   )
 }
