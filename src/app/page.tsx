@@ -1,6 +1,5 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
-import { Footer } from '@/components/Footer'
 import Loading from './loading'
 import ReactLenis from 'lenis/react'
 
@@ -18,10 +17,6 @@ const HOME_SECTIONS: SectionConfig[] = [
   {
     id: 'main-content',
     component: HomeContent,
-  },
-  {
-    id: 'footer',
-    component: Footer,
   },
 ]
 
