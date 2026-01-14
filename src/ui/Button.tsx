@@ -162,7 +162,7 @@ export function BrutalismButton({
   const baseStyles = `
     ${bgColor} ${textColor} ${className} 
     inline-block cursor-pointer rounded-full 
-    border-2 border-black px-8 py-3 
+    border-2 border-black px-6 py-2 md:px-8 md:py-3  
     text-center text-sm font-bold uppercase 
     shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
     transition-all duration-200 
