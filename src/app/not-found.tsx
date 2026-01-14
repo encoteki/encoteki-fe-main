@@ -1,4 +1,4 @@
-import Button from '@/ui/Button'
+import Button, { BrutalismButton } from '@/ui/Button'
 import Link from 'next/link'
 
 export default function NotFound() {
@@ -27,9 +27,12 @@ export default function NotFound() {
           </p>
         </div>
 
-        <Link href="/">
-          <Button>Go back home</Button>
-        </Link>
+        <BrutalismButton
+          label="Go back home"
+          href="/"
+          bgColor="bg-(--primary-green)"
+          textColor="text-white"
+        />
       </div>
     </main>
   )
