@@ -16,7 +16,8 @@ const features = [
     title: 'Mint',
     description: 'Own the NFT',
     color: 'bg-[#dcfce7]',
-    href: '/mint',
+    href: process.env.NEXT_PUBLIC_APP_MINT,
+    isExternal: true,
     illustration: <NFTCardIllustration />,
   },
   {
@@ -24,7 +25,8 @@ const features = [
     title: 'DAO',
     description: 'Vote together',
     color: 'bg-[#ede9fe]',
-    href: '/dao',
+    href: process.env.NEXT_PUBLIC_APP_DAO,
+    isExternal: true,
     illustration: <SwitchIllustration />,
   },
   {
@@ -33,6 +35,7 @@ const features = [
     description: 'Enjoy offers',
     color: 'bg-[#fee2e2]',
     href: '/partners',
+    isExternal: false,
     illustration: <DiscountReceiptIllustration />,
   },
   {
@@ -41,6 +44,7 @@ const features = [
     description: 'Community Partners',
     color: 'bg-[#f3f4f6]',
     href: '/family',
+    isExternal: false,
     illustration: <ChainIllustration />,
   },
 ]
@@ -116,7 +120,9 @@ export default function Header() {
             {features.map((feature) => (
               <Link
                 key={feature.id}
-                href={feature.href}
+                href={feature.href || '#'}
+                target={feature.isExternal ? '_blank' : undefined}
+                rel={feature.isExternal ? 'noopener noreferrer' : undefined}
                 onClick={() => setIsExpanded(false)}
                 className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${feature.color}`}
               >
