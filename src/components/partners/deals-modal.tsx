@@ -110,7 +110,7 @@ export default function DealModal({
           </h2>
           <button
             onClick={handleClose}
-            className="group flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-white transition-all hover:bg-[#FF9E00] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none"
+            className="cursor-pointer hover:scale-105"
           >
             <X className="h-6 w-6 text-black" strokeWidth={2.5} />
           </button>

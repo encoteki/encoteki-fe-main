@@ -2,12 +2,12 @@
 
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, ArrowDown, Loader2 } from 'lucide-react'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partners'
 import { getPartners } from '@/services/partners'
-import Loading from '@/app/loading'
-import { BrutalismButton } from '@/ui/Button'
+
+const ITEMS_PER_LOAD = 12
 
 export default function PartnersGrid() {
   const [partners, setPartners] = useState<Partners[]>([])
@@ -16,22 +16,15 @@ export default function PartnersGrid() {
 
   // State Logic
   const [isLoading, setIsLoading] = useState(true)
+  const [hasMore, setHasMore] = useState(false)
   const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-
-  // Pagination Config
-  const [itemsPerPage, setItemsPerPage] = useState(6)
-  const [isPaginationMode, setIsPaginationMode] = useState(true)
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
 
   const loadPartnersData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
       try {
-        const rawData = await getPartners(pageNumber, limit)
+        // Fetch limit + 1 to check if there is a next page
+        const rawData = await getPartners(pageNumber, limit + 1)
 
         if (rawData) {
           let newData = rawData
@@ -40,8 +33,6 @@ export default function PartnersGrid() {
           if (rawData.length > limit) {
             hasNextPage = true
             newData = rawData.slice(0, limit)
-          } else {
-            hasNextPage = false
           }
 
           setHasMore(hasNextPage)
@@ -61,66 +52,15 @@ export default function PartnersGrid() {
     [],
   )
 
+  // Initial Load
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth
-      let newLimit = 6
-      let newModePagination = true
-
-      if (width >= 1280) {
-        newLimit = 6
-        newModePagination = true
-      } else if (width >= 1024) {
-        newLimit = 5
-        newModePagination = true
-      } else {
-        newLimit = 6
-        newModePagination = false
-      }
-
-      setItemsPerPage((prevLimit) => {
-        if (prevLimit !== newLimit) return newLimit
-        return prevLimit
-      })
-
-      setIsPaginationMode((prevMode) => {
-        return newModePagination
-      })
-    }
-
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  useEffect(() => {
-    setPage(1)
-    setHasMore(true)
-    setPartners([])
-    loadPartnersData(1, itemsPerPage, false)
-  }, [itemsPerPage, isPaginationMode, loadPartnersData])
-
-  const handleNextPage = () => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    scrollToTop()
-    loadPartnersData(nextPage, itemsPerPage, false)
-  }
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      const prevPage = page - 1
-      setPage(prevPage)
-      setHasMore(true)
-      scrollToTop()
-      loadPartnersData(prevPage, itemsPerPage, false)
-    }
-  }
+    loadPartnersData(1, ITEMS_PER_LOAD, false)
+  }, [loadPartnersData])
 
   const handleLoadMore = () => {
     const nextPage = page + 1
     setPage(nextPage)
-    loadPartnersData(nextPage, itemsPerPage, true)
+    loadPartnersData(nextPage, ITEMS_PER_LOAD, true)
   }
 
   const handleCardClick = (item: Partners) => {
@@ -134,34 +74,27 @@ export default function PartnersGrid() {
   }
 
   return (
-    <div id="partners-grid-top" className="flex scroll-mt-24 flex-col px-1">
-      <div
-        className={`relative w-full transition-all duration-300 ${
-          isPaginationMode ? 'min-h-[400px]' : ''
-        }`}
-      >
-        {isLoading && partners.length === 0 ? (
-          <div className="flex h-[400px] w-full items-center justify-center">
-            <Loading />
-          </div>
-        ) : partners.length > 0 ? (
+    <div id="partners-grid-top" className="flex flex-col px-1">
+      {partners.length > 0 ? (
+        <div className="flex flex-col gap-12">
+          {/* GRID */}
           <div className="grid grid-cols-2 gap-4 pb-2 md:grid-cols-3 md:gap-6 lg:grid-cols-5 xl:grid-cols-6">
             {partners.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleCardClick(item)}
-                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-3 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#fffaeb] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-black bg-white transition-all duration-200 hover:-translate-y-1"
               >
                 {/* Top Area: Image */}
-                <div className="relative aspect-square w-full overflow-hidden border-b-3 border-black bg-white p-6">
+                <div className="relative aspect-square w-full overflow-hidden border-b-2 border-black bg-white p-6">
                   <div className="relative h-full w-full transition-transform duration-500 group-hover:scale-110">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
                       className="object-contain"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-                      priority={true}
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+                      priority={false}
                     />
                   </div>
 
@@ -177,7 +110,7 @@ export default function PartnersGrid() {
                 {/* Bottom Area: Text */}
                 <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
-                    <h3 className="mb-1 text-sm leading-tight font-bold text-black md:text-base lg:text-lg">
+                    <h3 className="mb-1 text-sm leading-tight font-medium text-black md:text-base lg:text-lg">
                       {item.offer}
                     </h3>
                     <p className="font-mono text-xs text-gray-600">
@@ -187,7 +120,7 @@ export default function PartnersGrid() {
 
                   {/* Badge */}
                   <div className="mt-4 flex justify-start">
-                    <span className="inline-block border-2 border-black bg-[#ccf281] px-2 py-0.5 text-[10px] font-bold tracking-wider text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <span className="inline-block border-2 border-black bg-[#ccf281] px-2 py-0.5 text-[10px] font-bold tracking-wider text-black uppercase">
                       {item.is_offline ? 'OFFLINE' : 'ONLINE'}
                     </span>
                   </div>
@@ -195,56 +128,55 @@ export default function PartnersGrid() {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="flex h-[400px] w-full items-center justify-center text-gray-500 italic">
-            No deals found.
-          </div>
-        )}
-      </div>
 
-      {/* --- Pagination Controls --- */}
-      <div className="mt-8 flex items-center justify-center gap-4 pb-12 md:mt-12 md:gap-6">
-        {!isLoading && (
-          <>
-            {isPaginationMode ? (
-              <>
-                <button
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
-                  className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-3 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none md:h-14 md:w-14"
-                  aria-label="Previous Page"
-                >
-                  <ArrowLeft
-                    className="h-5 w-5 text-black transition-transform group-hover:-translate-x-1 md:h-6 md:w-6"
-                    strokeWidth={3}
-                  />
-                </button>
+          {/* LOAD MORE BUTTON */}
+          {hasMore && (
+            <div className="flex justify-center pb-12">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoading}
+                className="group flex items-center gap-3 rounded-full border-3 border-black bg-white px-8 py-4 text-xl font-bold text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-1 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+              >
+                {isLoading ? (
+                  <>
+                    Loading...
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Load More Deals
+                    <ArrowDown
+                      className="h-6 w-6 transition-transform group-hover:translate-y-1"
+                      strokeWidth={3}
+                    />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* EMPTY STATE / INITIAL LOADING */
+        <div className="flex h-[400px] w-full flex-col items-center justify-center rounded-xl border-3 border-dashed border-black bg-gray-50 text-center">
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-10 w-10 animate-spin text-black" />
+              <p className="font-mono text-gray-500">Fetching deals...</p>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-2xl font-black text-gray-400 uppercase">
+                No Deals Found
+              </h3>
+              <p className="font-mono text-gray-500">
+                Check back later for new offers.
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
-                <button
-                  onClick={handleNextPage}
-                  disabled={!hasMore}
-                  className="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-3 border-black bg-[#FF9E00] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none md:h-14 md:w-14"
-                  aria-label="Next Page"
-                >
-                  <ArrowRight
-                    className="h-5 w-5 text-black transition-transform group-hover:translate-x-1 md:h-6 md:w-6"
-                    strokeWidth={3}
-                  />
-                </button>
-              </>
-            ) : (
-              hasMore && (
-                <BrutalismButton
-                  className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
-                  label="Load More"
-                  onClick={handleLoadMore}
-                />
-              )
-            )}
-          </>
-        )}
-      </div>
-
+      {/* MODAL */}
       <DealModal
         deal={selectedDeal}
         isOpen={isModalOpen}
