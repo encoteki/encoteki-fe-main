@@ -7,6 +7,7 @@ import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partners'
 import { getPartners } from '@/services/partners'
 import Loading from '@/app/loading'
+import { BrutalismButton } from '@/ui/Button'
 
 export default function PartnersGrid() {
   const [partners, setPartners] = useState<Partners[]>([])
@@ -233,12 +234,11 @@ export default function PartnersGrid() {
               </>
             ) : (
               hasMore && (
-                <button
+                <BrutalismButton
+                  className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
+                  label="Load More"
                   onClick={handleLoadMore}
-                  className="flex items-center gap-2 rounded-full border-3 border-black bg-white px-8 py-3 text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-1 hover:shadow-none active:translate-y-1 active:shadow-none"
-                >
-                  Load More Deals
-                </button>
+                />
               )
             )}
           </>
