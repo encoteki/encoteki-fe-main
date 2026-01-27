@@ -31,7 +31,7 @@ const features = [
   },
   {
     id: 3,
-    title: 'Partner Deals',
+    title: 'Partners',
     description: 'Enjoy offers',
     color: 'bg-[#fee2e2]',
     href: '/partners',
@@ -87,7 +87,7 @@ export default function Header() {
           <button
             onClick={toggleMenu}
             aria-label="Toggle Menu"
-            className="group flex h-12 w-12 flex-col items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
+            className="group flex h-12 w-12 cursor-pointer flex-col items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
           >
             <span
               className={`block h-[3px] w-6 bg-black transition-transform duration-300 ease-in-out ${
