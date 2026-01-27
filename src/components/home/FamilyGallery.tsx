@@ -12,14 +12,12 @@ import Blockplay from '@/assets/family/Blockplay.webp'
 import Codefest from '@/assets/family/Codefest.webp'
 import CryptoExist from '@/assets/family/CryptoExist.webp'
 import CryptoGalaxy from '@/assets/family/CryptoGalaxy.webp'
-import Cryptorize from '@/assets/family/Cryptorize.webp'
 import DEX from '@/assets/family/DigitalExchangeIndonesia.webp'
 import FutureCoin from '@/assets/family/FutureCoin.webp'
 import IDNFT from '@/assets/family/IDNFT.webp'
 import Lisk from '@/assets/family/Lisk.webp'
 import Manta from '@/assets/family/MantaNetwork.webp'
-import OdenCircle from '@/assets/family/OdenCircle.webp'
-import W3W from '@/assets/family/Web3Week.webp'
+import Viction from '@/assets/family/Viction.webp'
 
 const images = [
   Bittime,
@@ -27,14 +25,12 @@ const images = [
   Codefest,
   CryptoExist,
   CryptoGalaxy,
-  Cryptorize,
   DEX,
   FutureCoin,
   IDNFT,
   Lisk,
   Manta,
-  OdenCircle,
-  W3W,
+  Viction,
 ]
 
 export default function FamilyGallery() {
@@ -189,6 +185,7 @@ export default function FamilyGallery() {
           <BrutalismButton
             className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
             label="Our Family"
+            href="/family"
           />
         </div>
       </div>
