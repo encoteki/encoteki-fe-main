@@ -1,5 +1,4 @@
-import Button, { BrutalismButton } from '@/ui/Button'
-import Link from 'next/link'
+import { BrutalismButton } from '@/ui/Button'
 
 export default function NotFound() {
   return (

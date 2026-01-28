@@ -129,7 +129,6 @@ export default function PartnersGrid() {
             ))}
           </div>
 
-          {/* LOAD MORE BUTTON */}
           {hasMore && (
             <div className="flex justify-center pb-12">
               <button
@@ -156,7 +155,6 @@ export default function PartnersGrid() {
           )}
         </div>
       ) : (
-        /* EMPTY STATE / INITIAL LOADING */
         <div className="flex h-[400px] w-full flex-col items-center justify-center rounded-xl border-3 border-dashed border-black bg-gray-50 text-center">
           {isLoading ? (
             <div className="flex flex-col items-center gap-4">
@@ -168,15 +166,11 @@ export default function PartnersGrid() {
               <h3 className="text-2xl font-black text-gray-400 uppercase">
                 No Deals Found
               </h3>
-              <p className="font-mono text-gray-500">
-                Check back later for new offers.
-              </p>
             </>
           )}
         </div>
       )}
 
-      {/* MODAL */}
       <DealModal
         deal={selectedDeal}
         isOpen={isModalOpen}

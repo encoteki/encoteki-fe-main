@@ -124,13 +124,10 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
         // Base Layout & GSAP Prep
         'faq-card group relative cursor-pointer opacity-0',
         'flex flex-col justify-center',
-
-        // Brutalism Borders & Shape
-        'rounded-4xl border-3 border-black bg-white p-6 md:rounded-[2.5rem] md:p-8',
-
+        // Borders & Shape
+        'rounded-4xl border-2 border-black bg-white p-6 md:rounded-[2.5rem] md:p-8',
         // Hover Effects
         'transition-all duration-300 ease-out',
-
         // Active State Styling
         isOpen && 'border-black bg-white',
       )}

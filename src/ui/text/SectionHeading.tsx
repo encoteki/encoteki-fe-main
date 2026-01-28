@@ -63,7 +63,6 @@ export default function SectionHeading({
             : 'items-start text-left'
       } ${className}`}
     >
-      {/* 1. TITLE */}
       <RevealText
         text={title}
         className={`text-6xl leading-[0.9] font-bold md:text-8xl lg:text-9xl ${titleClassName}`}
@@ -72,7 +71,6 @@ export default function SectionHeading({
         triggerType="scroll"
       />
 
-      {/* 2. DESCRIPTION */}
       {typeof desc === 'string' ? (
         <RevealText
           text={desc}

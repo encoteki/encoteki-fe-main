@@ -11,28 +11,28 @@ const services = [
     title: 'Genesis',
     description:
       "Establishing the ecosystem's foundation through platform deployment, strategic alliances, and the debut of exclusive physical collectibles.",
-    color: '#FFD94A', // Kuning (mirip gambar referensi)
+    color: '#FFD94A',
   },
   {
     id: 2,
     title: 'Expansion',
     description:
       'Scaling the ecosystem by enhancing digital utility, fostering community through local collaborations, and laying the groundwork for subsidiaries.',
-    color: '#ccf281', // Hijau Lime (mirip gambar referensi)
+    color: '#ccf281',
   },
   {
     id: 3,
     title: 'Impact',
     description:
       'Solidifying the ecosystem structure through the official launch of subsidiaries and evolved NFT utility, while driving tangible change via community projects.',
-    color: '#E9D5FF', // Ungu
+    color: '#E9D5FF',
   },
   {
     id: 4,
     title: 'Legacy',
     description:
       'Expanding boundaries through a fully immersive Metaverse presence and a specialized educational platform, culminating in full DAO governance.',
-    color: '#FF9E00', // Oranye
+    color: '#FF9E00',
   },
 ]
 
@@ -112,13 +112,6 @@ export default function Roadmap() {
                         : 'z-0 scale-90 opacity-60 blur-[1px] hover:scale-95 hover:opacity-90 hover:blur-none'
                     } `}
                   >
-                    {/* --- BRUTALISM BANNER LABEL --- */}
-                    {/* Style Updates:
-                        1. Absolute position: Menimpa card (-top-5).
-                        2. Rotation: Miring (-rotate-3) agar seperti stiker.
-                        3. Shadow: Hard shadow solid black.
-                        4. Dynamic Color: Mengambil warna dari array services.
-                    */}
                     <div
                       className="absolute -top-5 right-6 z-20 -rotate-3 rounded-lg border-2 border-black px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform duration-300 group-hover:rotate-0 md:-top-6 md:right-8"
                       style={{ backgroundColor: service.color }}
@@ -128,7 +121,6 @@ export default function Roadmap() {
                       </span>
                     </div>
 
-                    {/* Title (Added mt-4 to prevent overlap with banner visually) */}
                     <h3 className="mt-4 mb-3 text-xl leading-tight font-black tracking-tight text-black uppercase md:mb-4 md:text-3xl xl:mb-5 xl:text-4xl">
                       {service.title}
                     </h3>
