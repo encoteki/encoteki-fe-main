@@ -213,10 +213,10 @@ export default function Benefits() {
 function CardItem({ data }: { data: Partial<(typeof cards)[0]> }) {
   return (
     <div
-      className={`relative flex h-[300px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-[3px] border-black p-6 shadow transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] sm:h-[350px] sm:w-[320px] sm:p-7 md:h-[400px] md:w-[360px] md:p-8 md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] xl:h-[450px] xl:w-[400px] ${data.color} `}
+      className={`relative flex h-[300px] w-[280px] shrink-0 flex-col justify-between rounded-4xl border-3 border-black p-6 shadow transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 sm:h-[350px] sm:w-[320px] sm:p-7 md:h-[400px] md:w-[360px] md:p-8 xl:h-[450px] xl:w-[400px] ${data.color} `}
     >
       <div>
-        <h3 className="mb-2 text-4xl leading-[0.85] font-bold text-black uppercase sm:mb-3 sm:text-5xl md:mb-4 md:text-6xl">
+        <h3 className="mb-2 text-3xl leading-[0.85] font-bold text-black uppercase sm:mb-3 sm:text-4xl md:mb-4 md:text-5xl">
           {data.title}
         </h3>
       </div>

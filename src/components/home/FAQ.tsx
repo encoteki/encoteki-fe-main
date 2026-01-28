@@ -128,12 +128,8 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
         // Brutalism Borders & Shape
         'rounded-4xl border-3 border-black bg-white p-6 md:rounded-[2.5rem] md:p-8',
 
-        // Brutalism Shadows
-        'shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]',
-
         // Hover Effects
         'transition-all duration-300 ease-out',
-        'hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]',
 
         // Active State Styling
         isOpen && 'border-black bg-white',
@@ -143,7 +139,7 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
       <div className="flex items-center justify-between gap-4">
         <h3
           className={cn(
-            'text-base leading-tight font-black text-black transition-colors duration-300 md:text-2xl',
+            'text-base leading-tight font-medium text-black transition-colors duration-300 md:text-2xl',
           )}
         >
           {item.question}
