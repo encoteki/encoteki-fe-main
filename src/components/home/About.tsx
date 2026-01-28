@@ -102,7 +102,7 @@ export default function About() {
   )
 
   const cardDimensions =
-    'h-[500px] w-full max-w-sm rounded-[2.5rem] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden'
+    'h-[500px] w-full max-w-sm rounded-[2.5rem] border-3 border-black  overflow-hidden'
 
   const textStyle =
     'mt-6 flex flex-col space-y-4 font-mono text-xs leading-relaxed font-medium text-black/90 sm:text-sm'
