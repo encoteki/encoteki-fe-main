@@ -116,7 +116,6 @@ export default function DealModal({
           </button>
         </div>
 
-        {/* Content Wrapper */}
         <div className="flex flex-col overflow-y-auto md:flex-row">
           {/* LEFT: Details */}
           <div className="flex-1 p-5 md:p-8">

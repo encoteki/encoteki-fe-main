@@ -90,8 +90,6 @@ export default function FamilyGrid() {
                         </div>
                       )}
                     </div>
-
-                    {/* Icon External Link: Bold & Black */}
                     <ExternalLink className="h-6 w-6 text-black opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   </div>
 

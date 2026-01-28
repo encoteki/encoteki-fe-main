@@ -130,7 +130,7 @@ export default function FamilyGallery() {
           return (
             <div
               key={index}
-              className={`/* MOBILE (<768px): Size 28 (112px) */ /* TABLET (MD >=768px): Size 40 (160px) */ /* LAPTOP (LG >=1024px): Size 44 (176px) - Dipromosikan ke ukuran desktop */ /* DESKTOP (XL >=1280px): Size 44 (176px) */ absolute top-1/2 left-1/2 -mt-14 -ml-14 h-28 w-28 origin-center md:-mt-20 md:-ml-20 md:h-40 md:w-40 lg:-mt-22 lg:-ml-22 lg:h-44 lg:w-44 xl:-mt-22 xl:-ml-22 xl:h-44 xl:w-44`}
+              className={`absolute top-1/2 left-1/2 -mt-14 -ml-14 h-28 w-28 origin-center md:-mt-20 md:-ml-20 md:h-40 md:w-40 lg:-mt-22 lg:-ml-22 lg:h-44 lg:w-44 xl:-mt-22 xl:-ml-22 xl:h-44 xl:w-44`}
               style={{
                 transform: `rotate(${rotationAngle}deg) translateY(-${radius}px)`,
               }}
