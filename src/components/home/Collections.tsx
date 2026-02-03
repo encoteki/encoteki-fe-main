@@ -16,7 +16,7 @@ export default function Collections() {
           <>
             The Satwas Band by{' '}
             <Link
-              href={process.env.ARTIST_PORTFOLIO as string}
+              href={process.env.ARTIST_PORTFOLIO ?? ''}
               target="_blank"
               className="font-medium text-(--primary-green) underline decoration-transparent decoration-2 underline-offset-8 transition-all delay-150 duration-300 hover:decoration-(--primary-green)"
             >
