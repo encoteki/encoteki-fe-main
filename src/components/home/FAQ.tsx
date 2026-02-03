@@ -145,10 +145,10 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
         {/* Icon Wrapper */}
         <div
           className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-black transition-all duration-300 md:h-12 md:w-12',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 md:h-12 md:w-12',
             isOpen
               ? 'rotate-180 bg-(--primary-green) text-white'
-              : 'bg-white text-black group-hover:bg-(--primary-green) group-hover:text-white',
+              : 'bg-white text-black group-hover:text-(--primary-green)',
           )}
         >
           <ArrowDownIcon strokeWidth={3} className="h-5 w-5 md:h-6 md:w-6" />
