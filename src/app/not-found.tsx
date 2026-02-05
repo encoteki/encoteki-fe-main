@@ -1,9 +1,9 @@
-import { BrutalismButton } from '@/ui/Button'
+import { BrutalismButton } from '@/ui/buttons'
 
 export default function NotFound() {
   return (
     <main className="flex h-screen items-center justify-center">
-      <div className="w-[488px] text-center font-normal md:w-[600px]">
+      <div className="w-122 text-center font-normal md:w-150">
         <video
           width="100%"
           height="auto"

@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { X } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
-import { Partners } from '@/types/partners'
-import { BrutalismButton } from '@/ui/Button'
+import { Partners } from '@/types/partner.type'
+import { BrutalismButton } from '@/ui/buttons'
 
 export default function DealModal({
   deal,
@@ -136,7 +136,7 @@ export default function DealModal({
           </div>
 
           {/* RIGHT: Sidebar */}
-          <div className="w-full shrink-0 border-t-2 border-black bg-[#fafafa] p-5 md:w-[320px] md:border-t-0 md:border-l-2 md:p-8 xl:w-[360px]">
+          <div className="w-full shrink-0 border-t-2 border-black bg-[#fafafa] p-5 md:w-[320px] md:border-t-0 md:border-l-2 md:p-8 xl:w-90">
             <div className="mb-6 flex items-start gap-4">
               {/* Logo Box */}
               <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">

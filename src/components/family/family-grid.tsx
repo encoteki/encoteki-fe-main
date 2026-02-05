@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
-import { getFamilies } from '@/services/family'
-import { Family } from '@/types/family'
+import { getFamilies } from '@/services/family.service'
+import { Family } from '@/types/family.type'
 import Loading from '@/app/loading'
-import { BrutalismButton } from '@/ui/Button'
+import { BrutalismButton } from '@/ui/buttons'
 
 const ITEMS_PER_LOAD = 9
 
@@ -74,7 +74,7 @@ export default function FamilyGrid() {
               >
                 <>
                   <div className="mb-5 flex items-start justify-between">
-                    <div className="relative flex h-14 max-w-[120px] items-center justify-start">
+                    <div className="relative flex h-14 max-w-30 items-center justify-start">
                       {family.image ? (
                         <Image
                           src={family.image}
@@ -128,7 +128,7 @@ export default function FamilyGrid() {
             {isLoading ? (
               <Loading />
             ) : (
-              <div className="flex h-[400px] w-full items-center justify-center text-gray-500 italic">
+              <div className="flex h-100 w-full items-center justify-center text-gray-500 italic">
                 No families found
               </div>
             )}
