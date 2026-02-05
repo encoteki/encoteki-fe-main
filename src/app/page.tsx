@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import Loading from './loading'
 import ReactLenis from 'lenis/react'
 
-const HomeContent = dynamic(() => import('@/components/home/HomeContent'), {
+const HomeContent = dynamic(() => import('@/components/home/home-content'), {
   ssr: true,
   loading: () => <Loading />,
 })

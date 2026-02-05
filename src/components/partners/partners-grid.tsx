@@ -4,8 +4,8 @@ import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { ArrowUpRight, ArrowDown, Loader2 } from 'lucide-react'
 import DealModal from '@/components/partners/deals-modal'
-import { Partners } from '@/types/partners'
-import { getPartners } from '@/services/partners'
+import { Partners } from '@/types/partner.type'
+import { getPartners } from '@/services/partner.service'
 
 const ITEMS_PER_LOAD = 12
 
@@ -23,7 +23,6 @@ export default function PartnersGrid() {
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
       try {
-        // Fetch limit + 1 to check if there is a next page
         const rawData = await getPartners(pageNumber, limit + 1)
 
         if (rawData) {
@@ -155,7 +154,7 @@ export default function PartnersGrid() {
           )}
         </div>
       ) : (
-        <div className="flex h-[400px] w-full flex-col items-center justify-center rounded-xl border-3 border-dashed border-black bg-gray-50 text-center">
+        <div className="flex h-100 w-full flex-col items-center justify-center rounded-xl border-3 border-dashed border-black bg-gray-50 text-center">
           {isLoading ? (
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-10 w-10 animate-spin text-black" />
