@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
-import { getFamilies } from '@/services/family.service'
+
 import { Family } from '@/types/family.type'
 import Loading from '@/app/loading'
 import { BrutalismButton } from '@/ui/buttons'
@@ -17,11 +17,23 @@ export default function FamilyGrid() {
   const [hasMore, setHasMore] = useState(false)
   const [page, setPage] = useState(1)
 
+  const fetchFamilies = async (page: number) => {
+    const res = await fetch(
+      `/api/family?page=${page}&limit=${ITEMS_PER_LOAD + 1}`,
+    )
+    const json = await res.json()
+
+    if (json.success && json.data) {
+      return json.data
+    }
+    return []
+  }
+
   const loadFamiliesData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
       try {
-        const rawData = await getFamilies(pageNumber, limit)
+        const rawData = await fetchFamilies(pageNumber)
 
         if (rawData) {
           let newData = rawData
