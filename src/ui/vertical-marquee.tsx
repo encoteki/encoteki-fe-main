@@ -5,6 +5,7 @@ import Image, { StaticImageData } from 'next/image'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 // Images
 import Gajara from '@/assets/collections/gajara.png'
@@ -16,41 +17,41 @@ import Tiggy from '@/assets/collections/tiggy.png'
 
 const IMAGES = [Gajara, Cendry, Kanghoon, Komesi, Owen, Tiggy]
 
-const shuffle = (array: StaticImageData[]) =>
-  [...array].sort(() => Math.random() - 0.5)
+// Fisher-Yates shuffle for unbiased randomization
+const fisherYatesShuffle = (array: StaticImageData[]) => {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+const buildColumn = (images: StaticImageData[], shouldShuffle: boolean) => {
+  const base = shouldShuffle ? fisherYatesShuffle(images) : images
+  return [...base, ...base, ...base, ...base]
+}
+
+const REPEAT = 4
+
+// Deterministic initial state (same on server & client)
+const buildUnshuffled = () => {
+  const col = Array.from({ length: REPEAT }, () => IMAGES).flat()
+  return { col1: col, col2: col, col3: col, col4: col }
+}
 
 export default function VerticalMarquee({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const [columns, setColumns] = useState({
-    col1: [...IMAGES, ...IMAGES, ...IMAGES, ...IMAGES],
-    col2: [...IMAGES, ...IMAGES, ...IMAGES, ...IMAGES],
-    col3: [...IMAGES, ...IMAGES, ...IMAGES, ...IMAGES],
-    col4: [...IMAGES, ...IMAGES, ...IMAGES, ...IMAGES],
-  })
+  const [columns, setColumns] = useState(buildUnshuffled)
 
+  // Shuffle only on client after hydration
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setColumns({
-      col1: [...IMAGES, ...IMAGES, ...IMAGES, ...IMAGES],
-      col2: [
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-      ],
-      col3: [
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-      ],
-      col4: [
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-        ...shuffle(IMAGES),
-      ],
+      col1: buildColumn(IMAGES, false),
+      col2: buildColumn(IMAGES, true),
+      col3: buildColumn(IMAGES, true),
+      col4: buildColumn(IMAGES, true),
     })
   }, [])
 
@@ -91,30 +92,30 @@ export default function VerticalMarquee({ className }: { className?: string }) {
     >
       <div className="grid h-full w-full grid-cols-2 gap-6 md:grid-cols-4">
         {/* --- Col 1 */}
-        <div className="col-up flex -translate-y-[10%] flex-col gap-4">
+        <div className="col-up flex -translate-y-[10%] flex-col gap-4 will-change-transform">
           {columns.col1.map((src, i) => (
-            <CardItem key={`c1-${i}`} src={src} />
+            <MemoizedCardItem key={`c1-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 2 */}
-        <div className="col-down flex flex-col gap-6">
+        <div className="col-down flex flex-col gap-6 will-change-transform">
           {columns.col2.map((src, i) => (
-            <CardItem key={`c2-${i}`} src={src} />
+            <MemoizedCardItem key={`c2-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 3 */}
-        <div className="col-up hidden -translate-y-[20%] flex-col gap-6 md:flex">
+        <div className="col-up hidden -translate-y-[20%] flex-col gap-6 will-change-transform md:flex">
           {columns.col3.map((src, i) => (
-            <CardItem key={`c3-${i}`} src={src} />
+            <MemoizedCardItem key={`c3-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 4 */}
-        <div className="col-down hidden -translate-y-[15%] flex-col gap-6 md:flex">
+        <div className="col-down hidden -translate-y-[15%] flex-col gap-6 will-change-transform md:flex">
           {columns.col4.map((src, i) => (
-            <CardItem key={`c4-${i}`} src={src} />
+            <MemoizedCardItem key={`c4-${i}`} src={src} />
           ))}
         </div>
       </div>
@@ -131,7 +132,10 @@ function CardItem({ src }: { src: StaticImageData }) {
         fill
         className="object-cover"
         sizes="(max-width: 768px) 50vw, 25vw"
+        loading="lazy"
       />
     </div>
   )
 }
+
+const MemoizedCardItem = React.memo(CardItem)

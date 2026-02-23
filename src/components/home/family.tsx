@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback, memo } from 'react'
 import Image from 'next/image'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -41,25 +41,29 @@ export default function FamilyGallery() {
 
   const [radius, setRadius] = useState(800)
 
+  const updateRadius = useCallback(() => {
+    const width = window.innerWidth
+    if (width < 768) setRadius(340)
+    else if (width < 1024) setRadius(600)
+    else if (width < 1280) setRadius(700)
+    else setRadius(800)
+  }, [])
+
   useEffect(() => {
+    updateRadius()
+
+    let timeoutId: ReturnType<typeof setTimeout>
     const handleResize = () => {
-      const width = window.innerWidth
-      if (width < 768) {
-        setRadius(340)
-      } else if (width < 1024) {
-        setRadius(600)
-      } else if (width < 1280) {
-        setRadius(700)
-      } else {
-        setRadius(800)
-      }
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(updateRadius, 150)
     }
 
-    handleResize()
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+    window.addEventListener('resize', handleResize, { passive: true })
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [updateRadius])
 
   // INTERSECTION OBSERVER
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function FamilyGallery() {
   // GSAP TEXT
   useGSAP(
     () => {
-      const targets = gsap.utils.toArray('.reveal-text')
+      const targets = gsap.utils.toArray('.family-reveal-text')
       gsap.set(targets, { y: 100, autoAlpha: 0 })
       const tl = gsap.timeline({ paused: true })
       tl.to(targets, {
@@ -117,7 +121,7 @@ export default function FamilyGallery() {
       {/* --- Orbit Container --- */}
       <div
         ref={circleRef}
-        className="absolute top-[85%] left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 md:top-[90%] xl:top-full"
+        className="absolute top-[85%] left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 will-change-transform md:top-[90%] xl:top-full"
         style={{
           width: radius * 2,
           height: radius * 2,
@@ -170,18 +174,18 @@ export default function FamilyGallery() {
         ref={textRef}
         className="relative z-30 max-w-4xl px-6 text-center text-black"
       >
-        <h1 className="reveal-text invisible mb-6 text-4xl font-bold tracking-tight md:text-6xl xl:text-8xl">
+        <h1 className="family-reveal-text invisible mb-6 text-4xl font-bold tracking-tight md:text-6xl xl:text-8xl">
           Join the family
         </h1>
 
-        <p className="reveal-text invisible mx-auto mb-12 max-w-2xl text-base leading-relaxed text-gray-800 md:mb-20 md:text-xl">
+        <p className="family-reveal-text invisible mx-auto mb-12 max-w-2xl text-base leading-relaxed text-gray-800 md:mb-20 md:text-xl">
           Our platform is currently in beta and invite-only
           <span className="inline md:block">
             Contact us to join our family of early adopters
           </span>
         </p>
 
-        <div className="reveal-text invisible">
+        <div className="family-reveal-text invisible">
           <BrutalismButton
             className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
             label="Our Family"

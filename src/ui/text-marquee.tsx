@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useMemo } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { cn } from '@/lib/utils'
@@ -38,7 +38,7 @@ export default function TextMarquee({
     { scope: containerRef, dependencies: [speed, texts] },
   )
 
-  const renderContent = () => {
+  const content = useMemo(() => {
     return (
       <div className="flex items-center">
         {Array.from({ length: repeat }).map((_, loopIndex) => (
@@ -71,7 +71,7 @@ export default function TextMarquee({
         ))}
       </div>
     )
-  }
+  }, [texts, separator, repeat])
 
   return (
     <div
@@ -83,15 +83,15 @@ export default function TextMarquee({
     >
       <div
         ref={firstStrip}
-        className="flex min-w-full shrink-0 items-center justify-around"
+        className="flex min-w-full shrink-0 items-center justify-around will-change-transform"
       >
-        {renderContent()}
+        {content}
       </div>
       <div
         ref={secondStrip}
-        className="flex min-w-full shrink-0 items-center justify-around"
+        className="flex min-w-full shrink-0 items-center justify-around will-change-transform"
       >
-        {renderContent()}
+        {content}
       </div>
     </div>
   )

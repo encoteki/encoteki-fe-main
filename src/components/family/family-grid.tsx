@@ -8,6 +8,7 @@ import { ExternalLink } from 'lucide-react'
 import { Family } from '@/types/family.type'
 import Loading from '@/app/loading'
 import { BrutalismButton } from '@/ui/buttons'
+import { getFamilies } from '@/actions/family'
 
 const ITEMS_PER_LOAD = 9
 
@@ -17,31 +18,19 @@ export default function FamilyGrid() {
   const [hasMore, setHasMore] = useState(false)
   const [page, setPage] = useState(1)
 
-  const fetchFamilies = async (page: number) => {
-    const res = await fetch(
-      `/api/family?page=${page}&limit=${ITEMS_PER_LOAD + 1}`,
-    )
-    const json = await res.json()
-
-    if (json.success && json.data) {
-      return json.data
-    }
-    return []
-  }
-
   const loadFamiliesData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
       try {
-        const rawData = await fetchFamilies(pageNumber)
+        const result = await getFamilies(pageNumber, limit + 1)
 
-        if (rawData) {
-          let newData = rawData
+        if (result.success && result.data) {
+          let newData = result.data
           let hasNextPage = false
 
-          if (rawData.length > limit) {
+          if (newData.length > limit) {
             hasNextPage = true
-            newData = rawData.slice(0, limit)
+            newData = newData.slice(0, limit)
           }
 
           setHasMore(hasNextPage)
@@ -53,7 +42,7 @@ export default function FamilyGrid() {
           }
         }
       } catch (error) {
-        console.error('Failed to load partners:', error)
+        console.error('Failed to load families:', error)
       } finally {
         setIsLoading(false)
       }
@@ -94,7 +83,7 @@ export default function FamilyGrid() {
                           width={999}
                           height={999}
                           className="h-full w-auto object-contain object-left"
-                          priority
+                          loading="lazy"
                         />
                       ) : (
                         <div className="text-xl font-bold text-black">
