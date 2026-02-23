@@ -1,12 +1,17 @@
 'use client'
 
 import SectionHeading from '@/ui/heading/section-heading'
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
 import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Lock, Layers, Zap } from 'lucide-react'
 import { AbstractSeparator } from '@/ui/abstract-separator'
 import { BrutalismButton } from '@/ui/buttons'
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, useGSAP)
+}
 
 const cards = [
   {
@@ -144,15 +149,13 @@ export default function Benefits() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
-
-    const ctx = gsap.context(() => {
+  useGSAP(
+    () => {
       const wrapper = wrapperRef.current
       if (!wrapper) return
 
       const getScrollAmount = () => {
-        let amount = wrapper.scrollWidth - window.innerWidth
+        const amount = wrapper.scrollWidth - window.innerWidth
         return -(amount + 48)
       }
 
@@ -177,10 +180,9 @@ export default function Benefits() {
         ease: 'none',
         duration: 1,
       })
-    }, sectionRef)
-
-    return () => ctx.revert()
-  }, [])
+    },
+    { scope: sectionRef },
+  )
 
   return (
     <div className="bg-[#dceeff]">

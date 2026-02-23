@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { X } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { Partners } from '@/types/partner.type'
 import { BrutalismButton } from '@/ui/buttons'
+import DOMPurify from 'dompurify'
 
 export default function DealModal({
   deal,
@@ -20,6 +21,25 @@ export default function DealModal({
   const overlayRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const sanitizedTnc = useMemo(() => {
+    if (!deal?.tnc) return ''
+    return DOMPurify.sanitize(deal.tnc, {
+      ALLOWED_TAGS: [
+        'li',
+        'ul',
+        'ol',
+        'p',
+        'br',
+        'strong',
+        'em',
+        'b',
+        'i',
+        'span',
+      ],
+      ALLOWED_ATTR: ['class'],
+    })
+  }, [deal?.tnc])
 
   // Prevent Scroll & Layout Shift Logic
   useEffect(() => {
@@ -130,7 +150,7 @@ export default function DealModal({
               </h5>
               <ul
                 className="list-disc space-y-2 pl-5 text-sm leading-relaxed font-medium text-gray-800 md:text-base"
-                dangerouslySetInnerHTML={{ __html: deal.tnc }}
+                dangerouslySetInnerHTML={{ __html: sanitizedTnc }}
               />
             </div>
           </div>

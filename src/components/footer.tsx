@@ -64,7 +64,7 @@ export function Footer() {
 
   useGSAP(
     () => {
-      const targets = gsap.utils.toArray('.reveal-text')
+      const targets = gsap.utils.toArray('.footer-reveal-text')
       gsap.set(targets, { y: 100, autoAlpha: 0 })
       const tl = gsap.timeline({ paused: true })
 
@@ -92,20 +92,20 @@ export function Footer() {
       className="home-container flex flex-col justify-between gap-10 bg-(--green-10)"
     >
       <div className="w-full text-left md:text-left">
-        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
           Join the community
         </h1>
-        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
           and
         </h1>
-        <h1 className="reveal-text text-6xl font-medium text-white lg:text-9xl">
+        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
           save the world!
         </h1>
       </div>
 
       <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
         <nav
-          className="reveal-text flex flex-row items-center justify-center gap-4 md:gap-12"
+          className="footer-reveal-text flex flex-row items-center justify-center gap-4 md:gap-12"
           aria-label="Social media links"
         >
           {SOCIAL_MEDIA.map((item) => (
@@ -121,7 +121,7 @@ export function Footer() {
           ))}
         </nav>
 
-        <p className="reveal-text text-center text-base font-normal text-white md:text-lg">
+        <p className="footer-reveal-text text-center text-base font-normal text-white md:text-lg">
           Encoteki © {CURRENT_YEAR} All rights reserved
         </p>
       </div>

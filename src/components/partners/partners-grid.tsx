@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { ArrowUpRight, ArrowDown, Loader2 } from 'lucide-react'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
+import { getPartners } from '@/actions/partner'
 
 const ITEMS_PER_LOAD = 12
 
@@ -18,31 +19,19 @@ export default function PartnersGrid() {
   const [hasMore, setHasMore] = useState(false)
   const [page, setPage] = useState(1)
 
-  const fetchPartners = async (page = 1) => {
-    const res = await fetch(
-      `/api/partner?page=${page}&limit=${ITEMS_PER_LOAD + 1}`,
-    )
-    const json = await res.json()
-
-    if (json.success && json.data) {
-      return json.data
-    }
-    return []
-  }
-
   const loadPartnersData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
       try {
-        const rawData = await fetchPartners(pageNumber)
+        const result = await getPartners(pageNumber, limit + 1)
 
-        if (rawData) {
-          let newData = rawData
+        if (result.success && result.data) {
+          let newData = result.data
           let hasNextPage = false
 
-          if (rawData.length > limit) {
+          if (newData.length > limit) {
             hasNextPage = true
-            newData = rawData.slice(0, limit)
+            newData = newData.slice(0, limit)
           }
 
           setHasMore(hasNextPage)
