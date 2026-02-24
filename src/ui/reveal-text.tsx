@@ -86,10 +86,13 @@ const RevealText = ({
         }
       }
 
+      // Defer to next frame to avoid forced reflow blocking main thread
       document.fonts.ready.then(() => {
-        if (containerRef.current) {
-          initAnimation()
-        }
+        requestAnimationFrame(() => {
+          if (containerRef.current) {
+            initAnimation()
+          }
+        })
       })
 
       // CLEANUP FUNCTION

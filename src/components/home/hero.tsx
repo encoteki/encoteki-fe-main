@@ -1,8 +1,5 @@
 'use client'
 
-import { useRef } from 'react'
-import { gsap } from 'gsap'
-import { useGSAP } from '@gsap/react'
 import TextMarquee from '@/ui/text-marquee'
 import Image, { StaticImageData } from 'next/image'
 import { Anton } from 'next/font/google'
@@ -13,14 +10,11 @@ import Arbitrum from '@/assets/chains/arbitrum.svg'
 import Lisk from '@/assets/chains/lisk.webp'
 import Manta from '@/assets/chains/manta.png'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(useGSAP)
-}
-
 const anton = Anton({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-anton',
+  display: 'swap',
 })
 
 export default function Hero() {
@@ -82,40 +76,20 @@ const MarqueeIcon = ({
         fill
         className="rounded-md object-contain"
         sizes="32px"
-        priority
+        loading="lazy"
       />
     </div>
   )
 }
 
 function HeroGrid() {
-  const containerRef = useRef<HTMLElement>(null)
-
-  useGSAP(
-    () => {
-      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
-
-      gsap.set('.hero-text-anim', { y: 100, autoAlpha: 0 })
-      gsap.set('.grid-card-anim', { scale: 0.8, autoAlpha: 0 })
-
-      tl.to('.hero-text-anim', {
-        y: 0,
-        autoAlpha: 1,
-        duration: 1.2,
-        stagger: 0.15,
-      })
-    },
-    { scope: containerRef },
-  )
-
   return (
     <section
-      ref={containerRef}
       className={`relative flex h-full w-full flex-col items-center justify-center gap-8 overflow-hidden bg-transparent p-6 ${anton.variable}`}
     >
       <div className="flex w-full max-w-5xl flex-col items-center justify-center space-y-6 text-center">
         <div className="overflow-hidden">
-          <h1 className="hero-text-anim font-anton invisible text-5xl leading-[1.1] font-bold tracking-tight text-[#1a1a1a] uppercase opacity-0 sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl">
+          <h1 className="hero-text-anim font-anton text-5xl leading-[1.1] font-bold tracking-tight text-[#1a1a1a] uppercase sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl">
             A community building wildlife confidence.
           </h1>
         </div>
