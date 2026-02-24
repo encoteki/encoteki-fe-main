@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef } from 'react'
 import Image, { StaticImageData } from 'next/image'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -17,43 +17,35 @@ import Tiggy from '@/assets/collections/tiggy.png'
 
 const IMAGES = [Gajara, Cendry, Kanghoon, Komesi, Owen, Tiggy]
 
-// Fisher-Yates shuffle for unbiased randomization
-const fisherYatesShuffle = (array: StaticImageData[]) => {
+const REPEAT = 4
+
+// Seeded shuffle — deterministic per seed, no client re-render needed
+const seededShuffle = (array: StaticImageData[], seed: number) => {
   const shuffled = [...array]
+  let s = seed
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    s = (s * 16807 + 0) % 2147483647 // Park-Miller LCG
+    const j = s % (i + 1)
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
 }
 
-const buildColumn = (images: StaticImageData[], shouldShuffle: boolean) => {
-  const base = shouldShuffle ? fisherYatesShuffle(images) : images
+const buildColumn = (images: StaticImageData[], seed: number) => {
+  const base = seed === 0 ? images : seededShuffle(images, seed)
   return [...base, ...base, ...base, ...base]
 }
 
-const REPEAT = 4
-
-// Deterministic initial state (same on server & client)
-const buildUnshuffled = () => {
-  const col = Array.from({ length: REPEAT }, () => IMAGES).flat()
-  return { col1: col, col2: col, col3: col, col4: col }
+// Deterministic columns — same on server & client, no useEffect re-render
+const COLUMNS = {
+  col1: buildColumn(IMAGES, 0),
+  col2: buildColumn(IMAGES, 42),
+  col3: buildColumn(IMAGES, 137),
+  col4: buildColumn(IMAGES, 256),
 }
 
 export default function VerticalMarquee({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
-
-  const [columns, setColumns] = useState(buildUnshuffled)
-
-  // Shuffle only on client after hydration
-  useEffect(() => {
-    setColumns({
-      col1: buildColumn(IMAGES, false),
-      col2: buildColumn(IMAGES, true),
-      col3: buildColumn(IMAGES, true),
-      col4: buildColumn(IMAGES, true),
-    })
-  }, [])
 
   useGSAP(
     () => {
@@ -93,28 +85,28 @@ export default function VerticalMarquee({ className }: { className?: string }) {
       <div className="grid h-full w-full grid-cols-2 gap-6 md:grid-cols-4">
         {/* --- Col 1 */}
         <div className="col-up flex -translate-y-[10%] flex-col gap-4 will-change-transform">
-          {columns.col1.map((src, i) => (
+          {COLUMNS.col1.map((src, i) => (
             <MemoizedCardItem key={`c1-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 2 */}
         <div className="col-down flex flex-col gap-6 will-change-transform">
-          {columns.col2.map((src, i) => (
+          {COLUMNS.col2.map((src, i) => (
             <MemoizedCardItem key={`c2-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 3 */}
         <div className="col-up hidden -translate-y-[20%] flex-col gap-6 will-change-transform md:flex">
-          {columns.col3.map((src, i) => (
+          {COLUMNS.col3.map((src, i) => (
             <MemoizedCardItem key={`c3-${i}`} src={src} />
           ))}
         </div>
 
         {/* --- Col 4 */}
         <div className="col-down hidden -translate-y-[15%] flex-col gap-6 will-change-transform md:flex">
-          {columns.col4.map((src, i) => (
+          {COLUMNS.col4.map((src, i) => (
             <MemoizedCardItem key={`c4-${i}`} src={src} />
           ))}
         </div>

@@ -44,6 +44,10 @@
   --blue-90: #044462;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -74,4 +78,21 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Hero text reveal animation - CSS-driven for fast LCP */
+@keyframes heroReveal {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.hero-text-anim {
+  animation: heroReveal 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.1s both;
+  will-change: transform;
 }

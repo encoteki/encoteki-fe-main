@@ -1,14 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Encoteki from '@/assets/encoteki.logo.webp'
 import { ArrowRight } from 'lucide-react'
-import { NFTCardIllustration } from '@/ui/illustration/nft-card'
-import { SwitchIllustration } from '@/ui/illustration/switch'
-import { DiscountReceiptIllustration } from '@/ui/illustration/discount-receipt'
-import { ChainIllustration } from '@/ui/illustration/chain'
+
+// Lazy load illustrations — only rendered when menu is expanded
+const NFTCardIllustration = lazy(() =>
+  import('@/ui/illustration/nft-card').then((m) => ({
+    default: m.NFTCardIllustration,
+  })),
+)
+const SwitchIllustration = lazy(() =>
+  import('@/ui/illustration/switch').then((m) => ({
+    default: m.SwitchIllustration,
+  })),
+)
+const DiscountReceiptIllustration = lazy(() =>
+  import('@/ui/illustration/discount-receipt').then((m) => ({
+    default: m.DiscountReceiptIllustration,
+  })),
+)
+const ChainIllustration = lazy(() =>
+  import('@/ui/illustration/chain').then((m) => ({
+    default: m.ChainIllustration,
+  })),
+)
+
+const IllustrationFallback = () => (
+  <div className="h-24 w-24 rounded-full bg-white/20 blur-2xl" />
+)
 
 const features = [
   {
@@ -18,7 +40,7 @@ const features = [
     color: 'bg-[#dcfce7]',
     href: process.env.NEXT_PUBLIC_APP_MINT,
     isExternal: true,
-    illustration: <NFTCardIllustration />,
+    Illustration: NFTCardIllustration,
   },
   {
     id: 2,
@@ -27,7 +49,7 @@ const features = [
     color: 'bg-[#ede9fe]',
     href: process.env.NEXT_PUBLIC_APP_DAO,
     isExternal: true,
-    illustration: <SwitchIllustration />,
+    Illustration: SwitchIllustration,
   },
   {
     id: 3,
@@ -36,7 +58,7 @@ const features = [
     color: 'bg-[#fee2e2]',
     href: '/partners',
     isExternal: false,
-    illustration: <DiscountReceiptIllustration />,
+    Illustration: DiscountReceiptIllustration,
   },
   {
     id: 4,
@@ -45,7 +67,7 @@ const features = [
     color: 'bg-[#f3f4f6]',
     href: '/family',
     isExternal: false,
-    illustration: <ChainIllustration />,
+    Illustration: ChainIllustration,
   },
 ]
 
@@ -127,10 +149,10 @@ export default function Header() {
                 className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${feature.color}`}
               >
                 <div className="absolute top-1/2 right-3 -translate-y-1/2 lg:inset-0 lg:flex lg:translate-y-0 lg:items-center lg:justify-center">
-                  {feature.illustration ? (
-                    feature.illustration
-                  ) : (
-                    <div className="h-24 w-24 rounded-full bg-white/20 blur-2xl" />
+                  {isExpanded && (
+                    <Suspense fallback={<IllustrationFallback />}>
+                      <feature.Illustration />
+                    </Suspense>
                   )}
                 </div>
 
