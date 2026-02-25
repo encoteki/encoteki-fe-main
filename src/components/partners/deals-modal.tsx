@@ -39,7 +39,7 @@ export default function DealModal({
       ],
       ALLOWED_ATTR: ['class'],
     })
-  }, [deal?.tnc])
+  }, [deal])
 
   // Prevent Scroll & Layout Shift Logic
   useEffect(() => {

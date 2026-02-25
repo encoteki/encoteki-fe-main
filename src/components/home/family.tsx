@@ -50,9 +50,10 @@ export default function FamilyGallery() {
   }, [])
 
   useEffect(() => {
-    updateRadius()
-
     let timeoutId: ReturnType<typeof setTimeout>
+
+    timeoutId = setTimeout(updateRadius, 0)
+
     const handleResize = () => {
       clearTimeout(timeoutId)
       timeoutId = setTimeout(updateRadius, 150)
