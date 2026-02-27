@@ -179,11 +179,14 @@ export default function DealModal({
             </div>
 
             <div className="space-y-4">
-              <BrutalismButton
-                label={'Claim Deal'}
-                href={`https://claim.encoteki.com/deals/EPD${String(deal.id).padStart(4, '0')}`}
-                className="w-full"
-              />
+              {!deal.is_offline && (
+                <BrutalismButton
+                  label={'Claim Deal'}
+                  href={`https://claim.encoteki.com/deals/EPD${String(deal.id).padStart(4, '0')}`}
+                  className="w-full"
+                />
+              )}
+
               <BrutalismButton
                 label={'Visit Store'}
                 bgColor="bg-[#ccf281]"
