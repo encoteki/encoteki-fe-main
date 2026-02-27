@@ -154,18 +154,25 @@ export default function PartnersGrid() {
           )}
         </div>
       ) : (
-        <div className="flex h-100 w-full flex-col items-center justify-center rounded-xl border-3 border-dashed border-black bg-gray-50 text-center">
+        <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
           {isLoading ? (
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-10 w-10 animate-spin text-black" />
-              <p className="font-mono text-gray-500">Fetching deals...</p>
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-black" />
+                <p className="font-mono text-sm text-gray-500">
+                  Fetching deals...
+                </p>
+              </div>
             </div>
           ) : (
-            <>
-              <h3 className="text-2xl font-black text-gray-400 uppercase">
-                No Deals Found
-              </h3>
-            </>
+            <div className="flex flex-col items-center gap-4">
+              <p className="font-mono text-sm tracking-widest text-gray-400 uppercase">
+                No deals available at the moment
+              </p>
+              <p className="text-sm text-gray-400">
+                Check back soon for exclusive partner offers.
+              </p>
+            </div>
           )}
         </div>
       )}
