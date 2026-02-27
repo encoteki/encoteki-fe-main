@@ -3,10 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Loader2 } from 'lucide-react'
 
 import { Family } from '@/types/family.type'
-import Loading from '@/app/loading'
 import { BrutalismButton } from '@/ui/buttons'
 import { getFamilies } from '@/actions/family'
 
@@ -124,17 +123,27 @@ export default function FamilyGrid() {
           )}
         </div>
       ) : (
-        <>
-          <div className="flex h-64 flex-col items-center justify-center text-center">
-            {isLoading ? (
-              <Loading />
-            ) : (
-              <div className="flex h-100 w-full items-center justify-center text-gray-500 italic">
-                No families found
+        <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-black" />
+                <p className="font-mono text-sm text-gray-500">
+                  Fetching families...
+                </p>
               </div>
-            )}
-          </div>
-        </>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <p className="font-mono text-sm tracking-widest text-gray-400 uppercase">
+                No families available at the moment
+              </p>
+              <p className="text-sm text-gray-400">
+                Check back soon for new community families.
+              </p>
+            </div>
+          )}
+        </div>
       )}
     </>
   )
