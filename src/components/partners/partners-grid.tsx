@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
-import { ArrowUpRight, ArrowDown, Loader2 } from 'lucide-react'
+import { ArrowUpRight, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
 import { getPartners } from '@/actions/partner'
@@ -17,24 +17,20 @@ export default function PartnersGrid() {
   // State Logic
   const [isLoading, setIsLoading] = useState(true)
   const [hasMore, setHasMore] = useState(false)
+  const [isError, setIsError] = useState(false)
   const [page, setPage] = useState(1)
 
   const loadPartnersData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
+      setIsError(false)
       try {
-        const result = await getPartners(pageNumber, limit + 1)
+        const result = await getPartners(pageNumber, limit)
 
         if (result.success && result.data) {
-          let newData = result.data
-          let hasNextPage = false
+          const newData = result.data
 
-          if (newData.length > limit) {
-            hasNextPage = true
-            newData = newData.slice(0, limit)
-          }
-
-          setHasMore(hasNextPage)
+          setHasMore(result.hasNextPage ?? false)
 
           if (isAppend) {
             setPartners((prev) => [...prev, ...newData])
@@ -43,7 +39,7 @@ export default function PartnersGrid() {
           }
         }
       } catch (error) {
-        console.error('Failed to load partners:', error)
+        setIsError(true)
       } finally {
         setIsLoading(false)
       }
@@ -55,6 +51,11 @@ export default function PartnersGrid() {
   useEffect(() => {
     loadPartnersData(1, ITEMS_PER_LOAD, false)
   }, [loadPartnersData])
+
+  const handleRetry = () => {
+    setPage(1)
+    loadPartnersData(1, ITEMS_PER_LOAD, false)
+  }
 
   const handleLoadMore = () => {
     const nextPage = page + 1
@@ -163,6 +164,16 @@ export default function PartnersGrid() {
                   Fetching deals...
                 </p>
               </div>
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-4">
+              <button
+                onClick={handleRetry}
+                className="group flex items-center gap-2 rounded-full border-2 border-black bg-white px-6 py-3 text-sm font-bold text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
+              >
+                <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
+                Try Again
+              </button>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-4">

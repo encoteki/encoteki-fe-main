@@ -8,6 +8,7 @@ const MAX_LIMIT = 50
 interface PartnersResponse {
   success: boolean
   data: Partners[]
+  hasNextPage?: boolean
   message?: string
 }
 
@@ -22,7 +23,7 @@ export async function getPartners(
     const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))
 
     const from = (safePage - 1) * safeLimit
-    const to = from + safeLimit - 1
+    const to = from + safeLimit
 
     const { data, error } = await supabase
       .from('partners')
@@ -32,7 +33,10 @@ export async function getPartners(
 
     if (error) throw error
 
-    return { success: true, data: data as Partners[] }
+    const hasNextPage = data.length > safeLimit
+    const pagedData = (data as Partners[]).slice(0, safeLimit)
+
+    return { success: true, data: pagedData, hasNextPage }
   } catch (error: unknown) {
     console.error('Server Action Error [getPartners]:', error)
     return { success: false, data: [], message: 'Failed to fetch partners' }
