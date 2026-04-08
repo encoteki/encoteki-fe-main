@@ -32,6 +32,7 @@ export default function Collections() {
           bgColor="bg-(--green-90)"
           label="Mint Now"
           className="text-base md:text-xl"
+          href={process.env.NEXT_PUBLIC_APP_MINT ?? ''}
         />
       </div>
     </section>
