@@ -3,6 +3,7 @@
 import TextMarquee from '@/ui/text-marquee'
 import Image, { StaticImageData } from 'next/image'
 import { Anton } from 'next/font/google'
+import { getMarqueeTexts } from '@/lib/marquee-config'
 
 // Icons
 import Base from '@/assets/chains/base.jpeg'
@@ -18,35 +19,43 @@ const anton = Anton({
 })
 
 export default function Hero() {
+  // Load marquee texts dynamically from environment variables
+  const { texts, separators } = getMarqueeTexts()
+
+  // Map for icons based on chain names
+  const chainIcons: Record<
+    string,
+    { src: StaticImageData | string; alt: string }
+  > = {
+    base: { src: Base, alt: 'Base' },
+    arbitrum: { src: Arbitrum, alt: 'Arbitrum' },
+    lisk: { src: Lisk, alt: 'Lisk' },
+    manta: { src: Manta, alt: 'Manta' },
+  }
+
+  // Convert text strings to marquee items with icons
+  const marqueeTexts = texts.map((text) => {
+    // Try to detect chain name from text
+    const lowerText = text.toLowerCase()
+    for (const [chainKey, iconData] of Object.entries(chainIcons)) {
+      if (lowerText.includes(chainKey)) {
+        return {
+          text,
+          icon: <MarqueeIcon src={iconData.src} alt={iconData.alt} />,
+        }
+      }
+    }
+    // Return plain text if no icon matched
+    return { text }
+  })
+
   return (
     <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-red-50 pt-16 md:pt-20">
       {/* Marquee Header */}
       <div className="w-full shrink-0 border-b-2 border-black bg-red-50 py-2 md:py-3">
         <TextMarquee
-          texts={[
-            {
-              text: 'Encoteki is now live on BASE',
-              icon: <MarqueeIcon src={Base} alt="Base" />,
-            },
-            {
-              text: 'Encoteki is now live on Arbitrum',
-              icon: <MarqueeIcon src={Arbitrum} alt="Arbitrum" />,
-            },
-            {
-              text: 'Encoteki is now live on Lisk',
-              icon: <MarqueeIcon src={Lisk} alt="Lisk" />,
-            },
-            {
-              text: 'Encoteki is now live on Manta',
-              icon: <MarqueeIcon src={Manta} alt="Manta" />,
-            },
-          ]}
-          separator={[
-            'Contribute Now!',
-            'We Cover Your Gas Fees!',
-            'Join the Revolution!',
-            'Mint Your NFT Today!',
-          ]}
+          texts={marqueeTexts}
+          separator={separators.length > 0 ? separators : 'Join Now!'}
           className="text-sm font-medium uppercase sm:text-base md:text-xl"
           speed={125}
           repeat={6}
