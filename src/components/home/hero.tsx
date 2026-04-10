@@ -55,7 +55,7 @@ export default function Hero() {
       <div className="w-full shrink-0 border-b-2 border-black bg-red-50 py-2 md:py-3">
         <TextMarquee
           texts={marqueeTexts}
-          separator={separators.length > 0 ? separators : 'Join Now!'}
+          separator={separators}
           className="text-sm font-medium uppercase sm:text-base md:text-xl"
           speed={125}
           repeat={6}

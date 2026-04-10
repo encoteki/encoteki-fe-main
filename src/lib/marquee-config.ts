@@ -4,6 +4,15 @@
  * Odd numbers = main text, Even numbers = separator text
  */
 
+const DEFAULT_MARQUEE_TEXTS = [
+  'Live on Base',
+  'Live on Arbitrum',
+  'Live on Lisk',
+  'Live on Manta',
+]
+
+const DEFAULT_MARQUEE_SEPARATORS = ['Join Now!']
+
 export function getMarqueeTexts() {
   const texts: string[] = []
   const separators: string[] = []
@@ -34,17 +43,21 @@ export function getMarqueeTexts() {
 
   // Separate odd (text) and even (separator) entries
   envEntries.forEach((value, index) => {
-    if (!value) return
+    const normalizedValue = value?.trim()
+    if (!normalizedValue) return
 
     const num = index + 1 // Convert 0-based index to 1-based numbering
     if (num % 2 === 1) {
       // Odd numbers are main texts
-      texts.push(value)
+      texts.push(normalizedValue)
     } else {
       // Even numbers are separators
-      separators.push(value)
+      separators.push(normalizedValue)
     }
   })
 
-  return { texts, separators }
+  return {
+    texts: texts.length > 0 ? texts : DEFAULT_MARQUEE_TEXTS,
+    separators: separators.length > 0 ? separators : DEFAULT_MARQUEE_SEPARATORS,
+  }
 }
