@@ -8,8 +8,8 @@ interface AbstractSeparatorProps {
 }
 
 export const AbstractSeparator: React.FC<AbstractSeparatorProps> = ({
-  fillColor = '#fff',
-  strokeColor = '#000',
+  fillColor = '#f9f9f6',
+  strokeColor = '#1a1a1a',
   bgColor = 'transparent',
   className = '',
 }) => {
@@ -17,10 +17,10 @@ export const AbstractSeparator: React.FC<AbstractSeparatorProps> = ({
     <div
       className={`w-full overflow-hidden leading-0 ${className}`}
       style={{ backgroundColor: bgColor }}
+      aria-hidden="true"
     >
       <svg
         className="relative block h-15 w-[calc(100%+1.3px)] sm:h-25 md:h-37.5"
-        data-name="Layer 1"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 1200 150"
         preserveAspectRatio="none"
@@ -36,7 +36,7 @@ export const AbstractSeparator: React.FC<AbstractSeparatorProps> = ({
           style={{
             fill: 'none',
             stroke: strokeColor,
-            strokeWidth: '2px',
+            strokeWidth: '3px',
             strokeLinecap: 'round',
             strokeLinejoin: 'round',
             vectorEffect: 'non-scaling-stroke',

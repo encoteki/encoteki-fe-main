@@ -17,8 +17,6 @@ import Tiggy from '@/assets/collections/tiggy.png'
 
 const IMAGES = [Gajara, Cendry, Kanghoon, Komesi, Owen, Tiggy]
 
-const REPEAT = 4
-
 // Seeded shuffle — deterministic per seed, no client re-render needed
 const seededShuffle = (array: StaticImageData[], seed: number) => {
   const shuffled = [...array]
@@ -49,6 +47,11 @@ export default function VerticalMarquee({ className }: { className?: string }) {
 
   useGSAP(
     () => {
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      if (prefersReduced) return
+
       gsap.fromTo(
         '.col-up',
         { yPercent: 0 },
@@ -77,34 +80,31 @@ export default function VerticalMarquee({ className }: { className?: string }) {
   return (
     <div
       ref={containerRef}
+      aria-hidden="true"
       className={cn(
         'relative flex h-full w-full items-center justify-center overflow-hidden mask-[linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)]',
         className,
       )}
     >
       <div className="grid h-full w-full grid-cols-2 gap-6 md:grid-cols-4">
-        {/* --- Col 1 */}
         <div className="col-up flex -translate-y-[10%] flex-col gap-4 will-change-transform">
           {COLUMNS.col1.map((src, i) => (
             <MemoizedCardItem key={`c1-${i}`} src={src} />
           ))}
         </div>
 
-        {/* --- Col 2 */}
         <div className="col-down flex flex-col gap-6 will-change-transform">
           {COLUMNS.col2.map((src, i) => (
             <MemoizedCardItem key={`c2-${i}`} src={src} />
           ))}
         </div>
 
-        {/* --- Col 3 */}
         <div className="col-up hidden -translate-y-[20%] flex-col gap-6 will-change-transform md:flex">
           {COLUMNS.col3.map((src, i) => (
             <MemoizedCardItem key={`c3-${i}`} src={src} />
           ))}
         </div>
 
-        {/* --- Col 4 */}
         <div className="col-down hidden -translate-y-[15%] flex-col gap-6 will-change-transform md:flex">
           {COLUMNS.col4.map((src, i) => (
             <MemoizedCardItem key={`c4-${i}`} src={src} />
@@ -117,10 +117,10 @@ export default function VerticalMarquee({ className }: { className?: string }) {
 
 function CardItem({ src }: { src: StaticImageData }) {
   return (
-    <div className="relative aspect-3/4 w-full shrink-0 overflow-hidden rounded-xl border-2 border-black bg-white">
+    <div className="relative aspect-3/4 w-full shrink-0 overflow-hidden rounded-xl border-2 border-[var(--primary-black)] bg-white">
       <Image
         src={src}
-        alt="Gallery"
+        alt=""
         fill
         className="object-cover"
         sizes="(max-width: 768px) 50vw, 25vw"

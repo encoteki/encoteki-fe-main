@@ -17,6 +17,7 @@ interface SectionHeadingProps {
   titleClassName?: string
   descClassName?: string
   align?: 'left' | 'center' | 'right'
+  triggerType?: 'scroll' | 'immediate'
 }
 
 export default function SectionHeading({
@@ -26,14 +27,25 @@ export default function SectionHeading({
   titleClassName = '',
   descClassName = '',
   align = 'left',
+  triggerType = 'scroll',
 }: SectionHeadingProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const descRef = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
-      if (typeof desc !== 'string') {
+      if (typeof desc !== 'string' && descRef.current) {
+        const prefersReduced = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches
+
+        if (prefersReduced) {
+          gsap.set(descRef.current, { opacity: 1 })
+          return
+        }
+
         gsap.fromTo(
-          '.custom-desc-anim',
+          descRef.current,
           { y: 30, opacity: 0 },
           {
             y: 0,
@@ -65,23 +77,26 @@ export default function SectionHeading({
     >
       <RevealText
         text={title}
+        as="h2"
         className={`text-6xl leading-[0.9] font-bold md:text-8xl lg:text-9xl ${titleClassName}`}
         delay={0}
         align={align}
-        triggerType="scroll"
+        triggerType={triggerType}
       />
 
       {typeof desc === 'string' ? (
         <RevealText
           text={desc}
-          className={`text-lg font-normal md:text-xl lg:text-3xl ${descClassName}`}
+          as="p"
+          className={`text-lg font-normal md:text-xl ${descClassName}`}
           delay={0.2}
           align={align}
-          triggerType="scroll"
+          triggerType={triggerType}
         />
       ) : (
         <div
-          className={`custom-desc-anim text-lg font-normal opacity-0 will-change-transform md:text-xl lg:text-3xl ${descClassName}`}
+          ref={descRef}
+          className={`text-lg font-normal opacity-0 will-change-transform md:text-xl ${descClassName}`}
         >
           {desc}
         </div>

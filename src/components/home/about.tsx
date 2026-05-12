@@ -21,15 +21,18 @@ export default function About() {
 
   useGSAP(
     () => {
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      if (prefersReduced) return
+
       const mm = gsap.matchMedia()
 
       // Desktop (>= XL / 1280px)
       mm.add('(min-width: 1280px)', () => {
         gsap.set(
           [leftCardRef.current, rightCardRef.current, aboutCardRef.current],
-          {
-            clearProps: 'all',
-          },
+          { clearProps: 'all' },
         )
 
         gsap.set([leftCardRef.current, rightCardRef.current], {
@@ -68,9 +71,7 @@ export default function About() {
       mm.add('(max-width: 1279px)', () => {
         gsap.set(
           [leftCardRef.current, rightCardRef.current, aboutCardRef.current],
-          {
-            clearProps: 'all',
-          },
+          { clearProps: 'all' },
         )
 
         gsap.from(rightCardRef.current, {
@@ -79,10 +80,10 @@ export default function About() {
             start: 'top 85%',
             toggleActions: 'play none none reverse',
           },
-          xPercent: -120,
-          rotation: -15,
-          duration: 1.2,
-          ease: 'back.out(1.2)',
+          xPercent: -100,
+          rotation: -8,
+          duration: 1,
+          ease: 'power3.out',
         })
 
         gsap.from(leftCardRef.current, {
@@ -91,10 +92,10 @@ export default function About() {
             start: 'top 85%',
             toggleActions: 'play none none reverse',
           },
-          xPercent: 120,
-          rotation: 15,
-          duration: 1.2,
-          ease: 'back.out(1.2)',
+          xPercent: 100,
+          rotation: 8,
+          duration: 1,
+          ease: 'power3.out',
         })
       })
     },
@@ -102,31 +103,31 @@ export default function About() {
   )
 
   const cardDimensions =
-    'h-[500px] w-full max-w-sm rounded-[2.5rem] border-3 border-black  overflow-hidden'
+    'h-[500px] w-full max-w-sm rounded-[2.5rem] border-3 border-[var(--primary-black)] overflow-hidden'
 
   const textStyle =
-    'mt-6 flex flex-col space-y-4 font-mono text-xs leading-relaxed font-medium text-black/90 sm:text-sm'
+    'mt-6 flex flex-col space-y-4 font-mono text-xs leading-relaxed font-medium text-(--primary-black)/90 sm:text-sm md:text-base'
 
   return (
-    <section className="home-container flex items-center justify-center overflow-hidden bg-[#F3F4F6]">
+    <section className="home-container flex flex-col items-center justify-center gap-12 overflow-hidden bg-(--khaki-90) md:gap-16">
       <div
         ref={containerRef}
-        className="relative flex w-full max-w-360 flex-col items-center justify-center gap-12 xl:block xl:h-125 xl:gap-0"
+        className="relative flex w-full max-w-360 flex-col items-center justify-center gap-12 xl:block xl:h-150 xl:gap-0"
       >
-        {/* --- About --- */}
+        {/* About */}
         <div
           ref={aboutCardRef}
           className={`${cardDimensions} relative z-0 flex flex-col justify-between bg-[#FFD94A] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
         >
           <div className="flex flex-col">
-            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+            <h2 className="text-5xl leading-[0.9] font-black text-(--primary-black) uppercase md:text-6xl">
               About
             </h2>
             <div className={textStyle}>
               <p>
-                ENCOTEKI is a combination of ‘EN’ (Environment), ‘CO’
-                (Community), and ‘TEKI’ (Teman Kita, meaning ‘our friend’ in
-                Bahasa).
+                ENCOTEKI is a combination of &apos;EN&apos; (Environment),
+                &apos;CO&apos; (Community), and &apos;TEKI&apos; (Teman Kita,
+                meaning &apos;our friend&apos; in Bahasa).
               </p>
               <p>
                 The name reflects our belief that both the environment and
@@ -134,16 +135,16 @@ export default function About() {
               </p>
             </div>
           </div>
-          <BrutalismButton label="View Whitepaper" href={whitePaperUrl} />
+          <BrutalismButton label="Read Our Plan" href={whitePaperUrl} />
         </div>
 
-        {/* --- Vision --- */}
+        {/* Vision */}
         <div
           ref={rightCardRef}
           className={`${cardDimensions} relative z-10 flex flex-col justify-between bg-[#60A5FA] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
         >
           <div className="flex flex-col">
-            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+            <h2 className="text-5xl leading-[0.9] font-black text-(--primary-black) uppercase md:text-6xl">
               Vision
             </h2>
             <div className={textStyle}>
@@ -159,13 +160,13 @@ export default function About() {
           </div>
         </div>
 
-        {/* --- Mission --- */}
+        {/* Mission */}
         <div
           ref={leftCardRef}
           className={`${cardDimensions} relative z-20 flex flex-col justify-between bg-[#FF9E00] p-8 xl:absolute xl:right-0 xl:left-0 xl:mx-auto`}
         >
           <div className="flex flex-col">
-            <h2 className="text-5xl leading-[0.9] font-black text-black uppercase">
+            <h2 className="text-5xl leading-[0.9] font-black text-(--primary-black) uppercase md:text-6xl">
               Mission
             </h2>
             <div className={textStyle}>

@@ -12,6 +12,7 @@ export default function Collections() {
 
       <SectionHeading
         title="NFT Collections"
+        titleClassName="font-black"
         desc={
           <>
             The Satwas Band by{' '}
@@ -21,15 +22,19 @@ export default function Collections() {
               className="font-medium text-(--primary-green) underline decoration-transparent decoration-2 underline-offset-8 transition-all delay-150 duration-300 hover:decoration-(--primary-green)"
             >
               Rahel Kristhea
-            </Link>{' '}
-            are inspired by endangered animals in Indonesia
+            </Link>
+            {', '}
+            <span className="font-serif text-(--neutral-40) italic">
+              inspired
+            </span>{' '}
+            by endangered animals in Indonesia.
           </>
         }
+        descClassName="text-[var(--neutral-30)]"
       />
 
       <div>
         <BrutalismButton
-          bgColor="bg-(--green-90)"
           label="Mint Now"
           className="text-base md:text-xl"
           href={process.env.NEXT_PUBLIC_APP_MINT ?? ''}

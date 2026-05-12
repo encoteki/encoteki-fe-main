@@ -13,6 +13,7 @@ interface TextMarqueeProps {
   separator?: string | React.ReactNode | (string | React.ReactNode)[]
   speed?: number
   repeat?: number
+  label?: string
 }
 
 export default function TextMarquee({
@@ -21,6 +22,7 @@ export default function TextMarquee({
   separator = '-',
   speed = 10,
   repeat = 4,
+  label,
 }: TextMarqueeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const firstStrip = useRef<HTMLDivElement>(null)
@@ -28,6 +30,12 @@ export default function TextMarquee({
 
   useGSAP(
     () => {
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+
+      if (prefersReduced) return
+
       gsap.to([firstStrip.current, secondStrip.current], {
         xPercent: -100,
         duration: speed,
@@ -57,13 +65,18 @@ export default function TextMarquee({
                   <div className="flex items-center gap-3 px-4">
                     <span className="whitespace-nowrap">{textContent}</span>
                     {iconContent && (
-                      <span className="flex shrink-0 items-center justify-center">
+                      <span
+                        className="flex shrink-0 items-center justify-center"
+                        aria-hidden="true"
+                      >
                         {iconContent}
                       </span>
                     )}
                   </div>
 
-                  <span className="px-2 opacity-50">{currentSeparator}</span>
+                  <span className="px-2 opacity-50" aria-hidden="true">
+                    {currentSeparator}
+                  </span>
                 </div>
               )
             })}
@@ -76,8 +89,10 @@ export default function TextMarquee({
   return (
     <div
       ref={containerRef}
+      role="marquee"
+      aria-label={label}
       className={cn(
-        'relative flex w-full overflow-hidden bg-transparent whitespace-nowrap text-black',
+        'relative flex w-full overflow-hidden bg-transparent whitespace-nowrap text-(--primary-black)',
         className,
       )}
     >
@@ -89,6 +104,7 @@ export default function TextMarquee({
       </div>
       <div
         ref={secondStrip}
+        aria-hidden="true"
         className="flex min-w-full shrink-0 items-center justify-around will-change-transform"
       >
         {content}

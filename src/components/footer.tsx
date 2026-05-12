@@ -4,7 +4,6 @@ import gsap from 'gsap'
 import Link from 'next/link'
 import { useGSAP } from '@gsap/react'
 import { useEffect, useRef, useState } from 'react'
-import { TextPlugin } from 'gsap/TextPlugin'
 import InstagramIcon from '@/assets/socials/instagram.svg'
 import ThreadsIcon from '@/assets/socials/threads.svg'
 import XIcon from '@/assets/socials/x.svg'
@@ -40,7 +39,7 @@ const SOCIAL_MEDIA: SocialMediaItem[] = [
 const CURRENT_YEAR = new Date().getFullYear()
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(TextPlugin, useGSAP)
+  gsap.registerPlugin(useGSAP)
 }
 
 export function Footer() {
@@ -52,9 +51,7 @@ export function Footer() {
     if (!element) return
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting)
-      },
+      ([entry]) => setIsVisible(entry.isIntersecting),
       { threshold: 0.1 },
     )
 
@@ -64,24 +61,31 @@ export function Footer() {
 
   useGSAP(
     () => {
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+
       const targets = gsap.utils.toArray('.footer-reveal-text')
-      gsap.set(targets, { y: 100, autoAlpha: 0 })
+
+      if (prefersReduced) {
+        gsap.set(targets, { autoAlpha: 1, y: 0 })
+        return
+      }
+
+      gsap.set(targets, { y: 60, autoAlpha: 0 })
       const tl = gsap.timeline({ paused: true })
 
       tl.to(targets, {
         y: 0,
         autoAlpha: 1,
-        duration: 1.5,
-        stagger: 0.2,
+        duration: 1.2,
+        stagger: 0.15,
         ease: 'power3.out',
         delay: 0.2,
       })
 
-      if (isVisible) {
-        tl.restart()
-      } else {
-        tl.pause(0)
-      }
+      if (isVisible) tl.restart()
+      else tl.pause(0)
     },
     { scope: containerRef, dependencies: [isVisible] },
   )
@@ -89,18 +93,14 @@ export function Footer() {
   return (
     <footer
       ref={containerRef}
-      className="home-container flex flex-col justify-between gap-10 bg-(--green-10)"
+      className="home-container flex flex-col justify-between gap-10 bg-[var(--green-10)]"
     >
-      <div className="w-full text-left md:text-left">
-        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
-          Join the community
-        </h1>
-        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
-          and
-        </h1>
-        <h1 className="footer-reveal-text text-6xl font-medium text-white lg:text-9xl">
-          save the world!
-        </h1>
+      <div className="w-full text-left">
+        <h2 className="footer-reveal-text text-6xl font-bold text-[var(--khaki-99)] lg:text-9xl">
+          <span className="block">Join the community</span>
+          <span className="block">and</span>
+          <span className="block">save the world!</span>
+        </h2>
       </div>
 
       <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
@@ -114,14 +114,15 @@ export function Footer() {
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-2xl text-white transition-transform duration-300 hover:scale-125"
+              aria-label={item.name}
+              className="text-2xl text-[var(--khaki-99)] transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:scale-125"
             >
               {item.icon}
             </Link>
           ))}
         </nav>
 
-        <p className="footer-reveal-text text-center text-base font-normal text-white md:text-lg">
+        <p className="footer-reveal-text text-center text-base font-normal text-[var(--khaki-99)]/70 md:text-lg">
           Encoteki © {CURRENT_YEAR} All rights reserved
         </p>
       </div>

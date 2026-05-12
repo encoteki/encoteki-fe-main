@@ -152,20 +152,21 @@ interface BrutalismButtonProps {
 export function BrutalismButton({
   label = 'Button',
   href,
-  bgColor = 'bg-[#FF9E00]',
-  textColor = 'text-black',
+  bgColor = 'bg-(--khaki-99)',
+  textColor = 'text-(--primary-black)',
   className = '',
   onClick,
   type = 'button',
   target,
 }: BrutalismButtonProps) {
   const baseStyles = `
-    ${bgColor} ${textColor} ${className} 
-    inline-block cursor-pointer rounded-full 
-    border-2 border-black px-6 py-2 md:px-8 md:py-3  
-    text-center text-sm font-bold uppercase 
-    shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
-    transition-all duration-200 
+    ${bgColor} ${textColor} ${className}
+    inline-flex items-center justify-center cursor-pointer rounded-full
+    border-2 border-[var(--primary-black)] px-6 py-3 md:px-8 md:py-3.5
+    min-h-[44px]
+    text-center text-xs font-black tracking-wider uppercase sm:text-sm md:text-base
+    shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]
+    transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)]
     hover:translate-y-1 hover:shadow-none
     active:translate-y-2 active:shadow-none
   `
