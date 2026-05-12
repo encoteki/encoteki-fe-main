@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import { X } from 'lucide-react'
 import gsap from 'gsap'
@@ -12,11 +12,11 @@ import DOMPurify from 'dompurify'
 export default function DealModal({
   deal,
   isOpen,
-  onClose,
+  onCloseAction,
 }: {
   deal: Partners | null
   isOpen: boolean
-  onClose: () => void
+  onCloseAction: () => void
 }) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
@@ -41,7 +41,27 @@ export default function DealModal({
     })
   }, [deal])
 
-  // Prevent Scroll & Layout Shift Logic
+  const handleClose = useCallback(() => {
+    if (overlayRef.current && modalRef.current) {
+      const tl = gsap.timeline({ onComplete: onCloseAction })
+      tl.to(modalRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        y: 10,
+        duration: 0.2,
+        ease: 'power2.in',
+      })
+      tl.to(
+        overlayRef.current,
+        { opacity: 0, duration: 0.2, ease: 'power2.in' },
+        '<',
+      )
+    } else {
+      onCloseAction()
+    }
+  }, [onCloseAction])
+
+  // Prevent scroll
   useEffect(() => {
     if (isOpen) {
       const scrollbarWidth =
@@ -58,7 +78,51 @@ export default function DealModal({
     }
   }, [isOpen])
 
-  // GSAP Animation
+  // Escape key handler
+  useEffect(() => {
+    if (!isOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, handleClose])
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return
+
+    const modal = modalRef.current
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
+    // Auto-focus the close button on open
+    const firstFocusable = modal.querySelector<HTMLElement>(focusableSelector)
+    firstFocusable?.focus()
+
+    const trapFocus = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+
+      const focusables = modal.querySelectorAll<HTMLElement>(focusableSelector)
+      if (focusables.length === 0) return
+
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', trapFocus)
+    return () => document.removeEventListener('keydown', trapFocus)
+  }, [isOpen])
+
+  // GSAP entrance
   useGSAP(
     () => {
       if (isOpen && overlayRef.current && modalRef.current) {
@@ -70,109 +134,104 @@ export default function DealModal({
         )
         tl.fromTo(
           modalRef.current,
-          { opacity: 0, scale: 0.95, y: 20 },
+          { opacity: 0, scale: 0.92, y: 30, rotation: -1 },
           {
             opacity: 1,
             scale: 1,
             y: 0,
+            rotation: 0,
             duration: 0.5,
-            ease: 'back.out(1.2)',
+            ease: 'power3.out',
           },
-          '-=0.2',
+          '-=0.15',
         )
       }
     },
     { dependencies: [isOpen], scope: containerRef },
   )
 
-  const handleClose = () => {
-    if (overlayRef.current && modalRef.current) {
-      const tl = gsap.timeline({ onComplete: onClose })
-      tl.to(modalRef.current, {
-        opacity: 0,
-        scale: 0.95,
-        y: 10,
-        duration: 0.2,
-        ease: 'power2.in',
-      })
-      tl.to(
-        overlayRef.current,
-        { opacity: 0, duration: 0.2, ease: 'power2.in' },
-        '<',
-      )
-    } else {
-      onClose()
-    }
-  }
-
   if (!isOpen || !deal) return null
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-28 pb-10 md:items-center md:py-24"
+      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24 pb-10 md:items-center md:py-20"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deal-modal-title"
     >
       {/* Overlay */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 bg-black/40 opacity-0 backdrop-blur-sm"
+        className="absolute inset-0 bg-(--primary-black)/40 opacity-0 backdrop-blur-sm"
         onClick={handleClose}
       />
 
       <div
         ref={modalRef}
-        className="relative z-10 flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-xl border-2 border-black bg-white opacity-0 md:max-w-3xl xl:max-w-4xl"
+        className="relative z-10 flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-2xl border-3 border-(--primary-black) bg-white opacity-0 shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] md:max-w-3xl xl:max-w-4xl"
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b-2 border-black bg-white px-5 py-4 md:px-8 md:py-5">
-          <h2 className="text-lg font-medium text-black md:text-2xl">
-            Deal Info
-          </h2>
+        <div className="flex shrink-0 items-center justify-between border-b-3 border-(--primary-black) bg-white px-5 py-4 md:px-8 md:py-5">
+          <div className="flex items-center gap-3">
+            <h2
+              id="deal-modal-title"
+              className="text-lg font-black tracking-tight text-(--primary-black) uppercase md:text-xl"
+            >
+              {deal.name}
+            </h2>
+            <span className="rounded-sm border-2 border-(--primary-black) bg-[#ccf281] px-2 py-0.5 text-[10px] font-bold tracking-wider text-(--primary-black) uppercase">
+              {deal.is_offline ? 'Offline' : 'Online'}
+            </span>
+          </div>
           <button
             onClick={handleClose}
-            className="cursor-pointer hover:scale-105"
+            aria-label="Close deal"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-(--primary-black) bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-(--red-90) hover:shadow-none active:translate-y-1"
           >
-            <X className="h-6 w-6 text-black" strokeWidth={2.5} />
+            <X className="h-5 w-5 text-(--primary-black)" strokeWidth={2.5} />
           </button>
         </div>
 
         <div className="flex flex-col overflow-y-auto md:flex-row">
           {/* LEFT: Details */}
           <div className="flex-1 p-5 md:p-8">
-            <h3 className="mb-4 text-xl leading-tight font-semibold text-black md:text-3xl">
+            <h3 className="mb-6 text-2xl leading-tight font-black tracking-tight text-(--primary-black) uppercase md:text-4xl">
               {deal.offer}
             </h3>
 
             {/* Terms & Conditions */}
-            <div className="mb-8 rounded-lg border-2 border-dashed border-gray-400 bg-gray-50 p-4">
-              <h5 className="mb-3 text-sm font-bold tracking-widest text-black uppercase">
-                Terms & Conditions
-              </h5>
-              <ul
-                className="list-disc space-y-2 pl-5 text-sm leading-relaxed font-medium text-gray-800 md:text-base"
-                dangerouslySetInnerHTML={{ __html: sanitizedTnc }}
-              />
-            </div>
+            {sanitizedTnc && (
+              <div className="rounded-xl border-2 border-dashed border-(--neutral-60) bg-(--khaki-99) p-5">
+                <h5 className="mb-3 text-xs font-black tracking-widest text-(--primary-black) uppercase">
+                  Terms & Conditions
+                </h5>
+                <ul
+                  className="list-disc space-y-2 pl-5 text-sm leading-relaxed font-medium text-(--neutral-30) md:text-base"
+                  dangerouslySetInnerHTML={{ __html: sanitizedTnc }}
+                />
+              </div>
+            )}
           </div>
 
           {/* RIGHT: Sidebar */}
-          <div className="w-full shrink-0 border-t-2 border-black bg-[#fafafa] p-5 md:w-[320px] md:border-t-0 md:border-l-2 md:p-8 xl:w-90">
+          <div className="w-full shrink-0 border-t-3 border-(--primary-black) bg-(--khaki-90) p-5 md:w-[320px] md:border-t-0 md:border-l-3 md:p-8 xl:w-90">
             <div className="mb-6 flex items-start gap-4">
               {/* Logo Box */}
-              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+              <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-(--primary-black) bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
                 <Image
                   src={deal.image}
                   alt={deal.name}
                   fill
-                  className="object-contain p-1"
-                  sizes="64px"
+                  className="object-contain p-2"
+                  sizes="80px"
                 />
               </div>
-              <div>
-                <h4 className="text-base font-semibold text-black md:text-lg">
+              <div className="pt-1">
+                <h4 className="text-base font-bold text-(--primary-black) md:text-lg">
                   {deal.name}
                 </h4>
-                <p className="mt-1 text-xs leading-snug font-medium text-gray-600">
+                <p className="mt-1 text-xs leading-snug font-medium text-(--neutral-30)">
                   {deal.description}
                 </p>
               </div>
@@ -181,23 +240,23 @@ export default function DealModal({
             <div className="space-y-4">
               {!deal.is_offline && (
                 <BrutalismButton
-                  label={'Claim Deal'}
+                  label="Claim Deal"
                   href={`https://claim.encoteki.com/deals/EPD${String(deal.id).padStart(4, '0')}`}
                   className="w-full"
                 />
               )}
 
               <BrutalismButton
-                label={'Visit Store'}
+                label="Visit Store"
                 bgColor="bg-[#ccf281]"
                 href={deal.store_url}
                 className="w-full"
               />
             </div>
 
-            {/* SDGs Section */}
-            <div className="mt-8 border-t-2 border-dashed border-gray-400 pt-4">
-              <p className="mb-3 text-xs font-bold tracking-wider text-gray-500 uppercase">
+            {/* SDGs Section (planned content) */}
+            <div className="mt-8 border-t-2 border-dashed border-(--neutral-60) pt-4">
+              <p className="text-xs font-black tracking-wider text-(--neutral-40) uppercase">
                 Sustainable Goals
               </p>
             </div>
