@@ -1,13 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ExternalLink, Loader2, RefreshCw } from 'lucide-react'
+import { ExternalLink, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import { Family } from '@/types/family.type'
-import { BrutalismButton } from '@/ui/buttons'
 import { getFamilies } from '@/actions/family'
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, useGSAP)
+}
 
 const ITEMS_PER_LOAD = 9
 
@@ -17,26 +23,25 @@ export default function FamilyGrid() {
   const [isError, setIsError] = useState(false)
   const [hasMore, setHasMore] = useState(false)
   const [page, setPage] = useState(1)
+  const gridRef = useRef<HTMLDivElement>(null)
 
   const loadFamiliesData = useCallback(
     async (pageNumber: number, limit: number, isAppend: boolean) => {
       setIsLoading(true)
+      setIsError(false)
 
       try {
         const result = await getFamilies(pageNumber, limit)
 
         if (result.success && result.data) {
-          const newData = result.data
-
           setHasMore(result.hasNextPage ?? false)
-
           if (isAppend) {
-            setFamilies((prev) => [...prev, ...newData])
+            setFamilies((prev) => [...prev, ...result.data!])
           } else {
-            setFamilies(newData)
+            setFamilies(result.data)
           }
         }
-      } catch (error) {
+      } catch {
         setIsError(true)
       } finally {
         setIsLoading(false)
@@ -49,6 +54,48 @@ export default function FamilyGrid() {
     loadFamiliesData(1, ITEMS_PER_LOAD, false)
   }, [loadFamiliesData])
 
+  const prevCountRef = useRef(0)
+
+  // Staggered scroll-triggered card entrance
+  useGSAP(
+    () => {
+      if (!gridRef.current || families.length === 0) return
+
+      const mm = gsap.matchMedia()
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const allCards = gsap.utils.toArray<HTMLElement>('.family-card')
+        const newCards = allCards.slice(prevCountRef.current)
+
+        if (newCards.length === 0) return
+
+        gsap.set(newCards, { y: 40, opacity: 0 })
+
+        ScrollTrigger.batch(newCards, {
+          start: 'top 90%',
+          onEnter: (batch) => {
+            gsap.to(batch, {
+              y: 0,
+              opacity: 1,
+              stagger: 0.08,
+              duration: 0.6,
+              ease: 'power3.out',
+              overwrite: true,
+            })
+          },
+        })
+
+        prevCountRef.current = allCards.length
+      })
+
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        const allCards = gsap.utils.toArray<HTMLElement>('.family-card')
+        gsap.set(allCards, { y: 0, opacity: 1 })
+        prevCountRef.current = allCards.length
+      })
+    },
+    { scope: gridRef, dependencies: [families] },
+  )
+
   const handleRetry = () => {
     setPage(1)
     loadFamiliesData(1, ITEMS_PER_LOAD, false)
@@ -60,102 +107,118 @@ export default function FamilyGrid() {
     loadFamiliesData(nextPage, ITEMS_PER_LOAD, true)
   }
 
-  return (
-    <>
-      {families.length > 0 ? (
-        <div className="flex flex-col gap-12">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-            {families.map((family) => (
-              <Link
-                key={family.id}
-                href={family.link || '#'}
-                target={family.link ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                className="group relative flex h-full flex-col justify-between rounded-xl border-2 border-black bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-gray-50"
-              >
-                <>
-                  <div className="mb-5 flex items-start justify-between">
-                    <div className="relative flex h-14 max-w-30 items-center justify-start">
-                      {family.image ? (
-                        <Image
-                          src={family.image}
-                          alt={family.name}
-                          width={999}
-                          height={999}
-                          className="h-full w-auto object-contain object-left"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="text-xl font-bold text-black">
-                          {family.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    <ExternalLink className="h-6 w-6 text-black opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="mb-2 text-xl font-black tracking-tight text-black uppercase transition-colors">
-                    {family.name}
-                  </h3>
-                  <p className="mb-6 line-clamp-3 text-sm leading-relaxed font-medium text-gray-800">
-                    {family.description}
-                  </p>
-                </>
-
-                {/* Tags */}
-                <div className="mt-auto flex flex-wrap gap-2">
-                  <span className="rounded-full border-2 border-black bg-[#ccf281] px-3 py-1 text-xs font-medium text-black uppercase transition-colors">
-                    {family.tags}
-                  </span>
-                </div>
-              </Link>
-            ))}
+  if (families.length === 0) {
+    return (
+      <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
+        {isLoading ? (
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-(--primary-black)" />
+            <p className="font-mono text-sm text-(--neutral-30)">
+              Fetching families...
+            </p>
           </div>
+        ) : isError ? (
+          <button
+            onClick={handleRetry}
+            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none"
+          >
+            <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
+            Try Again
+          </button>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <p className="font-mono text-sm tracking-widest text-(--neutral-40) uppercase">
+              No families yet
+            </p>
+            <p className="text-sm text-(--neutral-40)">
+              Check back soon for new community families.
+            </p>
+          </div>
+        )}
+      </div>
+    )
+  }
 
-          {hasMore && (
-            <div className="flex justify-center pt-8">
-              <BrutalismButton
-                className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black md:text-base"
-                label="Load More"
-                onClick={handleLoadMore}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
-          {isLoading ? (
-            <div className="flex flex-col items-center gap-6">
-              <div className="flex items-center gap-3">
-                <Loader2 className="h-5 w-5 animate-spin text-black" />
-                <p className="font-mono text-sm text-gray-500">
-                  Fetching families...
-                </p>
+  return (
+    <div ref={gridRef} className="flex flex-col gap-12">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {families.map((family, index) => (
+          <Link
+            key={family.id}
+            href={family.link || '#'}
+            target={family.link ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            className="family-card group relative flex h-full flex-col justify-between rounded-xl border-2 border-(--primary-black) bg-white p-6 shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]"
+            style={{
+              ['--hover-rotate' as string]: `${index % 3 === 0 ? '-1' : index % 3 === 1 ? '0.5' : '1'}deg`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = `translateY(-8px) rotate(var(--hover-rotate))`
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = ''
+            }}
+          >
+            <div className="mb-5 flex items-start justify-between">
+              <div className="relative flex h-14 max-w-30 items-center justify-start">
+                {family.image ? (
+                  <Image
+                    src={family.image}
+                    alt={family.name}
+                    width={999}
+                    height={999}
+                    className="h-full w-auto object-contain object-left"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-(--primary-black) bg-(--khaki-80) text-xl font-black text-(--primary-black)">
+                    {family.name.charAt(0)}
+                  </div>
+                )}
               </div>
+              <ExternalLink className="h-5 w-5 text-(--primary-black) opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </div>
-          ) : isError ? (
-            <div className="flex flex-col items-center gap-4">
-              <button
-                onClick={handleRetry}
-                className="group flex items-center gap-2 rounded-full border-2 border-black bg-white px-6 py-3 text-sm font-bold text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
-              >
-                <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
-                Try Again
-              </button>
+
+            <h3 className="mb-2 text-xl font-black tracking-tight text-(--primary-black) uppercase">
+              {family.name}
+            </h3>
+            <p className="text-[var(--neutral-30) mb-6 line-clamp-3 text-sm leading-relaxed font-medium">
+              {family.description}
+            </p>
+
+            <div className="mt-auto flex flex-wrap gap-2">
+              <span className="rounded-full border-2 border-(--primary-black) bg-[#ccf281] px-3 py-1 text-xs font-bold tracking-wider text-(--primary-black) uppercase transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                {family.tags}
+              </span>
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              <p className="font-mono text-sm tracking-widest text-gray-400 uppercase">
-                No families available at the moment
-              </p>
-              <p className="text-sm text-gray-400">
-                Check back soon for new community families.
-              </p>
-            </div>
-          )}
+          </Link>
+        ))}
+      </div>
+
+      {hasMore && (
+        <div className="flex justify-center pb-12">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoading}
+            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
+          >
+            {isLoading ? (
+              <>
+                Loading...
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              <>
+                Load More
+                <ArrowDown
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5"
+                  strokeWidth={2.5}
+                />
+              </>
+            )}
+          </button>
         </div>
       )}
-    </>
+    </div>
   )
 }
