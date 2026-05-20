@@ -5,4 +5,5 @@ export interface Family {
   tags: string[]
   image: string
   link: string
+  is_active: boolean
 }

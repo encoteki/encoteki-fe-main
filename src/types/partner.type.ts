@@ -7,4 +7,5 @@ export interface Partners {
   image: string
   store_url: string
   is_offline: boolean
+  is_active: boolean
 }

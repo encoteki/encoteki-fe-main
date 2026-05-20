@@ -34,11 +34,13 @@ export async function getFamilies(
         description,
         image,
         link,
+        is_active,
         tags (
           label
         )
       `,
       )
+      .eq('is_active', true)
       .order('name', { ascending: true })
       .range(from, to)
 

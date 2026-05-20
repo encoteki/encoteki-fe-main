@@ -28,6 +28,7 @@ export async function getPartners(
     const { data, error } = await supabase
       .from('partners')
       .select('*')
+      .eq('is_active', true)
       .range(from, to)
       .order('id', { ascending: true })
 
