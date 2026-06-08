@@ -53,6 +53,13 @@ export default function Roadmap() {
   }, [])
 
   const isProgrammaticScroll = useRef(false)
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current !== null) clearTimeout(scrollTimerRef.current)
+    }
+  }, [])
 
   const scrollToItem = useCallback(
     (index: number) => {
@@ -68,14 +75,19 @@ export default function Roadmap() {
           left: scrollLeft,
           behavior: reducedMotion ? 'auto' : 'smooth',
         })
-        // Reset after scroll settles
-        setTimeout(() => {
+        if (scrollTimerRef.current !== null) clearTimeout(scrollTimerRef.current)
+        scrollTimerRef.current = setTimeout(() => {
           isProgrammaticScroll.current = false
-        }, 600)
+        }, reducedMotion ? 50 : 600)
       }
     },
     [reducedMotion],
   )
+
+  const navigateToIndex = useCallback((index: number) => {
+    isProgrammaticScroll.current = true
+    setActiveIndex(index)
+  }, [])
 
   useEffect(() => {
     const container = scrollContainerRef.current
@@ -112,9 +124,9 @@ export default function Roadmap() {
         direction === 'left'
           ? Math.max(0, activeIndex - 1)
           : Math.min(phases.length - 1, activeIndex + 1)
-      setActiveIndex(newIndex)
+      navigateToIndex(newIndex)
     },
-    [activeIndex],
+    [activeIndex, navigateToIndex],
   )
 
   const handleKeyDown = useCallback(
@@ -184,7 +196,7 @@ export default function Roadmap() {
                   ref={(el) => {
                     itemsRef.current[index] = el
                   }}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => navigateToIndex(index)}
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`Phase ${phase.id}: ${phase.title}`}
@@ -230,7 +242,7 @@ export default function Roadmap() {
               {phases.map((phase, index) => (
                 <button
                   key={index}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => navigateToIndex(index)}
                   aria-label={`Go to phase ${index + 1}`}
                   className={`h-3 rounded-full border-2 border-(--primary-black) transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
                     index === activeIndex
