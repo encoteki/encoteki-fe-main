@@ -144,9 +144,9 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
       )}
     >
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-base leading-tight font-medium text-[var(--primary-black)] transition-colors duration-300 md:text-2xl">
+        <span className="text-base leading-tight font-medium text-[var(--primary-black)] transition-colors duration-300 md:text-2xl">
           {item.question}
-        </h3>
+        </span>
 
         <div
           className={cn(

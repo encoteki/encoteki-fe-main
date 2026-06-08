@@ -5,15 +5,14 @@ import { usePathname } from 'next/navigation'
 
 export default function FocusManager() {
   const pathname = usePathname()
-  const isFirst = useRef(true)
+  const prevPathname = useRef(pathname)
 
   useEffect(() => {
-    if (isFirst.current) {
-      isFirst.current = false
-      return
-    }
-    const main = document.getElementById('main-content')
-    main?.focus()
+    if (prevPathname.current === pathname) return
+    prevPathname.current = pathname
+    requestAnimationFrame(() => {
+      document.getElementById('main-content')?.focus()
+    })
   }, [pathname])
 
   return null

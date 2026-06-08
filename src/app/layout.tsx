@@ -141,13 +141,17 @@ export default function RootLayout({
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[99999] focus:rounded-lg focus:border-2 focus:border-(--primary-black) focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-(--primary-black) focus:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-99999 focus:rounded-lg focus:border-2 focus:border-(--primary-black) focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-(--primary-black) focus:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
         >
           Skip to content
         </a>
         <FocusManager />
         <Header />
-        <div id="main-content" tabIndex={-1} className="outline-none">
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+        >
           {children}
         </div>
         <Footer />
