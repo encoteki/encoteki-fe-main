@@ -52,6 +52,15 @@ export default function Roadmap() {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
+  const isProgrammaticScroll = useRef(false)
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current !== null) clearTimeout(scrollTimerRef.current)
+    }
+  }, [])
+
   const scrollToItem = useCallback(
     (index: number) => {
       const container = scrollContainerRef.current
@@ -61,14 +70,53 @@ export default function Roadmap() {
         const scrollLeft =
           item.offsetLeft - container.clientWidth / 2 + item.clientWidth / 2
 
+        isProgrammaticScroll.current = true
         container.scrollTo({
           left: scrollLeft,
           behavior: reducedMotion ? 'auto' : 'smooth',
         })
+        if (scrollTimerRef.current !== null) clearTimeout(scrollTimerRef.current)
+        scrollTimerRef.current = setTimeout(() => {
+          isProgrammaticScroll.current = false
+        }, reducedMotion ? 50 : 600)
       }
     },
     [reducedMotion],
   )
+
+  const navigateToIndex = useCallback((index: number) => {
+    isProgrammaticScroll.current = true
+    setActiveIndex(index)
+  }, [])
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      if (isProgrammaticScroll.current) return
+
+      const containerCenter = container.scrollLeft + container.clientWidth / 2
+      let closestIndex = 0
+      let closestDistance = Infinity
+
+      itemsRef.current.forEach((item, index) => {
+        if (item) {
+          const itemCenter = item.offsetLeft + item.clientWidth / 2
+          const distance = Math.abs(itemCenter - containerCenter)
+          if (distance < closestDistance) {
+            closestDistance = distance
+            closestIndex = index
+          }
+        }
+      })
+
+      setActiveIndex(closestIndex)
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleNav = useCallback(
     (direction: 'left' | 'right') => {
@@ -76,9 +124,9 @@ export default function Roadmap() {
         direction === 'left'
           ? Math.max(0, activeIndex - 1)
           : Math.min(phases.length - 1, activeIndex + 1)
-      setActiveIndex(newIndex)
+      navigateToIndex(newIndex)
     },
-    [activeIndex],
+    [activeIndex, navigateToIndex],
   )
 
   const handleKeyDown = useCallback(
@@ -148,7 +196,7 @@ export default function Roadmap() {
                   ref={(el) => {
                     itemsRef.current[index] = el
                   }}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => navigateToIndex(index)}
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`Phase ${phase.id}: ${phase.title}`}
@@ -194,7 +242,7 @@ export default function Roadmap() {
               {phases.map((phase, index) => (
                 <button
                   key={index}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => navigateToIndex(index)}
                   aria-label={`Go to phase ${index + 1}`}
                   className={`h-3 rounded-full border-2 border-(--primary-black) transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
                     index === activeIndex
