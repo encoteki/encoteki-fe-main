@@ -4,25 +4,28 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ExternalLink, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 
 import { Family } from '@/types/family.type'
 import { getFamilies } from '@/actions/family'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP)
-}
-
 const ITEMS_PER_LOAD = 9
 
-export default function FamilyGrid() {
-  const [families, setFamilies] = useState<Family[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+interface FamilyGridProps {
+  initialData?: Family[]
+  initialHasMore?: boolean
+}
+
+export default function FamilyGrid({
+  initialData,
+  initialHasMore,
+}: FamilyGridProps) {
+  const [families, setFamilies] = useState<Family[]>(initialData ?? [])
+  const [isLoading, setIsLoading] = useState(initialData === undefined)
   const [isError, setIsError] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
+  const [hasMore, setHasMore] = useState(initialHasMore ?? false)
   const [page, setPage] = useState(1)
+  const skipInitialFetch = useRef(initialData !== undefined)
   const gridRef = useRef<HTMLDivElement>(null)
 
   const loadFamiliesData = useCallback(
@@ -51,6 +54,7 @@ export default function FamilyGrid() {
   )
 
   useEffect(() => {
+    if (skipInitialFetch.current) return
     loadFamiliesData(1, ITEMS_PER_LOAD, false)
   }, [loadFamiliesData])
 
@@ -160,14 +164,14 @@ export default function FamilyGrid() {
             }}
           >
             <div className="mb-5 flex items-start justify-between">
-              <div className="relative flex h-14 max-w-30 items-center justify-start">
+              <div className="relative h-14 w-30">
                 {family.image ? (
                   <Image
                     src={family.image}
                     alt={family.name}
-                    width={999}
-                    height={999}
-                    className="h-full w-auto object-contain object-left"
+                    fill
+                    className="object-contain object-left"
+                    sizes="120px"
                     loading="lazy"
                   />
                 ) : (

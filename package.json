@@ -12,6 +12,7 @@
     "prettier": "prettier --check .",
     "format": "prettier --write --ignore-path .gitignore .",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit && eslint --fix . && prettier --write .",
+    "analyze": "ANALYZE=true next build --webpack",
     "prepare": "husky"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@eslint/eslintrc": "^3.3.5",
+    "@next/bundle-analyzer": "^16.2.7",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/dompurify": "^3.2.0",
     "@types/node": "^25.5.2",

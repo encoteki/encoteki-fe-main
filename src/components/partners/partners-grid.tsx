@@ -3,27 +3,30 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ArrowUpRight, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
 import { getPartners } from '@/actions/partner'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP)
-}
-
 const ITEMS_PER_LOAD = 12
 
-export default function PartnersGrid() {
-  const [partners, setPartners] = useState<Partners[]>([])
+interface PartnersGridProps {
+  initialData?: Partners[]
+  initialHasMore?: boolean
+}
+
+export default function PartnersGrid({
+  initialData,
+  initialHasMore,
+}: PartnersGridProps) {
+  const [partners, setPartners] = useState<Partners[]>(initialData ?? [])
   const [selectedDeal, setSelectedDeal] = useState<Partners | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasMore, setHasMore] = useState(false)
+  const [isLoading, setIsLoading] = useState(initialData === undefined)
+  const [hasMore, setHasMore] = useState(initialHasMore ?? false)
   const [isError, setIsError] = useState(false)
   const [page, setPage] = useState(1)
+  const skipInitialFetch = useRef(initialData !== undefined)
   const gridRef = useRef<HTMLDivElement>(null)
   const triggerCardRef = useRef<HTMLButtonElement | null>(null)
 
@@ -51,6 +54,7 @@ export default function PartnersGrid() {
   )
 
   useEffect(() => {
+    if (skipInitialFetch.current) return
     loadPartnersData(1, ITEMS_PER_LOAD, false)
   }, [loadPartnersData])
 

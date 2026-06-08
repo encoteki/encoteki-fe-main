@@ -75,10 +75,14 @@ export default function Roadmap() {
           left: scrollLeft,
           behavior: reducedMotion ? 'auto' : 'smooth',
         })
-        if (scrollTimerRef.current !== null) clearTimeout(scrollTimerRef.current)
-        scrollTimerRef.current = setTimeout(() => {
-          isProgrammaticScroll.current = false
-        }, reducedMotion ? 50 : 600)
+        if (scrollTimerRef.current !== null)
+          clearTimeout(scrollTimerRef.current)
+        scrollTimerRef.current = setTimeout(
+          () => {
+            isProgrammaticScroll.current = false
+          },
+          reducedMotion ? 50 : 600,
+        )
       }
     },
     [reducedMotion],
