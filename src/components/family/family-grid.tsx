@@ -151,7 +151,7 @@ export default function FamilyGrid({
             key={family.id}
             href={family.link || '#'}
             target={family.link ? '_blank' : undefined}
-            rel="noopener noreferrer"
+            rel={family.link ? 'noopener noreferrer' : undefined}
             className="family-card group relative flex h-full flex-col justify-between rounded-xl border-2 border-(--primary-black) bg-white p-6 shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]"
             style={{
               ['--hover-rotate' as string]: `${index % 3 === 0 ? '-1' : index % 3 === 1 ? '0.5' : '1'}deg`,
