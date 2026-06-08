@@ -52,6 +52,8 @@ export default function Roadmap() {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
+  const isProgrammaticScroll = useRef(false)
+
   const scrollToItem = useCallback(
     (index: number) => {
       const container = scrollContainerRef.current
@@ -61,14 +63,48 @@ export default function Roadmap() {
         const scrollLeft =
           item.offsetLeft - container.clientWidth / 2 + item.clientWidth / 2
 
+        isProgrammaticScroll.current = true
         container.scrollTo({
           left: scrollLeft,
           behavior: reducedMotion ? 'auto' : 'smooth',
         })
+        // Reset after scroll settles
+        setTimeout(() => {
+          isProgrammaticScroll.current = false
+        }, 600)
       }
     },
     [reducedMotion],
   )
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      if (isProgrammaticScroll.current) return
+
+      const containerCenter = container.scrollLeft + container.clientWidth / 2
+      let closestIndex = 0
+      let closestDistance = Infinity
+
+      itemsRef.current.forEach((item, index) => {
+        if (item) {
+          const itemCenter = item.offsetLeft + item.clientWidth / 2
+          const distance = Math.abs(itemCenter - containerCenter)
+          if (distance < closestDistance) {
+            closestDistance = distance
+            closestIndex = index
+          }
+        }
+      })
+
+      setActiveIndex(closestIndex)
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleNav = useCallback(
     (direction: 'left' | 'right') => {
