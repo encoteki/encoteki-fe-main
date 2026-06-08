@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
+import { headers } from 'next/headers'
 import '../styles/globals.css'
 import Header from '@/components/header'
 import { Footer } from '@/components/footer'
@@ -128,11 +129,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? ''
   return (
     <html lang="en">
       <body
