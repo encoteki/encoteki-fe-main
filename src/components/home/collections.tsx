@@ -19,6 +19,7 @@ export default function Collections() {
             <Link
               href={process.env.ARTIST_PORTFOLIO ?? ''}
               target="_blank"
+              rel="noopener noreferrer"
               className="font-medium text-(--primary-green) underline decoration-transparent decoration-2 underline-offset-8 transition-all delay-150 duration-300 hover:decoration-(--primary-green)"
             >
               Rahel Kristhea
