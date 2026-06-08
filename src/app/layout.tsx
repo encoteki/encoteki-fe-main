@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
+import { headers } from 'next/headers'
 import '../styles/globals.css'
 import Header from '@/components/header'
 import { Footer } from '@/components/footer'
+import FocusManager from '@/ui/focus-manager'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -127,19 +129,33 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? ''
   return (
     <html lang="en">
       <body
         className={`${outfit.className} antialiased`}
         suppressHydrationWarning
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-99999 focus:rounded-lg focus:border-2 focus:border-(--primary-black) focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-(--primary-black) focus:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
+        >
+          Skip to content
+        </a>
+        <FocusManager />
         <Header />
-        {children}
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+        >
+          {children}
+        </div>
         <Footer />
       </body>
     </html>

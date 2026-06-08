@@ -131,19 +131,22 @@ export default function FAQ() {
 
 const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      aria-expanded={isOpen}
       className={cn(
         'faq-card group relative cursor-pointer opacity-0',
-        'flex flex-col justify-center',
+        'flex w-full flex-col justify-center text-left',
         'rounded-4xl border-2 border-[var(--primary-black)] bg-white p-6 md:rounded-[2.5rem] md:p-8',
         'transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]',
+        'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)',
       )}
     >
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-base leading-tight font-medium text-[var(--primary-black)] transition-colors duration-300 md:text-2xl">
+        <span className="text-base leading-tight font-medium text-[var(--primary-black)] transition-colors duration-300 md:text-2xl">
           {item.question}
-        </h3>
+        </span>
 
         <div
           className={cn(
@@ -171,6 +174,6 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
           </p>
         </div>
       </div>
-    </div>
+    </button>
   )
 }
