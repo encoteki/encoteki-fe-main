@@ -16,6 +16,7 @@
     "analyze": "ANALYZE=true next build --webpack",
     "prepare": "husky"
   },
+  "packageManager": "yarn@4.15.0",
   "engines": {
     "node": ">=22"
   },
