@@ -6,16 +6,24 @@ const withBundleAnalyzer = bundleAnalyzer({
   openAnalyzer: true,
 })
 
+const supabaseDomain = process.env.SUPABASE_DOMAIN
+
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: process.env.SUPABASE_DOMAIN || '',
-        port: '',
-        pathname: '/**',
-      },
-    ],
+    // Only register the Supabase remote pattern when the host is configured.
+    // An empty hostname makes Next throw "Expected a non-empty string" during
+    // the build's image-optimization step — which is what happens in CI, where
+    // there is no .env. When unset, ship no remote patterns instead.
+    remotePatterns: supabaseDomain
+      ? [
+          {
+            protocol: 'https',
+            hostname: supabaseDomain,
+            port: '',
+            pathname: '/**',
+          },
+        ]
+      : [],
   },
   async headers() {
     return [
