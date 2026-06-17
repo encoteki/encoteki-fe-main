@@ -12,7 +12,7 @@
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Framework:** [Next.js](https://nextjs.org) (App Router)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
@@ -21,25 +21,74 @@
 - **Bundler:** Turbopack (Dev)
 - **Linting & Formatting:** ESLint & Prettier
 
-## 🛠️ Getting Started
+---
 
-### Prerequisites
+## Prerequisites
 
-Make sure you have **Node.js** (LTS version recommended) and **Yarn** installed on your machine.
+- **Node.js v22+** — use `nvm use` if you have [nvm](https://github.com/nvm-sh/nvm) installed (`.nvmrc` is committed)
+- **Yarn** — install via `npm install -g yarn` if not present
 
-### Installation
+---
 
-Clone the repository and install dependencies:
+## Getting Started
+
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/encoteki/fe-main.git
-
 cd fe-main
-
 yarn install
 ```
 
-## 🪪 License
+### 2. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and fill in the values. See `.env.example` for descriptions of each variable. Required keys:
+
+| Variable                               | Description                                |
+| -------------------------------------- | ------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Your Supabase project URL                  |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable (anon) key            |
+| `SUPABASE_DOMAIN`                      | Supabase hostname (for CSP + `next/image`) |
+| `LIVE_DOMAIN`                          | Canonical site URL (used in metadata)      |
+| `NEXT_PUBLIC_APP_MINT`                 | External mint app URL                      |
+| `NEXT_PUBLIC_APP_DAO`                  | External DAO app URL                       |
+
+### 3. Run in development
+
+```bash
+yarn dev
+```
+
+Opens at [http://localhost:3000](http://localhost:3000) with Turbopack HMR.
+
+---
+
+## Commands
+
+| Command           | Description                                                 |
+| ----------------- | ----------------------------------------------------------- |
+| `yarn dev`        | Start development server (Turbopack)                        |
+| `yarn build`      | Production build                                            |
+| `yarn start`      | Serve the production build                                  |
+| `yarn lint`       | ESLint check (read-only)                                    |
+| `yarn prettier`   | Prettier format check (read-only)                           |
+| `yarn typecheck`  | TypeScript check (read-only, used in CI)                    |
+| `yarn type-check` | Full fix pass — `tsc` + `eslint --fix` + `prettier --write` |
+| `yarn analyze`    | Bundle size visualiser (opens in browser)                   |
+
+---
+
+## CI
+
+Every push to `main`/`dev` and every pull request runs **lint → format check → typecheck → build** via GitHub Actions. PRs that fail any step are blocked from merging.
+
+---
+
+## License
 
 This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
 

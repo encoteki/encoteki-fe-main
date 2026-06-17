@@ -11,9 +11,13 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier": "prettier --check .",
     "format": "prettier --write --ignore-path .gitignore .",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit && eslint --fix . && prettier --write .",
     "analyze": "ANALYZE=true next build --webpack",
     "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -46,7 +50,7 @@
     "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.1",
-    "typescript": "^6.0.3"
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
