@@ -31,8 +31,10 @@ const nextConfig: NextConfig = {
             value: 'DENY',
           },
           {
+            // Legacy XSS auditor; disabled per modern guidance (it has caused
+            // info-leak issues). CSP in middleware.ts is the real XSS backstop.
             key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            value: '0',
           },
           {
             key: 'Referrer-Policy',
