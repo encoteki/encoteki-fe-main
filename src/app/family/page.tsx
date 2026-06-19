@@ -1,11 +1,11 @@
 export const dynamic = 'force-dynamic'
 
-import { getFamilies } from '@/actions/family'
+import { fetchFamilies } from '@/lib/data/family'
 import FamilyGrid from '@/components/family/family-grid'
 import PageHeader from '@/ui/page-header'
 
 export default async function FamilyPage() {
-  const result = await getFamilies(1, 9)
+  const result = await fetchFamilies(1, 9)
 
   return (
     <main className="partner-container bg-(--khaki-90)">

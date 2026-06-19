@@ -7,7 +7,7 @@ import { ExternalLink, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
 import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 
 import { Family } from '@/types/family.type'
-import { getFamilies } from '@/actions/family'
+import type { FamilyResponse } from '@/lib/data/family'
 
 const ITEMS_PER_LOAD = 9
 
@@ -34,12 +34,16 @@ export default function FamilyGrid({
       setIsError(false)
 
       try {
-        const result = await getFamilies(pageNumber, limit)
+        const res = await fetch(
+          `/api/families?page=${pageNumber}&limit=${limit}`,
+        )
+        if (!res.ok) throw new Error('fetch failed')
+        const result = (await res.json()) as FamilyResponse
 
         if (result.success && result.data) {
           setHasMore(result.hasNextPage ?? false)
           if (isAppend) {
-            setFamilies((prev) => [...prev, ...result.data!])
+            setFamilies((prev) => [...prev, ...result.data])
           } else {
             setFamilies(result.data)
           }
@@ -186,7 +190,7 @@ export default function FamilyGrid({
             <h3 className="mb-2 text-xl font-black tracking-tight text-(--primary-black) uppercase">
               {family.name}
             </h3>
-            <p className="text-[var(--neutral-30) mb-6 line-clamp-3 text-sm leading-relaxed font-medium">
+            <p className="mb-6 line-clamp-3 text-sm leading-relaxed font-medium text-(--neutral-30)">
               {family.description}
             </p>
 

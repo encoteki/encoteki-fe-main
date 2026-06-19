@@ -1,11 +1,11 @@
 export const dynamic = 'force-dynamic'
 
-import { getPartners } from '@/actions/partner'
+import { fetchPartners } from '@/lib/data/partner'
 import PartnersGrid from '@/components/partners/partners-grid'
 import PageHeader from '@/ui/page-header'
 
 export default async function PartnerDealsPage() {
-  const result = await getPartners(1, 12)
+  const result = await fetchPartners(1, 12)
 
   return (
     <main className="partner-container bg-(--khaki-90)">
