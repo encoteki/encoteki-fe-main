@@ -200,11 +200,18 @@ export default function Roadmap() {
                   ref={(el) => {
                     itemsRef.current[index] = el
                   }}
+                  tabIndex={0}
                   onClick={() => navigateToIndex(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigateToIndex(index)
+                    }
+                  }}
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`Phase ${phase.id}: ${phase.title}`}
-                  className="group relative flex w-70 shrink-0 cursor-pointer snap-center items-center justify-center md:w-87.5 xl:w-95"
+                  className="group relative flex w-70 shrink-0 cursor-pointer snap-center items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) md:w-87.5 xl:w-95"
                 >
                   <div
                     className={`roadmap-card relative flex min-h-60 w-full flex-col items-center rounded-3xl border-3 border-(--primary-black) bg-white p-6 text-center will-change-transform md:min-h-70 md:rounded-4xl md:p-10 xl:min-h-75 xl:p-12 ${

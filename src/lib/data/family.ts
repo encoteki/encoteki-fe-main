@@ -1,18 +1,17 @@
-'use server'
-
 import { createClient } from '@/lib/supabase/server'
-import { Family } from '@/types/family.type'
+import { FamilySchema } from '@/lib/schemas/family'
+import type { Family } from '@/types/family.type'
 
 const MAX_LIMIT = 50
 
-interface FamilyResponse {
+export interface FamilyResponse {
   success: boolean
   data: Family[]
   hasNextPage?: boolean
   message?: string
 }
 
-export async function getFamilies(
+export async function fetchFamilies(
   page: number = 1,
   limit: number = 6,
 ): Promise<FamilyResponse> {
@@ -21,7 +20,6 @@ export async function getFamilies(
 
     const safePage = Math.max(1, Math.floor(page))
     const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))
-
     const from = (safePage - 1) * safeLimit
     const to = from + safeLimit
 
@@ -49,16 +47,16 @@ export async function getFamilies(
     const hasNextPage = data.length > safeLimit
     const pagedData = data.slice(0, safeLimit)
 
-    const formattedData = pagedData.map((item: Record<string, unknown>) => ({
-      ...item,
-      tags: (item.tags as Record<string, string> | null)?.label
-        ? (item.tags as Record<string, string>).label
-        : '',
-    })) as unknown as Family[]
+    const formattedData = pagedData.map((item) =>
+      FamilySchema.parse({
+        ...item,
+        tags: (item.tags as unknown as { label: string } | null)?.label ?? '',
+      }),
+    )
 
     return { success: true, data: formattedData, hasNextPage }
   } catch (error: unknown) {
-    console.error('Server Action Error [getFamilies]:', error)
+    console.error('Error [fetchFamilies]:', error)
     return { success: false, data: [], message: 'Failed to fetch families' }
   }
 }

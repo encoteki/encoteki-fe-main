@@ -7,7 +7,7 @@ import { ExternalLink, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
 import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 
 import { Family } from '@/types/family.type'
-import { getFamilies } from '@/actions/family'
+import type { FamilyResponse } from '@/lib/data/family'
 
 const ITEMS_PER_LOAD = 9
 
@@ -34,12 +34,16 @@ export default function FamilyGrid({
       setIsError(false)
 
       try {
-        const result = await getFamilies(pageNumber, limit)
+        const res = await fetch(
+          `/api/families?page=${pageNumber}&limit=${limit}`,
+        )
+        if (!res.ok) throw new Error('fetch failed')
+        const result = (await res.json()) as FamilyResponse
 
         if (result.success && result.data) {
           setHasMore(result.hasNextPage ?? false)
           if (isAppend) {
-            setFamilies((prev) => [...prev, ...result.data!])
+            setFamilies((prev) => [...prev, ...result.data])
           } else {
             setFamilies(result.data)
           }
@@ -131,10 +135,10 @@ export default function FamilyGrid({
           </button>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-40) uppercase">
+            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
               No families yet
             </p>
-            <p className="text-sm text-(--neutral-40)">
+            <p className="text-sm text-(--neutral-30)">
               Check back soon for new community families.
             </p>
           </div>
@@ -146,57 +150,83 @@ export default function FamilyGrid({
   return (
     <div ref={gridRef} className="flex flex-col gap-12">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {families.map((family, index) => (
-          <Link
-            key={family.id}
-            href={family.link || '#'}
-            target={family.link ? '_blank' : undefined}
-            rel={family.link ? 'noopener noreferrer' : undefined}
-            className="family-card group relative flex h-full flex-col justify-between rounded-xl border-2 border-(--primary-black) bg-white p-6 shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]"
-            style={{
-              ['--hover-rotate' as string]: `${index % 3 === 0 ? '-1' : index % 3 === 1 ? '0.5' : '1'}deg`,
-            }}
-            onMouseEnter={(e) => {
+        {families.map((family, index) => {
+          const cardClassName =
+            'family-card group relative flex h-full flex-col justify-between rounded-xl border-2 border-(--primary-black) bg-white p-6 shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]'
+          const cardStyle = {
+            ['--hover-rotate' as string]: `${index % 3 === 0 ? '-1' : index % 3 === 1 ? '0.5' : '1'}deg`,
+          }
+          const hoverHandlers = {
+            onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
               e.currentTarget.style.transform = `translateY(-8px) rotate(var(--hover-rotate))`
-            }}
-            onMouseLeave={(e) => {
+            },
+            onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
               e.currentTarget.style.transform = ''
-            }}
-          >
-            <div className="mb-5 flex items-start justify-between">
-              <div className="relative h-14 w-30">
-                {family.image ? (
-                  <Image
-                    src={family.image}
-                    alt={family.name}
-                    fill
-                    className="object-contain object-left"
-                    sizes="120px"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-(--primary-black) bg-(--khaki-80) text-xl font-black text-(--primary-black)">
-                    {family.name.charAt(0)}
-                  </div>
+            },
+          }
+
+          const cardInner = (
+            <>
+              <div className="mb-5 flex items-start justify-between">
+                <div className="relative h-14 w-30">
+                  {family.image ? (
+                    <Image
+                      src={family.image}
+                      alt={family.name}
+                      fill
+                      className="object-contain object-left"
+                      sizes="120px"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-(--primary-black) bg-(--khaki-80) text-xl font-black text-(--primary-black)">
+                      {family.name.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                {family.link && (
+                  <ExternalLink className="h-5 w-5 text-(--primary-black) opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 )}
               </div>
-              <ExternalLink className="h-5 w-5 text-(--primary-black) opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            </div>
 
-            <h3 className="mb-2 text-xl font-black tracking-tight text-(--primary-black) uppercase">
-              {family.name}
-            </h3>
-            <p className="text-[var(--neutral-30) mb-6 line-clamp-3 text-sm leading-relaxed font-medium">
-              {family.description}
-            </p>
+              <h3 className="mb-2 text-xl font-black tracking-tight text-(--primary-black) uppercase">
+                {family.name}
+              </h3>
+              <p className="mb-6 line-clamp-3 text-sm leading-relaxed font-medium text-(--neutral-30)">
+                {family.description}
+              </p>
 
-            <div className="mt-auto flex flex-wrap gap-2">
-              <span className="rounded-full border-2 border-(--primary-black) bg-[#ccf281] px-3 py-1 text-xs font-bold tracking-wider text-(--primary-black) uppercase transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
-                {family.tags}
-              </span>
+              <div className="mt-auto flex flex-wrap gap-2">
+                <span className="rounded-full border-2 border-(--primary-black) bg-[#ccf281] px-3 py-1 text-xs font-bold tracking-wider text-(--primary-black) uppercase transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                  {family.tags}
+                </span>
+              </div>
+            </>
+          )
+
+          return family.link ? (
+            <Link
+              key={family.id}
+              href={family.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cardClassName}
+              style={cardStyle}
+              {...hoverHandlers}
+            >
+              {cardInner}
+            </Link>
+          ) : (
+            <div
+              key={family.id}
+              className={cardClassName}
+              style={cardStyle}
+              {...hoverHandlers}
+            >
+              {cardInner}
             </div>
-          </Link>
-        ))}
+          )
+        })}
       </div>
 
       {hasMore && (

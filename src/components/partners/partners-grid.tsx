@@ -6,7 +6,7 @@ import { ArrowUpRight, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
 import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
-import { getPartners } from '@/actions/partner'
+import type { PartnersResponse } from '@/lib/data/partner'
 
 const ITEMS_PER_LOAD = 12
 
@@ -35,11 +35,16 @@ export default function PartnersGrid({
       setIsLoading(true)
       setIsError(false)
       try {
-        const result = await getPartners(pageNumber, limit)
+        const res = await fetch(
+          `/api/partners?page=${pageNumber}&limit=${limit}`,
+        )
+        if (!res.ok) throw new Error('fetch failed')
+        const result = (await res.json()) as PartnersResponse
+
         if (result.success && result.data) {
           setHasMore(result.hasNextPage ?? false)
           if (isAppend) {
-            setPartners((prev) => [...prev, ...result.data!])
+            setPartners((prev) => [...prev, ...result.data])
           } else {
             setPartners(result.data)
           }
@@ -144,10 +149,10 @@ export default function PartnersGrid({
           </button>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-40) uppercase">
+            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
               No deals yet
             </p>
-            <p className="text-sm text-(--neutral-40)">
+            <p className="text-sm text-(--neutral-30)">
               Check back soon for exclusive partner offers.
             </p>
           </div>
@@ -173,7 +178,7 @@ export default function PartnersGrid({
             type="button"
             onClick={(e) => handleCardClick(item, e.currentTarget)}
             aria-label={`${item.offer} by ${item.name}`}
-            className={`partner-card group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-(--primary-black) bg-white text-left shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--primary-blue) active:translate-y-0 active:shadow-none ${index % 4 === 0 ? 'hover:-rotate-[0.8deg]' : index % 4 === 1 ? 'hover:rotate-[0.5deg]' : index % 4 === 2 ? 'hover:-rotate-[0.4deg]' : 'hover:rotate-[0.8deg]'}`}
+            className={`partner-card group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-(--primary-black) bg-white text-left shadow-[0_0_0_0_rgba(26,26,26,1)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-2 hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--primary-blue) active:translate-y-0 active:shadow-none ${index % 4 === 0 ? 'hover:rotate-[-0.8deg]' : index % 4 === 1 ? 'hover:rotate-[0.5deg]' : index % 4 === 2 ? 'hover:rotate-[-0.4deg]' : 'hover:rotate-[0.8deg]'}`}
           >
             {/* Top Area: Image */}
             <div className="relative aspect-square w-full overflow-hidden border-b-2 border-(--primary-black) bg-white p-6">
@@ -203,7 +208,7 @@ export default function PartnersGrid({
                 <h3 className="mb-1 text-sm leading-tight font-medium text-(--primary-black) md:text-base lg:text-lg">
                   {item.offer}
                 </h3>
-                <p className="font-mono text-xs text-(--neutral-40)">
+                <p className="font-mono text-xs text-(--neutral-30)">
                   {item.name}
                 </p>
               </div>
