@@ -135,10 +135,10 @@ export default function FamilyGrid({
           </button>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-40) uppercase">
+            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
               No families yet
             </p>
-            <p className="text-sm text-(--neutral-40)">
+            <p className="text-sm text-(--neutral-30)">
               Check back soon for new community families.
             </p>
           </div>

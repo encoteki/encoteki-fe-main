@@ -256,7 +256,7 @@ export default function DealModal({
 
             {/* SDGs Section (planned content) */}
             <div className="mt-8 border-t-2 border-dashed border-(--neutral-60) pt-4">
-              <p className="text-xs font-black tracking-wider text-(--neutral-40) uppercase">
+              <p className="text-xs font-black tracking-wider text-(--neutral-30) uppercase">
                 Sustainable Goals
               </p>
             </div>

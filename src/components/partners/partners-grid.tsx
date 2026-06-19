@@ -149,10 +149,10 @@ export default function PartnersGrid({
           </button>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-40) uppercase">
+            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
               No deals yet
             </p>
-            <p className="text-sm text-(--neutral-40)">
+            <p className="text-sm text-(--neutral-30)">
               Check back soon for exclusive partner offers.
             </p>
           </div>
@@ -208,7 +208,7 @@ export default function PartnersGrid({
                 <h3 className="mb-1 text-sm leading-tight font-medium text-(--primary-black) md:text-base lg:text-lg">
                   {item.offer}
                 </h3>
-                <p className="font-mono text-xs text-(--neutral-40)">
+                <p className="font-mono text-xs text-(--neutral-30)">
                   {item.name}
                 </p>
               </div>

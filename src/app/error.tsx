@@ -17,7 +17,7 @@ export default function Error({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="space-y-2">
-        <p className="font-mono text-xs tracking-widest text-(--neutral-40) uppercase">
+        <p className="font-mono text-xs tracking-widest text-(--neutral-30) uppercase">
           Something went wrong
         </p>
         <h2 className="text-2xl font-black tracking-tight text-(--primary-black) uppercase">

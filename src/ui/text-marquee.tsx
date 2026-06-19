@@ -89,7 +89,6 @@ export default function TextMarquee({
   return (
     <div
       ref={containerRef}
-      role="marquee"
       aria-label={label}
       className={cn(
         'relative flex w-full overflow-hidden bg-transparent whitespace-nowrap text-(--primary-black)',
