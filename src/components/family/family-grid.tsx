@@ -8,6 +8,7 @@ import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 
 import { Family } from '@/types/family.type'
 import type { FamilyResponse } from '@/lib/data/family'
+import posthog from 'posthog-js'
 
 const ITEMS_PER_LOAD = 9
 
@@ -112,6 +113,10 @@ export default function FamilyGrid({
   const handleLoadMore = () => {
     const nextPage = page + 1
     setPage(nextPage)
+    posthog.capture('families_load_more_clicked', {
+      page: nextPage,
+      loaded_count: families.length,
+    })
     loadFamiliesData(nextPage, ITEMS_PER_LOAD, true)
   }
 
@@ -212,6 +217,13 @@ export default function FamilyGrid({
               rel="noopener noreferrer"
               className={cardClassName}
               style={cardStyle}
+              onClick={() =>
+                posthog.capture('family_card_clicked', {
+                  family_id: family.id,
+                  family_name: family.name,
+                  tags: family.tags,
+                })
+              }
               {...hoverHandlers}
             >
               {cardInner}

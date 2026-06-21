@@ -1,7 +1,10 @@
+'use client'
+
 import { BrutalismButton } from '@/ui/buttons'
 import SectionHeading from '@/ui/heading/section-heading'
 import VerticalMarquee from '@/ui/vertical-marquee'
 import Link from 'next/link'
+import posthog from 'posthog-js'
 
 export default function Collections() {
   return (
@@ -39,6 +42,7 @@ export default function Collections() {
           label="Mint Now"
           className="text-base md:text-xl"
           href={process.env.NEXT_PUBLIC_APP_MINT ?? ''}
+          onClick={() => posthog.capture('mint_now_clicked')}
         />
       </div>
     </section>

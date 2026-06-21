@@ -5,7 +5,12 @@ export const PartnerSchema = z.object({
   name: z.string(),
   offer: z.string(),
   description: z.string(),
-  tnc: z.string(),
+  // `tnc` is nullable in the database; normalise null/undefined to an empty
+  // string so a missing value doesn't break parsing of the whole list.
+  tnc: z
+    .string()
+    .nullish()
+    .transform((v) => v ?? ''),
   image: z.string(),
   // Neutralise any non-http(s) value (e.g. `javascript:` URIs) to an empty
   // string rather than throwing — a single bad row must not break the whole

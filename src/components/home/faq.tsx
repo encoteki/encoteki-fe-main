@@ -8,6 +8,7 @@ import { ArrowDownIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import SectionHeading from '@/ui/heading/section-heading'
 import { AbstractSeparator } from '@/ui/abstract-separator'
+import posthog from 'posthog-js'
 
 interface FAQItemData {
   question: string
@@ -93,19 +94,24 @@ export default function FAQ() {
   )
 
   const handleToggle = (index: number) => {
-    setVisibleIndex(visibleIndex === index ? null : index)
+    const isOpening = visibleIndex !== index
+    setVisibleIndex(isOpening ? index : null)
+    posthog.capture('faq_question_toggled', {
+      question: FAQ_DATA[index].question,
+      action: isOpening ? 'opened' : 'closed',
+    })
   }
 
   return (
     <>
-      <div className="bg-[var(--khaki-80)]">
+      <div className="bg-(--khaki-80)">
         <AbstractSeparator fillColor="#ceeefd" />
       </div>
 
       <section
         id="faq"
         ref={containerRef}
-        className="home-container flex w-full flex-col gap-12 bg-[var(--khaki-80)] py-16 md:py-24"
+        className="home-container flex w-full flex-col gap-12 bg-(--khaki-80) py-16 md:py-24"
       >
         <SectionHeading
           title="FAQ"
@@ -138,13 +144,13 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
       className={cn(
         'faq-card group relative cursor-pointer opacity-0',
         'flex w-full flex-col justify-center text-left',
-        'rounded-4xl border-2 border-[var(--primary-black)] bg-white p-6 md:rounded-[2.5rem] md:p-8',
+        'rounded-4xl border-2 border-(--primary-black) bg-white p-6 md:rounded-[2.5rem] md:p-8',
         'transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]',
         'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)',
       )}
     >
       <div className="flex items-center justify-between gap-4">
-        <span className="text-base leading-tight font-medium text-[var(--primary-black)] transition-colors duration-300 md:text-2xl">
+        <span className="text-base leading-tight font-medium text-(--primary-black) transition-colors duration-300 md:text-2xl">
           {item.question}
         </span>
 
@@ -152,8 +158,8 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
           className={cn(
             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 md:h-12 md:w-12',
             isOpen
-              ? 'rotate-180 bg-[var(--primary-green)] text-white'
-              : 'bg-white text-[var(--primary-black)] group-hover:text-[var(--primary-green)]',
+              ? 'rotate-180 bg-(--primary-green) text-white'
+              : 'bg-white text-(--primary-black) group-hover:text-(--primary-green)',
           )}
         >
           <ArrowDownIcon strokeWidth={3} className="h-5 w-5 md:h-6 md:w-6" />
@@ -169,7 +175,7 @@ const FAQItem = ({ item, isOpen, onClick }: FAQItemProps) => {
         )}
       >
         <div className="min-h-0">
-          <p className="font-mono text-sm leading-relaxed font-medium text-[var(--neutral-30)] md:text-base md:leading-loose">
+          <p className="font-mono text-sm leading-relaxed font-medium text-(--neutral-30) md:text-base md:leading-loose">
             {item.answer}
           </p>
         </div>
