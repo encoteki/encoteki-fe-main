@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Encoteki from '@/assets/encoteki.logo.webp'
 import { ArrowRight } from 'lucide-react'
+import posthog from 'posthog-js'
 
 const NFTCardIllustration = lazy(() =>
   import('@/ui/illustration/nft-card').then((m) => ({
@@ -127,7 +128,11 @@ export default function Header() {
           </Link>
 
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              const opening = !isExpanded
+              setIsExpanded(opening)
+              if (opening) posthog.capture('nav_menu_opened')
+            }}
             aria-label={isExpanded ? 'Close menu' : 'Open menu'}
             aria-expanded={isExpanded}
             className="group flex h-12 w-12 cursor-pointer flex-col items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
@@ -167,7 +172,13 @@ export default function Header() {
                 href={feature.href || '#'}
                 target={feature.isExternal ? '_blank' : undefined}
                 rel={feature.isExternal ? 'noopener noreferrer' : undefined}
-                onClick={() => setIsExpanded(false)}
+                onClick={() => {
+                  setIsExpanded(false)
+                  posthog.capture('nav_feature_clicked', {
+                    feature: feature.title,
+                    is_external: feature.isExternal,
+                  })
+                }}
                 className={`nav-card group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-(--primary-black) p-5 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] ${feature.color}`}
               >
                 <div className="absolute top-1/2 right-3 -translate-y-1/2 lg:inset-0 lg:flex lg:translate-y-0 lg:items-center lg:justify-center">

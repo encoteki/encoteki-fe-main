@@ -8,6 +8,7 @@ import { useGSAP } from '@gsap/react'
 import { Partners } from '@/types/partner.type'
 import { BrutalismButton } from '@/ui/buttons'
 import DOMPurify from 'dompurify'
+import posthog from 'posthog-js'
 
 export default function DealModal({
   deal,
@@ -42,6 +43,12 @@ export default function DealModal({
   }, [deal])
 
   const handleClose = useCallback(() => {
+    if (deal) {
+      posthog.capture('deal_modal_closed', {
+        partner_id: deal.id,
+        partner_name: deal.name,
+      })
+    }
     if (overlayRef.current && modalRef.current) {
       const tl = gsap.timeline({ onComplete: onCloseAction })
       tl.to(modalRef.current, {
@@ -59,7 +66,7 @@ export default function DealModal({
     } else {
       onCloseAction()
     }
-  }, [onCloseAction])
+  }, [onCloseAction, deal])
 
   // Prevent scroll
   useEffect(() => {
@@ -243,6 +250,13 @@ export default function DealModal({
                   label="Claim Deal"
                   href={`https://claim.encoteki.com/deals/EPD${String(deal.id).padStart(4, '0')}`}
                   className="w-full"
+                  onClick={() =>
+                    posthog.capture('deal_claim_clicked', {
+                      partner_id: deal.id,
+                      partner_name: deal.name,
+                      offer: deal.offer,
+                    })
+                  }
                 />
               )}
 
@@ -251,6 +265,13 @@ export default function DealModal({
                 bgColor="bg-[#ccf281]"
                 href={deal.store_url}
                 className="w-full"
+                onClick={() =>
+                  posthog.capture('deal_store_visited', {
+                    partner_id: deal.id,
+                    partner_name: deal.name,
+                    store_url: deal.store_url,
+                  })
+                }
               />
             </div>
 

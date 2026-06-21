@@ -7,6 +7,7 @@ import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
 import type { PartnersResponse } from '@/lib/data/partner'
+import posthog from 'posthog-js'
 
 const ITEMS_PER_LOAD = 12
 
@@ -112,6 +113,10 @@ export default function PartnersGrid({
   const handleLoadMore = () => {
     const nextPage = page + 1
     setPage(nextPage)
+    posthog.capture('partners_load_more_clicked', {
+      page: nextPage,
+      loaded_count: partners.length,
+    })
     loadPartnersData(nextPage, ITEMS_PER_LOAD, true)
   }
 
@@ -119,6 +124,12 @@ export default function PartnersGrid({
     triggerCardRef.current = el
     setSelectedDeal(item)
     setIsModalOpen(true)
+    posthog.capture('partner_deal_viewed', {
+      partner_id: item.id,
+      partner_name: item.name,
+      offer: item.offer,
+      is_offline: item.is_offline,
+    })
   }
 
   const handleCloseModal = () => {
