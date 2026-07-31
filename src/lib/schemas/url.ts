@@ -10,4 +10,5 @@ export const httpUrl = z
 export const httpUrlNullish = z
   .string()
   .nullish()
-  .transform((v) => (v && /^https?:\/\//i.test(v) ? v : ''))
+  .transform((v) => v ?? '')
+  .pipe(httpUrl)

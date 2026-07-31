@@ -1,13 +1,16 @@
 'use client'
 
 import Image from 'next/image'
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { ArrowUpRight, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
-import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
+import { useState, useRef } from 'react'
+import { ArrowUpRight } from 'lucide-react'
 import DealModal from '@/components/partners/deals-modal'
 import { Partners } from '@/types/partner.type'
-import type { PartnersResponse } from '@/lib/data/partner'
 import posthog from 'posthog-js'
+import {
+  usePaginatedGrid,
+  GridStatus,
+  LoadMoreButton,
+} from '@/ui/paginated-grid'
 
 const ITEMS_PER_LOAD = 12
 
@@ -20,105 +23,27 @@ export default function PartnersGrid({
   initialData,
   initialHasMore,
 }: PartnersGridProps) {
-  const [partners, setPartners] = useState<Partners[]>(initialData ?? [])
+  const {
+    items: partners,
+    isLoading,
+    isError,
+    hasMore,
+    gridRef,
+    handleRetry,
+    handleLoadMore,
+  } = usePaginatedGrid<Partners>({
+    endpoint: '/api/partners',
+    itemsPerLoad: ITEMS_PER_LOAD,
+    initialData,
+    initialHasMore,
+    loadMoreEvent: 'partners_load_more_clicked',
+    cardSelector: '.partner-card',
+    reveal: { y: 30, start: 'top 92%', stagger: 0.05, duration: 0.5 },
+  })
+
   const [selectedDeal, setSelectedDeal] = useState<Partners | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(initialData === undefined)
-  const [hasMore, setHasMore] = useState(initialHasMore ?? false)
-  const [isError, setIsError] = useState(false)
-  const [page, setPage] = useState(1)
-  const skipInitialFetch = useRef(initialData !== undefined)
-  const gridRef = useRef<HTMLDivElement>(null)
   const triggerCardRef = useRef<HTMLButtonElement | null>(null)
-
-  const loadPartnersData = useCallback(
-    async (pageNumber: number, limit: number, isAppend: boolean) => {
-      setIsLoading(true)
-      setIsError(false)
-      try {
-        const res = await fetch(
-          `/api/partners?page=${pageNumber}&limit=${limit}`,
-        )
-        if (!res.ok) throw new Error('fetch failed')
-        const result = (await res.json()) as PartnersResponse
-
-        if (result.success && result.data) {
-          setHasMore(result.hasNextPage ?? false)
-          if (isAppend) {
-            setPartners((prev) => [...prev, ...result.data])
-          } else {
-            setPartners(result.data)
-          }
-        }
-      } catch {
-        setIsError(true)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [],
-  )
-
-  useEffect(() => {
-    if (skipInitialFetch.current) return
-    loadPartnersData(1, ITEMS_PER_LOAD, false)
-  }, [loadPartnersData])
-
-  const prevCountRef = useRef(0)
-
-  useGSAP(
-    () => {
-      if (!gridRef.current || partners.length === 0) return
-
-      const mm = gsap.matchMedia()
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const allCards = gsap.utils.toArray<HTMLElement>('.partner-card')
-        const newCards = allCards.slice(prevCountRef.current)
-
-        if (newCards.length === 0) return
-
-        gsap.set(newCards, { y: 30, opacity: 0 })
-
-        ScrollTrigger.batch(newCards, {
-          start: 'top 92%',
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              y: 0,
-              opacity: 1,
-              stagger: 0.05,
-              duration: 0.5,
-              ease: 'power3.out',
-              overwrite: true,
-            })
-          },
-        })
-
-        prevCountRef.current = allCards.length
-      })
-
-      mm.add('(prefers-reduced-motion: reduce)', () => {
-        const allCards = gsap.utils.toArray<HTMLElement>('.partner-card')
-        gsap.set(allCards, { y: 0, opacity: 1 })
-        prevCountRef.current = allCards.length
-      })
-    },
-    { scope: gridRef, dependencies: [partners] },
-  )
-
-  const handleRetry = () => {
-    setPage(1)
-    loadPartnersData(1, ITEMS_PER_LOAD, false)
-  }
-
-  const handleLoadMore = () => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    posthog.capture('partners_load_more_clicked', {
-      page: nextPage,
-      loaded_count: partners.length,
-    })
-    loadPartnersData(nextPage, ITEMS_PER_LOAD, true)
-  }
 
   const handleCardClick = (item: Partners, el: HTMLButtonElement) => {
     triggerCardRef.current = el
@@ -142,33 +67,14 @@ export default function PartnersGrid({
 
   if (partners.length === 0) {
     return (
-      <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
-        {isLoading ? (
-          <div className="flex items-center gap-3">
-            <Loader2 className="h-5 w-5 animate-spin text-(--primary-black)" />
-            <p className="font-mono text-sm text-(--neutral-30)">
-              Fetching deals...
-            </p>
-          </div>
-        ) : isError ? (
-          <button
-            onClick={handleRetry}
-            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none"
-          >
-            <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
-            Try Again
-          </button>
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
-              No deals yet
-            </p>
-            <p className="text-sm text-(--neutral-30)">
-              Check back soon for exclusive partner offers.
-            </p>
-          </div>
-        )}
-      </div>
+      <GridStatus
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={handleRetry}
+        loadingLabel="Fetching deals..."
+        emptyTitle="No deals yet"
+        emptyDescription="Check back soon for exclusive partner offers."
+      />
     )
   }
 
@@ -236,28 +142,7 @@ export default function PartnersGrid({
       </div>
 
       {hasMore && (
-        <div className="flex justify-center pb-12">
-          <button
-            onClick={handleLoadMore}
-            disabled={isLoading}
-            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
-          >
-            {isLoading ? (
-              <>
-                Loading...
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              <>
-                Load More
-                <ArrowDown
-                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5"
-                  strokeWidth={2.5}
-                />
-              </>
-            )}
-          </button>
-        </div>
+        <LoadMoreButton isLoading={isLoading} onClick={handleLoadMore} />
       )}
 
       <DealModal

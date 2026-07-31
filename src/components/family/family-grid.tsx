@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ExternalLink, ArrowDown, Loader2, RefreshCw } from 'lucide-react'
-import gsap, { useGSAP, ScrollTrigger } from '@/lib/gsap'
+import { ExternalLink } from 'lucide-react'
+import posthog from 'posthog-js'
 
 import { Family } from '@/types/family.type'
-import type { FamilyResponse } from '@/lib/data/family'
-import posthog from 'posthog-js'
+import {
+  usePaginatedGrid,
+  GridStatus,
+  LoadMoreButton,
+} from '@/ui/paginated-grid'
 
 const ITEMS_PER_LOAD = 9
 
@@ -21,134 +23,34 @@ export default function FamilyGrid({
   initialData,
   initialHasMore,
 }: FamilyGridProps) {
-  const [families, setFamilies] = useState<Family[]>(initialData ?? [])
-  const [isLoading, setIsLoading] = useState(initialData === undefined)
-  const [isError, setIsError] = useState(false)
-  const [hasMore, setHasMore] = useState(initialHasMore ?? false)
-  const [page, setPage] = useState(1)
-  const skipInitialFetch = useRef(initialData !== undefined)
-  const gridRef = useRef<HTMLDivElement>(null)
-
-  const loadFamiliesData = useCallback(
-    async (pageNumber: number, limit: number, isAppend: boolean) => {
-      setIsLoading(true)
-      setIsError(false)
-
-      try {
-        const res = await fetch(
-          `/api/families?page=${pageNumber}&limit=${limit}`,
-        )
-        if (!res.ok) throw new Error('fetch failed')
-        const result = (await res.json()) as FamilyResponse
-
-        if (result.success && result.data) {
-          setHasMore(result.hasNextPage ?? false)
-          if (isAppend) {
-            setFamilies((prev) => [...prev, ...result.data])
-          } else {
-            setFamilies(result.data)
-          }
-        }
-      } catch {
-        setIsError(true)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [],
-  )
-
-  useEffect(() => {
-    if (skipInitialFetch.current) return
-    loadFamiliesData(1, ITEMS_PER_LOAD, false)
-  }, [loadFamiliesData])
-
-  const prevCountRef = useRef(0)
-
-  // Staggered scroll-triggered card entrance
-  useGSAP(
-    () => {
-      if (!gridRef.current || families.length === 0) return
-
-      const mm = gsap.matchMedia()
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const allCards = gsap.utils.toArray<HTMLElement>('.family-card')
-        const newCards = allCards.slice(prevCountRef.current)
-
-        if (newCards.length === 0) return
-
-        gsap.set(newCards, { y: 40, opacity: 0 })
-
-        ScrollTrigger.batch(newCards, {
-          start: 'top 90%',
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              y: 0,
-              opacity: 1,
-              stagger: 0.08,
-              duration: 0.6,
-              ease: 'power3.out',
-              overwrite: true,
-            })
-          },
-        })
-
-        prevCountRef.current = allCards.length
-      })
-
-      mm.add('(prefers-reduced-motion: reduce)', () => {
-        const allCards = gsap.utils.toArray<HTMLElement>('.family-card')
-        gsap.set(allCards, { y: 0, opacity: 1 })
-        prevCountRef.current = allCards.length
-      })
-    },
-    { scope: gridRef, dependencies: [families] },
-  )
-
-  const handleRetry = () => {
-    setPage(1)
-    loadFamiliesData(1, ITEMS_PER_LOAD, false)
-  }
-
-  const handleLoadMore = () => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    posthog.capture('families_load_more_clicked', {
-      page: nextPage,
-      loaded_count: families.length,
-    })
-    loadFamiliesData(nextPage, ITEMS_PER_LOAD, true)
-  }
+  const {
+    items: families,
+    isLoading,
+    isError,
+    hasMore,
+    gridRef,
+    handleRetry,
+    handleLoadMore,
+  } = usePaginatedGrid<Family>({
+    endpoint: '/api/families',
+    itemsPerLoad: ITEMS_PER_LOAD,
+    initialData,
+    initialHasMore,
+    loadMoreEvent: 'families_load_more_clicked',
+    cardSelector: '.family-card',
+    reveal: { y: 40, start: 'top 90%', stagger: 0.08, duration: 0.6 },
+  })
 
   if (families.length === 0) {
     return (
-      <div className="flex min-h-100 w-full flex-col items-center justify-center py-20 text-center">
-        {isLoading ? (
-          <div className="flex items-center gap-3">
-            <Loader2 className="h-5 w-5 animate-spin text-(--primary-black)" />
-            <p className="font-mono text-sm text-(--neutral-30)">
-              Fetching families...
-            </p>
-          </div>
-        ) : isError ? (
-          <button
-            onClick={handleRetry}
-            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none"
-          >
-            <RefreshCw className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
-            Try Again
-          </button>
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <p className="font-mono text-sm tracking-widest text-(--neutral-30) uppercase">
-              No families yet
-            </p>
-            <p className="text-sm text-(--neutral-30)">
-              Check back soon for new community families.
-            </p>
-          </div>
-        )}
-      </div>
+      <GridStatus
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={handleRetry}
+        loadingLabel="Fetching families..."
+        emptyTitle="No families yet"
+        emptyDescription="Check back soon for new community families."
+      />
     )
   }
 
@@ -242,28 +144,7 @@ export default function FamilyGrid({
       </div>
 
       {hasMore && (
-        <div className="flex justify-center pb-12">
-          <button
-            onClick={handleLoadMore}
-            disabled={isLoading}
-            className="group flex items-center gap-2 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-sm font-bold text-(--primary-black) shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-0.5 hover:bg-[#ccf281] hover:shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]"
-          >
-            {isLoading ? (
-              <>
-                Loading...
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              <>
-                Load More
-                <ArrowDown
-                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5"
-                  strokeWidth={2.5}
-                />
-              </>
-            )}
-          </button>
-        </div>
+        <LoadMoreButton isLoading={isLoading} onClick={handleLoadMore} />
       )}
     </div>
   )

@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { FamilySchema } from '@/lib/schemas/family'
 import type { Family } from '@/types/family.type'
 
-const MAX_LIMIT = 50
-
 export interface FamilyResponse {
   success: boolean
   data: Family[]
@@ -11,6 +9,8 @@ export interface FamilyResponse {
   message?: string
 }
 
+// `page`/`limit` are trusted here — callers are the route handler (already
+// validated by PaginationSchema) or page.tsx (hardcoded safe literals).
 export async function fetchFamilies(
   page: number = 1,
   limit: number = 6,
@@ -18,10 +18,8 @@ export async function fetchFamilies(
   try {
     const supabase = createClient()
 
-    const safePage = Math.max(1, Math.floor(page))
-    const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))
-    const from = (safePage - 1) * safeLimit
-    const to = from + safeLimit
+    const from = (page - 1) * limit
+    const to = from + limit
 
     const { data, error } = await supabase
       .from('family')
@@ -44,8 +42,8 @@ export async function fetchFamilies(
 
     if (error) throw error
 
-    const hasNextPage = data.length > safeLimit
-    const pagedData = data.slice(0, safeLimit)
+    const hasNextPage = data.length > limit
+    const pagedData = data.slice(0, limit)
 
     const formattedData = pagedData.map((item) =>
       FamilySchema.parse({

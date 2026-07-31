@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { PartnerSchema } from '@/lib/schemas/partner'
 import type { Partners } from '@/types/partner.type'
 
-const MAX_LIMIT = 50
-
 export interface PartnersResponse {
   success: boolean
   data: Partners[]
@@ -11,6 +9,8 @@ export interface PartnersResponse {
   message?: string
 }
 
+// `page`/`limit` are trusted here — callers are the route handler (already
+// validated by PaginationSchema) or page.tsx (hardcoded safe literals).
 export async function fetchPartners(
   page: number = 1,
   limit: number = 6,
@@ -18,10 +18,8 @@ export async function fetchPartners(
   try {
     const supabase = createClient()
 
-    const safePage = Math.max(1, Math.floor(page))
-    const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))
-    const from = (safePage - 1) * safeLimit
-    const to = from + safeLimit
+    const from = (page - 1) * limit
+    const to = from + limit
 
     const { data, error } = await supabase
       .from('partners')
@@ -44,8 +42,8 @@ export async function fetchPartners(
 
     if (error) throw error
 
-    const hasNextPage = data.length > safeLimit
-    const pagedData = data.slice(0, safeLimit)
+    const hasNextPage = data.length > limit
+    const pagedData = data.slice(0, limit)
 
     const formattedData = pagedData.map((item) => PartnerSchema.parse(item))
 
