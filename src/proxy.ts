@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 
 export function proxy() {
-  const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-    : '*.supabase.co'
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+  }
+  const supabaseHostname = new URL(supabaseUrl).hostname
 
   const csp = [
     "default-src 'self'",
@@ -32,13 +34,5 @@ export function proxy() {
 }
 
 export const config = {
-  matcher: [
-    {
-      source: '/((?!_next/static|_next/image|favicon.ico).*)',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' },
-      ],
-    },
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

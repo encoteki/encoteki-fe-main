@@ -1,4 +1,6 @@
-export const dynamic = 'force-dynamic'
+// Partner deals change rarely; ISR caches the rendered page so repeated
+// visits don't each cost a Supabase query, matching /api/partners.
+export const revalidate = 300
 
 import { fetchPartners } from '@/lib/data/partner'
 import PartnersGrid from '@/components/partners/partners-grid'

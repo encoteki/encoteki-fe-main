@@ -16,7 +16,7 @@ export async function fetchFamilies(
   limit: number = 6,
 ): Promise<FamilyResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const safePage = Math.max(1, Math.floor(page))
     const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))

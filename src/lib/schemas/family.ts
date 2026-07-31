@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { httpUrlNullish } from '@/lib/schemas/url'
 
 export const FamilySchema = z.object({
   // `id` is a numeric column in the database; coerce to string to match the
@@ -19,9 +20,6 @@ export const FamilySchema = z.object({
     .string()
     .nullish()
     .transform((v) => v ?? ''),
-  link: z
-    .string()
-    .nullish()
-    .transform((v) => v ?? ''),
+  link: httpUrlNullish,
   is_active: z.boolean(),
 })

@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { fetchFamilies } from '@/lib/data/family'
 import { getPostHogClient } from '@/lib/posthog-server'
+import { PaginationSchema } from '@/lib/schemas/pagination'
+import { isRateLimited } from '@/lib/rate-limit'
+
+// Family listings change rarely; cache at the edge/CDN so repeated hits
+// don't each cost a Supabase query + PostHog event.
+export const revalidate = 300
 
 export async function GET(request: NextRequest) {
+  if (isRateLimited(request, 'families')) {
+    return NextResponse.json(
+      { success: false, data: [], message: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': '60' } },
+    )
+  }
+
   const { searchParams } = request.nextUrl
-  const page = Number(searchParams.get('page') ?? '1')
-  const limit = Number(searchParams.get('limit') ?? '6')
+  const { page, limit } = PaginationSchema.parse(
+    Object.fromEntries(searchParams),
+  )
 
   const result = await fetchFamilies(page, limit)
 
@@ -28,5 +42,9 @@ export async function GET(request: NextRequest) {
     await posthog.flush()
   })
 
-  return NextResponse.json(result)
+  return NextResponse.json(result, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+    },
+  })
 }

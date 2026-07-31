@@ -5,6 +5,9 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
   ui_host: 'https://us.posthog.com',
   defaults: '2026-01-30',
   capture_exceptions: true,
+  // No auth/identify calls happen in this app; pin explicitly rather than
+  // relying on the `defaults` bundle's current behavior for this setting.
+  person_profiles: 'identified_only',
   // Feature flags are unused in this app; disabling stops the flags request
   // (and its "older version of the feature flags endpoint" console warning).
   advanced_disable_feature_flags: true,

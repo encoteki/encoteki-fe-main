@@ -4,6 +4,7 @@ import '../styles/globals.css'
 import Header from '@/components/header'
 import { Footer } from '@/components/footer'
 import FocusManager from '@/ui/focus-manager'
+import WebVitals from '@/ui/web-vitals'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -146,6 +147,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <FocusManager />
+        <WebVitals />
         <Header />
         <div
           id="main-content"

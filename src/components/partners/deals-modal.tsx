@@ -24,7 +24,12 @@ export default function DealModal({
   const containerRef = useRef<HTMLDivElement>(null)
 
   const sanitizedTnc = useMemo(() => {
-    if (!deal?.tnc) return ''
+    // DOMPurify has no DOM to sanitize against during SSR (deal is only
+    // ever non-null once state updates client-side today, but this keeps
+    // an SSR pass from throwing if that ever changes — e.g. a deep link
+    // that opens the modal on first render). The client re-renders on
+    // hydration with a real DOM and produces the actual sanitized output.
+    if (!deal?.tnc || !DOMPurify.isSupported) return ''
     return DOMPurify.sanitize(deal.tnc, {
       ALLOWED_TAGS: [
         'li',
@@ -260,19 +265,21 @@ export default function DealModal({
                 />
               )}
 
-              <BrutalismButton
-                label="Visit Store"
-                bgColor="bg-[#ccf281]"
-                href={deal.store_url}
-                className="w-full"
-                onClick={() =>
-                  posthog.capture('deal_store_visited', {
-                    partner_id: deal.id,
-                    partner_name: deal.name,
-                    store_url: deal.store_url,
-                  })
-                }
-              />
+              {deal.store_url && (
+                <BrutalismButton
+                  label="Visit Store"
+                  bgColor="bg-[#ccf281]"
+                  href={deal.store_url}
+                  className="w-full"
+                  onClick={() =>
+                    posthog.capture('deal_store_visited', {
+                      partner_id: deal.id,
+                      partner_name: deal.name,
+                      store_url: deal.store_url,
+                    })
+                  }
+                />
+              )}
             </div>
 
             {/* SDGs Section (planned content) */}

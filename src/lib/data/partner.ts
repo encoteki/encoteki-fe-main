@@ -16,7 +16,7 @@ export async function fetchPartners(
   limit: number = 6,
 ): Promise<PartnersResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const safePage = Math.max(1, Math.floor(page))
     const safeLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)))
@@ -25,7 +25,19 @@ export async function fetchPartners(
 
     const { data, error } = await supabase
       .from('partners')
-      .select('*')
+      .select(
+        `
+        id,
+        name,
+        offer,
+        description,
+        tnc,
+        image,
+        store_url,
+        is_offline,
+        is_active
+      `,
+      )
       .eq('is_active', true)
       .range(from, to)
       .order('id', { ascending: true })

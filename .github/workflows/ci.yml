@@ -24,6 +24,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # Scoped to production deps: dev-only tooling (eslint/tailwind's
+      # transitive advisories) is tracked separately and doesn't gate deploys.
+      - name: Audit
+        run: yarn npm audit --recursive --environment production --severity high
+
       - name: Lint
         run: yarn lint
 
