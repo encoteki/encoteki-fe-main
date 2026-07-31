@@ -1,31 +1,13 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
-export async function createClient() {
-  const cookieStore = await cookies()
-
-  // Create a server's supabase client with newly configured cookie,
-  // which could be used to maintain user's session
-  return createServerClient(
+// This app has no auth/sessions (RLS on the `anon` role is the sole
+// authorization layer — see security-audit.md's threat model), so there is
+// no session to plumb through cookies. A cookie-aware client here would
+// call `cookies()`, which forces every caller into dynamic rendering and
+// defeats ISR (`revalidate`) on /family and /partners.
+export function createClient() {
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet: { name: any; value: any; options: any }[]) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have proxy refreshing
-            // user sessions.
-          }
-        },
-      },
-    },
   )
 }

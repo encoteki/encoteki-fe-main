@@ -1,4 +1,6 @@
-export const dynamic = 'force-dynamic'
+// Family listings change rarely; ISR caches the rendered page so repeated
+// visits don't each cost a Supabase query, matching /api/families.
+export const revalidate = 300
 
 import { fetchFamilies } from '@/lib/data/family'
 import FamilyGrid from '@/components/family/family-grid'
