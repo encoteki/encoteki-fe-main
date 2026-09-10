@@ -35,7 +35,7 @@ const IllustrationFallback = () => (
 const features = [
   {
     id: 1,
-    title: 'Mint',
+    title: 'Whitelist',
     description: 'Own the NFT',
     color: 'bg-[var(--green-90)]',
     href: process.env.NEXT_PUBLIC_APP_MINT,
