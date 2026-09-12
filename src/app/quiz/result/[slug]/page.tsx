@@ -1,9 +1,45 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CHARACTERS } from '@/lib/quiz/content'
 import ResultShareActions from '@/components/quiz/result-share-actions'
 
 function findCharacterBySlug(slug: string) {
   return Object.values(CHARACTERS).find((c) => c.slug === slug) ?? null
+}
+
+export function generateStaticParams() {
+  return Object.values(CHARACTERS).map((c) => ({ slug: c.slug }))
+}
+
+export const dynamicParams = false
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const character = findCharacterBySlug(slug)
+  if (!character) return {}
+
+  const title = `I'm ${character.name} — ${character.title}`
+  const description = character.shareLine
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/quiz/result/${character.slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/quiz/result/${character.slug}`,
+    },
+    twitter: {
+      title,
+      description,
+      images: [`/quiz/result/${character.slug}/opengraph-image`],
+    },
+  }
 }
 
 export default async function QuizResultPage({

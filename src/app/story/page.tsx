@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import posthog from 'posthog-js'
 import { STORY_CHARACTERS, type StoryCharacter } from '@/lib/story/content'
 import StoryList from '@/components/story/story-list'
@@ -9,9 +9,11 @@ import PageHeader from '@/ui/page-header'
 
 export default function StoryPage() {
   const [selected, setSelected] = useState<StoryCharacter | null>(null)
+  const lastTriggerRef = useRef<HTMLElement | null>(null)
 
   function handleSelect(character: StoryCharacter) {
     posthog.capture('story_row_selected', { character_slug: character.slug })
+    lastTriggerRef.current = document.activeElement as HTMLElement
     setSelected(character)
   }
 
@@ -35,7 +37,10 @@ export default function StoryPage() {
       <StoryBookModal
         character={selected}
         isOpen={selected !== null}
-        onCloseAction={() => setSelected(null)}
+        onCloseAction={() => {
+          setSelected(null)
+          lastTriggerRef.current?.focus()
+        }}
       />
     </main>
   )

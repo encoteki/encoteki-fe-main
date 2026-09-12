@@ -38,7 +38,9 @@ export default function ResultShareActions({
     const link = document.createElement('a')
     link.download = `${character.slug}-satwas-card.png`
     link.href = canvas.toDataURL('image/png')
+    document.body.appendChild(link)
     link.click()
+    link.remove()
   }
 
   function handleShareToX() {
