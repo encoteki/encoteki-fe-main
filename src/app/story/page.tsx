@@ -23,9 +23,9 @@ export default function StoryPage() {
         <PageHeader
           heading={
             <>
-              Meet the Band,{' '}
+              Meet the{' '}
               <span className="font-serif text-(--neutral-40) italic">
-                Teki.
+                Satwas Band
               </span>
             </>
           }
