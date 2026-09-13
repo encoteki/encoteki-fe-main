@@ -105,7 +105,7 @@ export default function StoryBookModal({
 
     const modal = modalRef.current
     const focusableSelector =
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
     const firstFocusable = modal.querySelector<HTMLElement>(focusableSelector)
     firstFocusable?.focus()
@@ -200,13 +200,16 @@ export default function StoryBookModal({
           <button
             onClick={handleClose}
             aria-label="Close story"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-(--khaki-90)"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-(--khaki-90) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
 
-        <div className="flex flex-col overflow-y-auto p-6 md:p-8">
+        <div
+          aria-live="polite"
+          className="flex flex-col overflow-y-auto p-6 md:p-8"
+        >
           {/*
             Placeholder-stage image: a solid color block with no real
             pictorial content, so it's marked decorative (aria-hidden) and
@@ -220,6 +223,9 @@ export default function StoryBookModal({
             className="aspect-4/3 w-full rounded-md"
             style={{ backgroundColor: page.placeholderColor }}
           />
+          <p className="sr-only">
+            Page {pageIndex + 1} of {character.pages.length}.
+          </p>
           <p className="mt-6 text-center text-base leading-relaxed text-(--neutral-30)">
             {page.caption}
           </p>
@@ -231,11 +237,14 @@ export default function StoryBookModal({
             onClick={goPrev}
             disabled={isFirstPage}
             aria-label="Previous page"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={2} />
           </button>
-          <span className="font-mono text-xs text-(--neutral-30)">
+          <span
+            className="font-mono text-xs text-(--neutral-30)"
+            aria-hidden="true"
+          >
             Page {pageIndex + 1} of {character.pages.length}
           </span>
           <button
@@ -243,7 +252,7 @@ export default function StoryBookModal({
             onClick={goNext}
             disabled={isLastPage}
             aria-label="Next page"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronRight className="h-5 w-5" strokeWidth={2} />
           </button>
