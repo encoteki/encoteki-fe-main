@@ -2,19 +2,19 @@
 
 import { useRef, useState } from 'react'
 import posthog from 'posthog-js'
-import { STORY_CHARACTERS, type StoryCharacter } from '@/lib/story/content'
+import { STORY_CHAPTERS, type StoryChapter } from '@/lib/story/content'
 import StoryList from '@/components/story/story-list'
 import StoryBookModal from '@/components/story/story-book-modal'
 import PageHeader from '@/ui/page-header'
 
 export default function StoryPage() {
-  const [selected, setSelected] = useState<StoryCharacter | null>(null)
+  const [selected, setSelected] = useState<StoryChapter | null>(null)
   const lastTriggerRef = useRef<HTMLElement | null>(null)
 
-  function handleSelect(character: StoryCharacter) {
-    posthog.capture('story_row_selected', { character_slug: character.slug })
+  function handleSelect(chapter: StoryChapter) {
+    posthog.capture('story_row_selected', { chapter_slug: chapter.slug })
     lastTriggerRef.current = document.activeElement as HTMLElement
-    setSelected(character)
+    setSelected(chapter)
   }
 
   return (
@@ -29,13 +29,13 @@ export default function StoryPage() {
               </span>
             </>
           }
-          description="Six voices, six stories. The Satwas Band is inspired by real endangered Indonesian animals — tap a name to read their story."
+          description="One story, five chapters. The Satwas Band is inspired by real endangered Indonesian animals — pick a chapter to read how they came together."
         />
-        <StoryList characters={STORY_CHARACTERS} onSelect={handleSelect} />
+        <StoryList chapters={STORY_CHAPTERS} onSelect={handleSelect} />
       </div>
 
       <StoryBookModal
-        character={selected}
+        chapter={selected}
         isOpen={selected !== null}
         onCloseAction={() => {
           setSelected(null)

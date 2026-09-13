@@ -1,18 +1,19 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import posthog from 'posthog-js'
-import type { StoryCharacter } from '@/lib/story/content'
+import type { StoryChapter } from '@/lib/story/content'
 
 export default function StoryBookModal({
-  character,
+  chapter,
   isOpen,
   onCloseAction,
 }: {
-  character: StoryCharacter | null
+  chapter: StoryChapter | null
   isOpen: boolean
   onCloseAction: () => void
 }) {
@@ -21,21 +22,23 @@ export default function StoryBookModal({
   const containerRef = useRef<HTMLDivElement>(null)
   const [pageIndex, setPageIndex] = useState(0)
 
+  const pages = chapter ? [chapter.cover, ...chapter.pages] : []
+
   // Reset to page 1 whenever the modal opens on a (possibly different)
-  // character, rather than resuming wherever the previous character left
-  // off. Done during render (React's recommended pattern for "reset state
-  // when a prop changes") rather than in a useEffect, which is what the
+  // chapter, rather than resuming wherever the previous chapter left off.
+  // Done during render (React's recommended pattern for "reset state when
+  // a prop changes") rather than in a useEffect, which is what the
   // react-hooks/set-state-in-effect lint rule flags.
   const [lastOpenKey, setLastOpenKey] = useState<string | null>(null)
-  const openKey = isOpen ? (character?.slug ?? null) : null
+  const openKey = isOpen ? (chapter?.slug ?? null) : null
   if (openKey !== lastOpenKey) {
     setLastOpenKey(openKey)
     if (openKey) setPageIndex(0)
   }
 
   const handleClose = useCallback(() => {
-    if (character) {
-      posthog.capture('story_book_closed', { character_slug: character.slug })
+    if (chapter) {
+      posthog.capture('story_book_closed', { chapter_slug: chapter.slug })
     }
 
     const prefersReduced = window.matchMedia(
@@ -58,9 +61,9 @@ export default function StoryBookModal({
     } else {
       onCloseAction()
     }
-  }, [onCloseAction, character])
+  }, [onCloseAction, chapter])
 
-  const pageCount = character?.pages.length ?? 1
+  const pageCount = pages.length || 1
 
   const goNext = useCallback(() => {
     setPageIndex((i) => Math.min(i + 1, pageCount - 1))
@@ -166,11 +169,11 @@ export default function StoryBookModal({
     { dependencies: [isOpen], scope: containerRef },
   )
 
-  if (!isOpen || !character) return null
+  if (!isOpen || !chapter) return null
 
-  const page = character.pages[pageIndex]
+  const page = pages[pageIndex]
   const isFirstPage = pageIndex === 0
-  const isLastPage = pageIndex === character.pages.length - 1
+  const isLastPage = pageIndex === pages.length - 1
 
   return (
     <div
@@ -195,7 +198,7 @@ export default function StoryBookModal({
             id="story-book-title"
             className="text-lg font-black tracking-tight text-(--primary-black) uppercase"
           >
-            {character.name}&rsquo;s Story
+            Chapter {chapter.number}: {chapter.title}
           </h2>
           <button
             onClick={handleClose}
@@ -210,24 +213,14 @@ export default function StoryBookModal({
           aria-live="polite"
           className="flex flex-col overflow-y-auto p-6 md:p-8"
         >
-          {/*
-            Placeholder-stage image: a solid color block with no real
-            pictorial content, so it's marked decorative (aria-hidden) and
-            the caption paragraph below is the actual accessible content.
-            Once real art replaces this, give the image itself a real,
-            distinct `alt` describing the scene (not just the caption
-            verbatim) and drop aria-hidden.
-          */}
-          <div
-            aria-hidden="true"
-            className="aspect-4/3 w-full rounded-md"
-            style={{ backgroundColor: page.placeholderColor }}
+          <Image
+            src={page.image}
+            alt={page.alt}
+            className="w-full rounded-md"
+            sizes="(min-width: 672px) 640px, 100vw"
           />
           <p className="sr-only">
-            Page {pageIndex + 1} of {character.pages.length}.
-          </p>
-          <p className="mt-6 text-center text-base leading-relaxed text-(--neutral-30)">
-            {page.caption}
+            Page {pageIndex + 1} of {pages.length}.
           </p>
         </div>
 
@@ -245,7 +238,7 @@ export default function StoryBookModal({
             className="font-mono text-xs text-(--neutral-30)"
             aria-hidden="true"
           >
-            Page {pageIndex + 1} of {character.pages.length}
+            Page {pageIndex + 1} of {pages.length}
           </span>
           <button
             type="button"

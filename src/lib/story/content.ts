@@ -1,119 +1,170 @@
-export type CharacterSlug =
-  | 'tiggy'
-  | 'gajara'
-  | 'owen'
-  | 'komesi'
-  | 'cendry'
-  | 'kanghoon'
+import type { StaticImageData } from 'next/image'
 
+import ch1Cover from '@/assets/story-chapters/ch1-cover.webp'
+import ch1Page1 from '@/assets/story-chapters/ch1-page1.webp'
+import ch1Page2 from '@/assets/story-chapters/ch1-page2.webp'
+import ch1Page3 from '@/assets/story-chapters/ch1-page3.webp'
+import ch2Cover from '@/assets/story-chapters/ch2-cover.webp'
+import ch2Page1 from '@/assets/story-chapters/ch2-page1.webp'
+import ch2Page2 from '@/assets/story-chapters/ch2-page2.webp'
+import ch2Page3 from '@/assets/story-chapters/ch2-page3.webp'
+import ch3Cover from '@/assets/story-chapters/ch3-cover.webp'
+import ch3Page1 from '@/assets/story-chapters/ch3-page1.webp'
+import ch3Page2 from '@/assets/story-chapters/ch3-page2.webp'
+import ch3Page3 from '@/assets/story-chapters/ch3-page3.webp'
+import ch4Cover from '@/assets/story-chapters/ch4-cover.webp'
+import ch4Page1 from '@/assets/story-chapters/ch4-page1.webp'
+import ch4Page2 from '@/assets/story-chapters/ch4-page2.webp'
+import ch4Page3 from '@/assets/story-chapters/ch4-page3.webp'
+import ch5Cover from '@/assets/story-chapters/ch5-cover.webp'
+import ch5Page1 from '@/assets/story-chapters/ch5-page1.webp'
+import ch5Page2 from '@/assets/story-chapters/ch5-page2.webp'
+import ch5Page3 from '@/assets/story-chapters/ch5-page3.webp'
+
+// The Satwas Band's story ships as one continuous 5-chapter comic (cover +
+// 3 pages each), not six independent per-character arcs — each chapter
+// brings one or two more bandmates into the story, converging into the
+// full band by Chapter 5. Titles below are read directly off the comic
+// pages themselves, not invented here.
 export interface StoryPage {
-  // Placeholder now (solid color) — swap to a real StaticImageData import
-  // per page once art lands; the `caption` field stays as-is either way.
-  placeholderColor: string
-  caption: string
+  image: StaticImageData
+  alt: string
 }
 
-export interface StoryCharacter {
-  slug: CharacterSlug
-  name: string
-  // Short badge code, styled like the reference's flat colorful logotype
-  // badges — distinct per row.
-  badgeInitials: string
+export interface StoryChapter {
+  slug: string
+  number: number
+  title: string
+  characters: string
   badgeColor: string
-  role: string
-  // Placeholder now — swap to a real StaticImageData import once the
-  // banner art lands.
-  bannerPlaceholderColor: string
+  cover: StoryPage
   pages: StoryPage[]
 }
 
-function storyPages(color: string, captions: string[]): StoryPage[] {
-  return captions.map((caption) => ({ placeholderColor: color, caption }))
-}
-
-export const STORY_CHARACTERS: StoryCharacter[] = [
+export const STORY_CHAPTERS: StoryChapter[] = [
   {
-    slug: 'tiggy',
-    name: 'Tiggy',
-    badgeInitials: 'TGY',
+    slug: 'the-ground-gives-way',
+    number: 1,
+    title: 'The Ground Gives Way',
+    characters: 'Tiggy & Gajara',
     badgeColor: '#ffd94a',
-    role: 'The Quiet Visionary',
-    bannerPlaceholderColor: '#ffd94a',
-    pages: storyPages('#ffd94a', [
-      "Long before the Satwas Band had a name, Tiggy was the one who noticed the forest go quiet first — a change in the air the others wouldn't feel for another hour. Growing up a Sumatran tiger means learning to trust a feeling before you can explain it.",
-      'The keyboard found Tiggy, not the other way around — an old upright half-swallowed by vines, keys gone soft with moss. Three days of picking out a melody nobody taught her, and the rest of the band knew: whatever she plays next, they should probably listen.',
-      "Tiggy doesn't raise her voice to be heard. When the band argues about which way to go, she plays one quiet chord and waits. It's usually the right way.",
-      "She's still the quietest voice in the room and still the first one anyone checks with before a big decision. Some visions don't need volume — they just need someone patient enough to hold them until the rest of the world catches up.",
-    ]),
+    cover: {
+      image: ch1Cover,
+      alt: 'Tiggy the tiger on keyboard and Gajara the elephant on drums, playing together beside a jungle waterfall',
+    },
+    pages: [
+      {
+        image: ch1Page1,
+        alt: 'Chapter 1, page 1 — Tiggy and Gajara play music together in the forest while logging and floodwater close in on the far side of the valley',
+      },
+      {
+        image: ch1Page2,
+        alt: 'Chapter 1, page 2 — the story continues for Tiggy and Gajara',
+      },
+      {
+        image: ch1Page3,
+        alt: 'Chapter 1, page 3 — the story continues for Tiggy and Gajara',
+      },
+    ],
   },
   {
-    slug: 'gajara',
-    name: 'Gajara',
-    badgeInitials: 'GJR',
-    badgeColor: '#60a5fa',
-    role: 'The Grounded Soul',
-    bannerPlaceholderColor: '#60a5fa',
-    pages: storyPages('#60a5fa', [
-      'Gajara has never been in a hurry. While the rest of the herd moved on from the dry season, she stayed, testing the ground with every step until she found the water everyone else had given up on.',
-      'The drums came from that same patience — Gajara can hold one steady beat for an hour without it ever feeling tired, the kind of rhythm a whole band can build a song on top of.',
-      "When the ground gave way beneath the Satwas Band — literally, once, during a landslide scare in rehearsal — Gajara was the one who didn't panic. Just kept everyone moving, one slow step at a time, until they were safe.",
-      "She's the heartbeat the rest of the band tunes to. Ask anyone in the Satwas Band who they'd want beside them on the worst day, and the answer is always the same.",
-    ]),
-  },
-  {
-    slug: 'owen',
-    name: 'Owen',
-    badgeInitials: 'OWN',
+    slug: 'smoke-over-the-high-canopy',
+    number: 2,
+    title: 'Smoke Over the High Canopy',
+    characters: 'Owen',
     badgeColor: '#e9d5ff',
-    role: 'The Dreamer',
-    bannerPlaceholderColor: '#e9d5ff',
-    pages: storyPages('#e9d5ff', [
-      "Owen can vanish into a melody for hours and come back with no memory of where the time went. As a gibbon, he grew up swinging between trees on nothing but instinct and trust — it turns out that's not so different from following a feeling across an island.",
-      "He found the ketipung on a walk he wasn't supposed to take, three villages over from where he was meant to be, because something in the rhythm called to him and he went. He still can't explain why. He's stopped trying.",
-      "Owen's bandmates used to worry when he'd go quiet mid-rehearsal, somewhere else entirely. Now they just wait — whatever he brings back from wherever he goes is usually worth it.",
-      "He's imaginative, a little unreachable, and exactly the reason the Satwas Band's sound doesn't sound like anyone else's. Some daydreams are just songs that haven't found their rhythm yet.",
-    ]),
+    cover: {
+      image: ch2Cover,
+      alt: 'Owen the gibbon sits alone on a branch overlooking a forest fire in the distance',
+    },
+    pages: [
+      {
+        image: ch2Page1,
+        alt: 'Chapter 2, page 1 — Owen plays hand percussion in the high canopy before spotting smoke rising from a volcanic peak',
+      },
+      {
+        image: ch2Page2,
+        alt: 'Chapter 2, page 2 — the story continues for Owen',
+      },
+      {
+        image: ch2Page3,
+        alt: 'Chapter 2, page 3 — the story continues for Owen',
+      },
+    ],
   },
   {
-    slug: 'komesi',
-    name: 'Komesi',
-    badgeInitials: 'KMS',
+    slug: 'when-the-ground-roared',
+    number: 3,
+    title: 'When the Ground Roared',
+    characters: 'Komesi',
     badgeColor: '#86efac',
-    role: 'The Steady Encourager',
-    bannerPlaceholderColor: '#86efac',
-    pages: storyPages('#86efac', [
-      "When the ground actually roared — a tremor that sent the whole island scattering — Komesi's first move wasn't to run. It was to check that everyone else already had.",
-      "She picked up the guitar to give her hands something to do while she worried about everyone else, and never put it down. Now it's how she says the things she's too humble to say out loud.",
-      "Komesi is hardest on herself of anyone in the Satwas Band, even while she's the one holding the rest of them together. Ask her how she's doing and she'll ask you first.",
-      "She's warm, she's wise, and she will absolutely deflect a compliment back at you within one sentence. The band wouldn't survive a bad week without her — they just haven't found a way to tell her that sticks.",
-    ]),
+    cover: {
+      image: ch3Cover,
+      alt: 'Komesi the Komodo dragon leads a group of smaller Komodo dragons away from a collapsing coastal village',
+    },
+    pages: [
+      {
+        image: ch3Page1,
+        alt: 'Chapter 3, page 1 — Komesi plays guitar for a group of young Komodo dragons before the ground begins to shake',
+      },
+      {
+        image: ch3Page2,
+        alt: 'Chapter 3, page 2 — the story continues for Komesi',
+      },
+      {
+        image: ch3Page3,
+        alt: 'Chapter 3, page 3 — the story continues for Komesi',
+      },
+    ],
   },
   {
-    slug: 'cendry',
-    name: 'Cendry',
-    badgeInitials: 'CDY',
-    badgeColor: '#ff9ca6',
-    role: 'The Fearless Leader',
-    bannerPlaceholderColor: '#ff9ca6',
-    pages: storyPages('#ff9ca6', [
-      "Cendry doesn't cry when the sky falls. She gets furious, then she gets a plan — and by the time anyone else has caught up to what happened, she's already three steps into fixing it.",
-      'She took the mic because someone had to, and because Cendry has never once waited to be picked for anything. Lead vocals just means the loudest voice in the room finally had a reason to be.',
-      "The rest of the Satwas Band follows her lead without question, and it isn't because she demands it — it's because she's usually right, and quick enough about it that arguing wastes time nobody has.",
-      "Under the strategy and the main-character energy is someone who turns fear into motion faster than anyone else in the flock. That's not fearlessness. That's just deciding fear doesn't get to slow you down.",
-    ]),
-  },
-  {
-    slug: 'kanghoon',
-    name: 'Kanghoon',
-    badgeInitials: 'KGH',
+    slug: 'when-the-sky-fell-too-hard',
+    number: 4,
+    title: 'When the Sky Fell Too Hard',
+    characters: 'Kanghoon & Cendry',
     badgeColor: '#ff9e00',
-    role: 'The Spark',
-    bannerPlaceholderColor: '#ff9e00',
-    pages: storyPages('#ff9e00', [
-      "Kanghoon was whooping in agreement before anyone had even finished the sentence — that's just how he's built. Big energy first, details later, and somehow it always works out.",
-      "He picked up the bass because it was the only instrument loud enough to keep up with him. Turns out he's got real range in there, underneath all that momentum.",
-      "When the Satwas Band's energy dips — three hours into a rehearsal, everyone flagging — Kanghoon is the one who rallies them back. Spontaneous, a little chaotic, impossible to dim.",
-      "He's the reason the chorus never loses momentum, on stage or off it. Some sparks burn out. Kanghoon just seems to find more oxygen.",
-    ]),
+    cover: {
+      image: ch4Cover,
+      alt: 'Kanghoon the tree kangaroo on bass and Cendry the bird-of-paradise on vocals perform on a jungle stage for a crowd',
+    },
+    pages: [
+      {
+        image: ch4Page1,
+        alt: 'Chapter 4, page 1 — Kanghoon and Cendry perform for the crowd before a storm floods the valley below',
+      },
+      {
+        image: ch4Page2,
+        alt: 'Chapter 4, page 2 — the story continues for Kanghoon and Cendry',
+      },
+      {
+        image: ch4Page3,
+        alt: 'Chapter 4, page 3 — the story continues for Kanghoon and Cendry',
+      },
+    ],
+  },
+  {
+    slug: 'the-convergence',
+    number: 5,
+    title: 'The Convergence',
+    characters: 'The whole band',
+    badgeColor: '#ff9ca6',
+    cover: {
+      image: ch5Cover,
+      alt: 'All six Satwas Band members reunite and play together on a jungle stage at sunrise',
+    },
+    pages: [
+      {
+        image: ch5Page1,
+        alt: 'Chapter 5, page 1 — Tiggy, Gajara, Owen, Komesi, Cendry, and Kanghoon converge from across the islands to play together',
+      },
+      {
+        image: ch5Page2,
+        alt: 'Chapter 5, page 2 — the story continues as the whole band unites',
+      },
+      {
+        image: ch5Page3,
+        alt: 'Chapter 5, page 3 — the story continues as the whole band unites',
+      },
+    ],
   },
 ]
