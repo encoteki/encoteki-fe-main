@@ -1,3 +1,12 @@
+import type { StaticImageData } from 'next/image'
+
+import tiggyCard from '@/assets/quiz-cards/tiggy.webp'
+import gajaraCard from '@/assets/quiz-cards/gajara.webp'
+import owenCard from '@/assets/quiz-cards/owen.webp'
+import komesiCard from '@/assets/quiz-cards/komesi.webp'
+import cendryCard from '@/assets/quiz-cards/cendry.webp'
+import kanghoonCard from '@/assets/quiz-cards/kanghoon.webp'
+
 export type Letter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 
 export const LETTERS: readonly Letter[] = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -13,9 +22,11 @@ export interface CharacterMeta {
   title: string
   description: string[]
   shareLine: string
-  // Placeholder now (solid color, used on the result screen and the
-  // dynamic OG image) — swap to a real StaticImageData import once the
-  // final card art lands; every consumer reads this one field.
+  // The finished result card art (tarot-card style, name/animal/MBTI/
+  // instrument/title/quote already baked into the image).
+  cardImage: StaticImageData
+  // Background tint for the landscape OG image, where the portrait card
+  // doesn't fill the frame on its own.
   cardPlaceholderColor: string
 }
 
@@ -37,6 +48,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       'Quietly principled — leads with inner vision, not volume',
     ],
     shareLine: "I'm Tiggy — I feel things before anyone else says a word 🎹",
+    cardImage: tiggyCard,
     cardPlaceholderColor: '#ffd94a',
   },
   B: {
@@ -54,6 +66,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       'The one the whole band leans on for calm',
     ],
     shareLine: "I'm Gajara — steady heartbeat, unshakeable 🥁",
+    cardImage: gajaraCard,
     cardPlaceholderColor: '#60a5fa',
   },
   C: {
@@ -71,6 +84,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       'Followed a feeling across an island because you trusted it more than logic',
     ],
     shareLine: "I'm Owen — head in the clouds, heart in the music 🌫️",
+    cardImage: owenCard,
     cardPlaceholderColor: '#e9d5ff',
   },
   D: {
@@ -88,6 +102,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       "Hardest on yourself, even when you're holding everyone together",
     ],
     shareLine: "I'm Komesi — I hold the group together, always have 🎸",
+    cardImage: komesiCard,
     cardPlaceholderColor: '#86efac',
   },
   E: {
@@ -105,6 +120,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       'The band follows your lead without question',
     ],
     shareLine: "I'm Cendry — turn the fear into a plan, every time 🎤",
+    cardImage: cendryCard,
     cardPlaceholderColor: '#ff9ca6',
   },
   F: {
@@ -122,6 +138,7 @@ export const CHARACTERS: Record<Letter, CharacterMeta> = {
       'The reason the chorus never loses momentum',
     ],
     shareLine: "I'm Kanghoon — big heart, bigger energy 🎸",
+    cardImage: kanghoonCard,
     cardPlaceholderColor: '#ff9e00',
   },
 }

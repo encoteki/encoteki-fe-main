@@ -15,29 +15,9 @@ export default function ResultShareActions({
       character_slug: character.slug,
     })
 
-    // Placeholder-stage download: draws the solid color + name onto a
-    // canvas and downloads that as a real PNG. Once `character` carries a
-    // real card image asset, replace this whole function with:
-    //   const link = document.createElement('a')
-    //   link.href = character.cardImage.src
-    //   link.download = `${character.slug}-satwas-card.png`
-    //   link.click()
-    const canvas = document.createElement('canvas')
-    canvas.width = 800
-    canvas.height = 1000
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    ctx.fillStyle = character.cardPlaceholderColor
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#1a1a1a'
-    ctx.font = 'bold 64px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(character.name, canvas.width / 2, canvas.height / 2)
-
     const link = document.createElement('a')
-    link.download = `${character.slug}-satwas-card.png`
-    link.href = canvas.toDataURL('image/png')
+    link.href = character.cardImage.src
+    link.download = `${character.slug}-satwas-card.webp`
     document.body.appendChild(link)
     link.click()
     link.remove()

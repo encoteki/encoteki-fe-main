@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CHARACTERS } from '@/lib/quiz/content'
@@ -64,33 +65,27 @@ export default async function QuizResultPage({
   return (
     <main className="home-container flex min-h-screen flex-col items-center justify-center gap-8 bg-(--khaki-90) py-16 text-center">
       <div className="w-full max-w-xl rounded-4xl border-3 border-(--primary-black) bg-white p-8 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] md:p-12">
+        {/* The card art already carries the name, animal, MBTI, instrument,
+            title, and quote as part of its illustration — an h1 stays for
+            heading navigation and SEO without duplicating that text visibly. */}
+        <h1 className="sr-only">
+          {character.name} — {character.title}
+        </h1>
         <p className="font-mono text-xs tracking-widest text-(--neutral-30) uppercase">
           You are
         </p>
-        <div
-          aria-hidden="true"
-          className="mx-auto mt-4 aspect-3/4 w-48 rounded-xl border-2 border-(--primary-black)"
-          style={{ backgroundColor: character.cardPlaceholderColor }}
+        <Image
+          src={character.cardImage}
+          alt={`${character.name} — ${character.animal}, ${character.mbti}, ${character.title}. Plays ${character.instrument}.`}
+          className="mx-auto mt-4 w-56 rounded-xl sm:w-64"
+          priority
         />
-        <h1 className="mt-4 text-4xl font-black text-(--primary-black) md:text-5xl">
-          {character.emoji} {character.name}
-        </h1>
-        <p className="mt-1 text-lg font-semibold text-(--primary-green)">
-          {character.title}
-        </p>
-        <p className="mt-1 text-sm text-(--neutral-30)">
-          {character.animal} · {character.mbti} · {character.instrument}
-        </p>
 
-        <ul className="mt-6 flex flex-col gap-2 text-left text-(--neutral-30)">
+        <ul className="mx-auto mt-6 flex max-w-sm flex-col gap-2 text-left text-(--neutral-30)">
           {character.description.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
-
-        <p className="mt-6 rounded-xl border-2 border-(--primary-black) bg-(--khaki-90) p-4 font-medium text-(--primary-black)">
-          {character.shareLine}
-        </p>
 
         <ResultShareActions character={character} />
 
