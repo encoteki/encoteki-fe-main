@@ -36,7 +36,6 @@ export interface StoryChapter {
   number: number
   title: string
   characters: string
-  badgeColor: string
   cover: StoryPage
   pages: StoryPage[]
 }
@@ -47,7 +46,6 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 1,
     title: 'The Ground Gives Way',
     characters: 'Tiggy & Gajara',
-    badgeColor: '#ffd94a',
     cover: {
       image: ch1Cover,
       alt: 'Tiggy the tiger on keyboard and Gajara the elephant on drums, playing together beside a jungle waterfall',
@@ -72,7 +70,6 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 2,
     title: 'Smoke Over the High Canopy',
     characters: 'Owen',
-    badgeColor: '#e9d5ff',
     cover: {
       image: ch2Cover,
       alt: 'Owen the gibbon sits alone on a branch overlooking a forest fire in the distance',
@@ -97,7 +94,6 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 3,
     title: 'When the Ground Roared',
     characters: 'Komesi',
-    badgeColor: '#86efac',
     cover: {
       image: ch3Cover,
       alt: 'Komesi the Komodo dragon leads a group of smaller Komodo dragons away from a collapsing coastal village',
@@ -122,7 +118,6 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 4,
     title: 'When the Sky Fell Too Hard',
     characters: 'Kanghoon & Cendry',
-    badgeColor: '#ff9e00',
     cover: {
       image: ch4Cover,
       alt: 'Kanghoon the tree kangaroo on bass and Cendry the bird-of-paradise on vocals perform on a jungle stage for a crowd',
@@ -147,7 +142,6 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 5,
     title: 'The Convergence',
     characters: 'The whole band',
-    badgeColor: '#ff9ca6',
     cover: {
       image: ch5Cover,
       alt: 'All six Satwas Band members reunite and play together on a jungle stage at sunrise',

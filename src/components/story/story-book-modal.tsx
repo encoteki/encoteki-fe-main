@@ -22,7 +22,9 @@ export default function StoryBookModal({
   const containerRef = useRef<HTMLDivElement>(null)
   const [pageIndex, setPageIndex] = useState(0)
 
-  const pages = chapter ? [chapter.cover, ...chapter.pages] : []
+  // The cover is used as the chapter's thumbnail in the list, not as a
+  // reader page — the reader opens straight to the first interior page.
+  const pages = chapter ? chapter.pages : []
 
   // Reset to page 1 whenever the modal opens on a (possibly different)
   // chapter, rather than resuming wherever the previous chapter left off.
@@ -209,14 +211,11 @@ export default function StoryBookModal({
           </button>
         </div>
 
-        <div
-          aria-live="polite"
-          className="flex flex-col overflow-y-auto p-6 md:p-8"
-        >
+        <div aria-live="polite" className="flex flex-col overflow-y-auto">
           <Image
             src={page.image}
             alt={page.alt}
-            className="w-full rounded-md"
+            className="block w-full"
             sizes="(min-width: 672px) 640px, 100vw"
           />
           <p className="sr-only">

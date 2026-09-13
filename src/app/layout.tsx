@@ -8,7 +8,10 @@ import WebVitals from '@/ui/web-vitals'
 
 const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  // 900 loaded so `font-black` (used for every display heading/title
+  // sitewide, incl. story chapter titles) renders the face's real Black
+  // cut instead of the browser's synthetic-bold approximation of 700.
+  weight: ['400', '500', '700', '900'],
 })
 
 const LIVE_DOMAIN = process.env.LIVE_DOMAIN || 'https://encoteki.com'
