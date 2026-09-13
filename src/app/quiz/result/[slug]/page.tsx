@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CHARACTERS } from '@/lib/quiz/content'
 import ResultShareActions from '@/components/quiz/result-share-actions'
@@ -29,15 +30,24 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: `/quiz/result/${character.slug}` },
+    // Next.js merges `openGraph`/`twitter` shallowly per top-level key, not
+    // deeply — declaring only `title`/`description` here replaces (rather
+    // than extends) the root layout's `twitter` object, silently dropping
+    // `card`/`creator` and downgrading every shared result to a generic
+    // thumbnail. Every field a share card needs is set explicitly here.
     openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      siteName: 'Encoteki',
       title,
       description,
       url: `/quiz/result/${character.slug}`,
     },
     twitter: {
+      card: 'summary_large_image',
+      creator: '@encoteki',
       title,
       description,
-      images: [`/quiz/result/${character.slug}/opengraph-image`],
     },
   }
 }
@@ -83,6 +93,21 @@ export default async function QuizResultPage({
         </p>
 
         <ResultShareActions character={character} />
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-(--primary-black)">
+          <Link
+            href="/quiz"
+            className="underline decoration-2 underline-offset-4 hover:text-(--primary-green) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+          >
+            Take the quiz again
+          </Link>
+          <Link
+            href="/story"
+            className="underline decoration-2 underline-offset-4 hover:text-(--primary-green) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+          >
+            Meet the whole band
+          </Link>
+        </div>
       </div>
     </main>
   )

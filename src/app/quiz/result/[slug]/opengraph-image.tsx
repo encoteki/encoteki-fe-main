@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { CHARACTERS } from '@/lib/quiz/content'
 
+export const alt = 'Which Satwas Are You? — Encoteki character result card'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
