@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft, Check } from 'lucide-react'
 import posthog from 'posthog-js'
 import {
+  CHARACTERS,
   QUIZ_QUESTIONS,
   TIEBREAK_PROMPT,
   TIEBREAK_OPTIONS,
@@ -21,11 +23,24 @@ const RADIO_GROUP_NAME = 'quiz-option'
 const QUIZ_STORAGE_KEY = 'encoteki-quiz-progress'
 
 function optionClass(isSelected: boolean) {
-  return `block w-full cursor-pointer rounded-xl border-2 border-(--primary-black) px-5 py-4 text-left font-medium text-(--primary-black) transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-(--primary-black) ${
+  return `flex w-full cursor-pointer items-start gap-3 rounded-2xl border-2 border-(--primary-black) px-5 py-4 text-left font-medium text-(--primary-black) transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-(--primary-black) ${
     isSelected
       ? 'bg-[#ccf281] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]'
       : 'bg-white shadow-[0_0_0_0_rgba(26,26,26,1)] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)]'
   }`
+}
+
+function Checkbox({ selected }: { selected: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-(--primary-black) transition-colors duration-200 ${
+        selected ? 'bg-(--primary-black)' : 'bg-white'
+      }`}
+    >
+      {selected && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+    </span>
+  )
 }
 
 export default function QuizPage() {
@@ -103,6 +118,7 @@ export default function QuizPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: finalAnswers, tiebreakAnswer }),
       })
+      if (res.status === 429) throw new Error('rate-limited')
       if (!res.ok) throw new Error('submit failed')
       const data = (await res.json()) as { success: boolean; slug?: string }
       if (!data.success || !data.slug) throw new Error('submit failed')
@@ -113,8 +129,14 @@ export default function QuizPage() {
         // Storage unavailable — nothing to clean up.
       }
       router.push(`/quiz/result/${data.slug}`)
-    } catch {
-      setError('Something went wrong submitting your quiz — please try again.')
+    } catch (err) {
+      // The 429 case gets its own message — the generic one tells a
+      // rate-limited visitor to do the one thing that can't work yet.
+      setError(
+        err instanceof Error && err.message === 'rate-limited'
+          ? "You're going a bit fast — wait a moment and try again."
+          : 'Something went wrong submitting your quiz — please try again.',
+      )
       if (tiebreakAnswer !== undefined) {
         // Failure was on the tiebreak submit — stay on the tiebreak step
         // instead of bouncing the user back to a Q6 they already
@@ -226,36 +248,79 @@ export default function QuizPage() {
       ? `${((stage.index + 1) / TOTAL_MAIN_QUESTIONS) * 100}%`
       : '100%'
 
-  return (
-    <main className="home-container flex min-h-screen flex-col items-center justify-center gap-8 bg-(--khaki-90) py-16">
-      <div className="w-full max-w-2xl rounded-4xl border-3 border-(--primary-black) bg-[#ffd94a] p-8 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] md:p-12">
-        {stage.step !== 'submitting' && (
-          <>
-            <div
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={TOTAL_MAIN_QUESTIONS}
-              aria-valuenow={
-                stage.step === 'question'
-                  ? stage.index + 1
-                  : TOTAL_MAIN_QUESTIONS
-              }
-              aria-valuetext={progressLabel}
-              className="mb-6 h-2 w-full overflow-hidden rounded-full border-2 border-(--primary-black) bg-white"
-            >
-              <div
-                className="h-full bg-(--primary-green) transition-all duration-300 ease-out"
-                style={{ width: progressWidth }}
+  // The loading moment has no card chrome around it — it isn't a step in
+  // the fieldset flow, it's the pause between answering and finding out,
+  // so it gets the bare page instead of being squeezed into the question
+  // card's box (which would otherwise visibly collapse to a fraction of
+  // its height for the duration).
+  if (stage.step === 'submitting') {
+    return (
+      <main className="home-container flex min-h-screen flex-col items-center justify-center bg-(--khaki-90)">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex flex-col items-center gap-6"
+        >
+          <div className="flex items-center gap-3">
+            {Object.values(CHARACTERS).map((character, i) => (
+              <span
+                key={character.slug}
+                aria-hidden="true"
+                className="motion-safe:animate-satwas-pulse h-4 w-4 rounded-full"
+                style={{
+                  backgroundColor: character.cardPlaceholderColor,
+                  animationDelay: `${i * 120}ms`,
+                }}
               />
-            </div>
-            <p
-              aria-hidden="true"
-              className="mb-4 font-mono text-xs tracking-widest text-(--primary-black)/70 uppercase"
+            ))}
+          </div>
+          <p className="font-mono text-sm tracking-wide text-(--primary-black)">
+            Finding your Satwas...
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="home-container flex min-h-screen flex-col items-center justify-center bg-(--khaki-90)">
+      <div className="w-full max-w-2xl rounded-4xl border-3 border-(--primary-black) bg-(--khaki-70) p-8 md:p-12">
+        <h1 className="sr-only">Which Satwas Are You?</h1>
+        <div className="mb-6 flex items-center gap-4">
+          {canGoBack ? (
+            <button
+              type="button"
+              onClick={handleBack}
+              aria-label="Back to the previous question"
+              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--primary-black) transition-colors duration-200 hover:bg-(--primary-black)/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
             >
-              {progressLabel}
-            </p>
-          </>
-        )}
+              <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
+            </button>
+          ) : (
+            <span className="h-10 w-10 shrink-0" aria-hidden="true" />
+          )}
+          <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={TOTAL_MAIN_QUESTIONS}
+            aria-valuenow={
+              stage.step === 'question' ? stage.index + 1 : TOTAL_MAIN_QUESTIONS
+            }
+            aria-valuetext={progressLabel}
+            className="h-2 w-full overflow-hidden rounded-full border-2 border-(--primary-black) bg-white"
+          >
+            <div
+              className="h-full bg-(--primary-green) transition-all duration-300 ease-out"
+              style={{ width: progressWidth }}
+            />
+          </div>
+        </div>
+        <p
+          aria-hidden="true"
+          className="mb-4 font-mono text-xs tracking-widest text-(--primary-black)/70 uppercase"
+        >
+          {progressLabel}
+        </p>
 
         {stage.step === 'question' && (
           <fieldset>
@@ -272,22 +337,23 @@ export default function QuizPage() {
                   Letter,
                   string,
                 ][]
-              ).map(([letter, label]) => (
-                <label
-                  key={letter}
-                  className={optionClass(stage.selected === letter)}
-                >
-                  <input
-                    type="radio"
-                    name={RADIO_GROUP_NAME}
-                    value={letter}
-                    checked={stage.selected === letter}
-                    onChange={() => handleSelect(letter)}
-                    className="sr-only"
-                  />
-                  {label}
-                </label>
-              ))}
+              ).map(([letter, label]) => {
+                const isSelected = stage.selected === letter
+                return (
+                  <label key={letter} className={optionClass(isSelected)}>
+                    <input
+                      type="radio"
+                      name={RADIO_GROUP_NAME}
+                      value={letter}
+                      checked={isSelected}
+                      onChange={() => handleSelect(letter)}
+                      className="sr-only"
+                    />
+                    <Checkbox selected={isSelected} />
+                    {label}
+                  </label>
+                )
+              })}
             </div>
           </fieldset>
         )}
@@ -302,67 +368,42 @@ export default function QuizPage() {
               {TIEBREAK_PROMPT}
             </legend>
             <div className="flex flex-col gap-3">
-              {stage.tiedLetters.map((letter) => (
-                <label
-                  key={letter}
-                  className={optionClass(stage.selected === letter)}
-                >
-                  <input
-                    type="radio"
-                    name={RADIO_GROUP_NAME}
-                    value={letter}
-                    checked={stage.selected === letter}
-                    onChange={() => handleSelect(letter)}
-                    className="sr-only"
-                  />
-                  {TIEBREAK_OPTIONS[letter]}
-                </label>
-              ))}
+              {stage.tiedLetters.map((letter) => {
+                const isSelected = stage.selected === letter
+                return (
+                  <label key={letter} className={optionClass(isSelected)}>
+                    <input
+                      type="radio"
+                      name={RADIO_GROUP_NAME}
+                      value={letter}
+                      checked={isSelected}
+                      onChange={() => handleSelect(letter)}
+                      className="sr-only"
+                    />
+                    <Checkbox selected={isSelected} />
+                    {TIEBREAK_OPTIONS[letter]}
+                  </label>
+                )
+              })}
             </div>
           </fieldset>
         )}
 
-        {(stage.step === 'question' || stage.step === 'tiebreak') && (
-          <>
-            {selectionRequired && (
-              <p
-                role="alert"
-                className="mt-4 text-sm font-semibold text-(--red-10)"
-              >
-                Pick one to continue.
-              </p>
-            )}
-            <div className="mt-8 flex items-center gap-3">
-              {canGoBack && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  aria-label="Back to the previous question"
-                  className="shrink-0 rounded-full border-2 border-(--primary-black) bg-white px-6 py-3 text-center text-sm font-black tracking-wider text-(--primary-black) uppercase transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
-                >
-                  Back
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-full flex-1 rounded-full border-2 border-(--primary-black) bg-(--primary-black) px-6 py-3 text-center text-sm font-black tracking-wider text-white uppercase shadow-[4px_4px_0px_0px_rgba(26,26,26,0.3)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-1 hover:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) active:translate-y-2"
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-
-        {stage.step === 'submitting' && (
+        {selectionRequired && (
           <p
-            role="status"
-            aria-live="polite"
-            className="text-center font-mono text-sm text-(--primary-black)"
+            role="alert"
+            className="mt-4 text-sm font-semibold text-(--red-10)"
           >
-            Finding your Satwas...
+            Pick one to continue.
           </p>
         )}
+        <button
+          type="button"
+          onClick={handleNext}
+          className="mt-8 w-full cursor-pointer rounded-full border-2 border-(--primary-black) bg-(--primary-black) px-6 py-3 text-center text-sm font-black tracking-wider text-white uppercase shadow-[4px_4px_0px_0px_rgba(26,26,26,0.3)] transition-all duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] hover:translate-y-1 hover:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) active:translate-y-2"
+        >
+          Next
+        </button>
 
         {error && (
           <p
