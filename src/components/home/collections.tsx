@@ -14,7 +14,7 @@ export default function Collections() {
       </div>
 
       <SectionHeading
-        title="NFT Collections"
+        title="The Satwas Band"
         titleClassName="font-black"
         desc={
           <>
@@ -37,12 +37,19 @@ export default function Collections() {
         descClassName="text-[var(--neutral-30)]"
       />
 
-      <div>
+      <div className="flex flex-wrap gap-4">
         <BrutalismButton
-          label="Mint Now"
+          label="Read our Story"
           className="text-base md:text-xl"
-          href={process.env.NEXT_PUBLIC_APP_MINT ?? ''}
-          onClick={() => posthog.capture('mint_now_clicked')}
+          href="/story"
+          onClick={() => posthog.capture('read_story_clicked')}
+        />
+        <BrutalismButton
+          label="Know Your Satwas"
+          className="text-base md:text-xl"
+          bgColor="bg-[#ccf281]"
+          href="/quiz"
+          onClick={() => posthog.capture('quiz_cta_clicked')}
         />
       </div>
     </section>

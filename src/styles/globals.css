@@ -33,6 +33,7 @@
   --khaki-99: #f9f9f6;
 
   /* Red */
+  --red-10: #8a1e12;
   --red-90: #fbe8e2;
 
   /* Brown */
@@ -72,6 +73,9 @@ body {
   .animate-spin-slow {
     animation: spin 8s linear infinite;
   }
+  .animate-satwas-pulse {
+    animation: satwas-pulse 1.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
 }
 
 @keyframes spin {
@@ -80,5 +84,20 @@ body {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Quiz "finding your Satwas" loader: each of the 6 dots (one per
+   character's brand color) pulses in sequence via animation-delay, reading
+   as the flow scanning through the band before landing on a result. */
+@keyframes satwas-pulse {
+  0%,
+  100% {
+    transform: scale(0.55);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
