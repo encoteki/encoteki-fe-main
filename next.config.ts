@@ -9,6 +9,11 @@ const withBundleAnalyzer = bundleAnalyzer({
 const supabaseDomain = process.env.SUPABASE_DOMAIN
 
 const nextConfig: NextConfig = {
+  // Next 16.3+ auto-writes AGENTS.md/CLAUDE.md on every `next dev` start.
+  // This repo's own convention never commits generated .md files, and
+  // leaving it on just means those two files show up as a permanent
+  // uncommitted diff — off entirely instead.
+  agentRules: false,
   images: {
     // Only register the Supabase remote pattern when the host is configured.
     // An empty hostname makes Next throw "Expected a non-empty string" during
