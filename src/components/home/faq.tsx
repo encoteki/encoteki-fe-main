@@ -28,18 +28,39 @@ const FAQ_DATA: FAQItemData[] = [
       'NFTs (non-fungible tokens) are unique cryptographic tokens that exist on a blockchain and cannot be replicated. NFTs represent real-world objects like real estate and artwork, or digital objects like graphic art, videos, and music. With NFTs, people can buy, sell, and trade their assets more efficiently while reducing the probability of fraud.',
   },
   {
-    question: 'What is The Satwas Band NFTs?',
+    question: 'What is The Satwas Band NFT?',
     answer:
-      'The Satwas Band is our first NFTs collection, which consists of 3653 randomly generated art, consisting of 5 endangered Indonesian animals that formed into a music group. The Satwas Band will be generated on Polygon Blockchain.',
+      'The Satwas Band is Encoteki’s first NFT collection. It consists of 3653 unique pieces of art created from hand-drawn attributes, featuring six endangered Indonesian animals formed into a music band.',
   },
   {
-    question: 'Can The Satwas Band NFTs act as an investment?',
+    question: 'Can The Satwas Band NFT act as an investment?',
     answer:
       'Every investment has its own risk and rewards, and so do NFTs. The Satwas Band NFTs and ENCOTEKI itself are not an exception to that. We ourselves place ENCOTEKI as an Impact Investing. As we believe that providing value as much as we can to the environment will return value to holders.',
   },
   {
-    question: 'How to buy The Satwas Band NFTs?',
-    answer: 'Get whitelisted! Join our Discord for more information.',
+    question: 'How do I get a guaranteed whitelist spot?',
+    answer:
+      'Join the whitelist and share your unique referral link. Once 3 friends join using your link, your spot is upgraded from first come first serve entry to guaranteed.',
+  },
+  {
+    question: 'Is the mint really free?',
+    answer:
+      'Yes, Satwas Band mint is free. Guaranteed spot priority is earned through referrals, not payment.',
+  },
+  {
+    question: "What happens if I don't get 3 referrals?",
+    answer:
+      "You're still entered in the general whitelist raffle pool for remaining spots. Referrals just guarantee your spot instead of leaving it to chance.",
+  },
+  {
+    question: 'Does the quiz affect what I mint?',
+    answer:
+      "The quiz shows your Satwas personality match and gives you a shareable result, actual NFT traits are randomized at mint per the collection's rarity tiers.",
+  },
+  {
+    question: 'What chain will the NFT be in?',
+    answer:
+      'The Satwas Band NFT will be deployed on the Robinhood Chain. You can bridge the NFT to Arbitrum, Base, Celo, Manta, and Monad.',
   },
 ]
 
