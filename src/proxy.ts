@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
 export function proxy() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseUrl = process.env.SUPABASE_URL
   if (!supabaseUrl) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+    throw new Error('SUPABASE_URL is required')
   }
   const supabaseHostname = new URL(supabaseUrl).hostname
 

@@ -50,11 +50,10 @@ Open `.env` and fill in the values. See `.env.example` for descriptions of each 
 
 | Variable                               | Description                                |
 | -------------------------------------- | ------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Your Supabase project URL                  |
+| `SUPABASE_URL`                         | Your Supabase project URL (server-only)    |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable (anon) key            |
 | `SUPABASE_DOMAIN`                      | Supabase hostname (for CSP + `next/image`) |
 | `LIVE_DOMAIN`                          | Canonical site URL (used in metadata)      |
-| `NEXT_PUBLIC_APP_MINT`                 | External mint app URL                      |
 | `NEXT_PUBLIC_APP_DAO`                  | External DAO app URL                       |
 
 ### 3. Run in development
