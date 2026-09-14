@@ -1,9 +1,26 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export function proxy() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+export function proxy(request: NextRequest) {
+  // Next's dynamic-route-param decoder throws on a malformed
+  // percent-encoded path segment before /whitelist/refcode/[code]/page.tsx
+  // ever runs — in production that surfaces as a raw 500 instead of a
+  // graceful response. This runs earlier and reads the raw, not-yet-decoded
+  // pathname, so it's the only place that can catch it before Next's router
+  // does. A bad code here isn't attacker-privileged — it's just a bad or
+  // garbled link — so redirecting to the plain unlocked flow is the same
+  // outcome a valid-but-unknown code would already get after the
+  // refcode-check gate. Ported from encoteki-whitelist-app/src/proxy.ts.
+  if (request.nextUrl.pathname.startsWith('/whitelist/refcode/')) {
+    try {
+      decodeURIComponent(request.nextUrl.pathname)
+    } catch {
+      return NextResponse.redirect(new URL('/whitelist', request.url))
+    }
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL
   if (!supabaseUrl) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+    throw new Error('SUPABASE_URL is required')
   }
   const supabaseHostname = new URL(supabaseUrl).hostname
 

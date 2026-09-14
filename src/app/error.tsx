@@ -15,7 +15,7 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="space-y-2">
         <p className="font-mono text-xs tracking-widest text-(--neutral-30) uppercase">
           Something went wrong
