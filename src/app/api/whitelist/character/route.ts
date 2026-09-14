@@ -59,7 +59,7 @@ export async function POST(
   // keeps a caller from touching anyone else's entry) and gated on
   // character_slug IS NULL so a set-once character can never be
   // overwritten by a stray retry, even a concurrent one.
-  const { data: updated, error: updateError } = await supabaseServerClient
+  const { data: updated, error: updateError } = await supabaseServerClient()
     .from('whitelist_entries')
     .update({ character_slug: characterSlug })
     .eq('x_user_id', session.xUserId)
@@ -78,7 +78,7 @@ export async function POST(
   // Nothing updated — either this account has no entry at all, or its
   // character_slug was already set. Distinguish so the caller gets an
   // honest answer either way.
-  const { data: entry, error: entryError } = await supabaseServerClient
+  const { data: entry, error: entryError } = await supabaseServerClient()
     .from('whitelist_entries')
     .select('character_slug')
     .eq('x_user_id', session.xUserId)

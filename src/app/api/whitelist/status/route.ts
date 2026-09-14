@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/whitelist/auth'
 import { supabaseServerClient } from '@/lib/whitelist/supabase'
-import { CAMPAIGN_CONFIG } from '@/lib/whitelist/campaign-config'
+import { getCampaignConfig } from '@/lib/whitelist/campaign-config'
 import { checkRateLimit, clientIp } from '@/lib/whitelist/rate-limit'
 
 interface StatusResponseBody {
@@ -22,6 +22,8 @@ interface StatusResponseBody {
 export async function GET(
   request: Request,
 ): Promise<NextResponse<StatusResponseBody>> {
+  const campaignConfig = getCampaignConfig()
+
   // Unauthenticated calls do no DB work at all below (existingEntry stays
   // null without a session), so this is mainly guarding the per-session DB
   // reads a signed-in caller can trigger by scripting this endpoint.
@@ -32,10 +34,10 @@ export async function GET(
   if (!rateLimit.allowed) {
     return NextResponse.json(
       {
-        campaignName: CAMPAIGN_CONFIG.campaignName,
-        targetAccountUsername: CAMPAIGN_CONFIG.targetAccountUsername,
-        targetPostId: CAMPAIGN_CONFIG.targetPostId,
-        guaranteedThreshold: CAMPAIGN_CONFIG.guaranteedThreshold,
+        campaignName: campaignConfig.campaignName,
+        targetAccountUsername: campaignConfig.targetAccountUsername,
+        targetPostId: campaignConfig.targetPostId,
+        guaranteedThreshold: campaignConfig.guaranteedThreshold,
         existingEntry: null,
       },
       {
@@ -49,7 +51,7 @@ export async function GET(
   let existingEntry: StatusResponseBody['existingEntry'] = null
 
   if (session?.xUserId) {
-    const { data: entry, error: entryError } = await supabaseServerClient
+    const { data: entry, error: entryError } = await supabaseServerClient()
       .from('whitelist_entries')
       .select('id, spot_number, x_username, tier, character_slug')
       .eq('x_user_id', session.xUserId)
@@ -57,7 +59,7 @@ export async function GET(
     if (entryError) throw entryError
 
     if (entry) {
-      const { data: code, error: codeError } = await supabaseServerClient
+      const { data: code, error: codeError } = await supabaseServerClient()
         .from('referral_codes')
         .select('code, uses_count')
         .eq('owner_entry_id', entry.id)
@@ -76,10 +78,10 @@ export async function GET(
   }
 
   return NextResponse.json({
-    campaignName: CAMPAIGN_CONFIG.campaignName,
-    targetAccountUsername: CAMPAIGN_CONFIG.targetAccountUsername,
-    targetPostId: CAMPAIGN_CONFIG.targetPostId,
-    guaranteedThreshold: CAMPAIGN_CONFIG.guaranteedThreshold,
+    campaignName: campaignConfig.campaignName,
+    targetAccountUsername: campaignConfig.targetAccountUsername,
+    targetPostId: campaignConfig.targetPostId,
+    guaranteedThreshold: campaignConfig.guaranteedThreshold,
     existingEntry,
   })
 }

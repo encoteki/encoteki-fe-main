@@ -41,7 +41,7 @@ export async function GET(
     return NextResponse.json({ valid: false, reason: null }, { status: 400 })
   }
 
-  const { data, error } = await supabaseServerClient
+  const { data, error } = await supabaseServerClient()
     .from('referral_codes')
     .select('code')
     .eq('code', code)

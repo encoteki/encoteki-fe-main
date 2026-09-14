@@ -36,7 +36,15 @@ export async function sessionCallback(params: {
   return session
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// Config is a function, not a plain object — NextAuth() only calls it once
+// an actual request comes in, not when this module is imported. A plain
+// object would eagerly evaluate env.authTwitterId() etc. at import time,
+// and Next's build-time page-data collection imports every route module
+// just to inspect its config, which would then require AUTH_TWITTER_ID and
+// friends to exist as env vars during `next build` itself — even in
+// environments (CI) that never handle a real request and have no reason to
+// carry those secrets.
+export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   providers: [
     TwitterProvider({
       clientId: env.authTwitterId(),
@@ -60,4 +68,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: jwtCallback,
     session: sessionCallback,
   },
-})
+}))

@@ -22,7 +22,7 @@ export async function GET(
 
   const { code } = await params
 
-  const { data: referral, error } = await supabaseServerClient
+  const { data: referral, error } = await supabaseServerClient()
     .from('referral_codes')
     .select('owner_entry_id')
     .eq('code', code.trim().toUpperCase())
@@ -32,7 +32,7 @@ export async function GET(
     return new Response('Not found', { status: 404 })
   }
 
-  const { data: entry, error: entryError } = await supabaseServerClient
+  const { data: entry, error: entryError } = await supabaseServerClient()
     .from('whitelist_entries')
     .select('character_slug')
     .eq('id', referral.owner_entry_id)

@@ -128,7 +128,7 @@ export async function POST(
     })
   }
 
-  const result = await allocateSpot(supabaseServerClient, {
+  const result = await allocateSpot(supabaseServerClient(), {
     xUserId: session.xUserId,
     xUsername: session.xUsername,
     walletAddress: toChecksumAddress(body.walletAddress),
