@@ -1,0 +1,2 @@
+export const PRIMARY_BUTTON =
+  'cursor-pointer rounded-full bg-(--primary-green) px-5 py-3 text-sm font-medium text-white shadow-primary transition-[background-color,box-shadow,transform] duration-300 outline-none hover:enabled:bg-(--green-10) hover:enabled:shadow-primary-hover focus-visible:ring-2 focus-visible:ring-(--primary-green) focus-visible:ring-offset-2 active:enabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50'
