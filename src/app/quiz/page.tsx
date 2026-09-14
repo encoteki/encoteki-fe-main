@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { ArrowLeft, Check } from 'lucide-react'
 import posthog from 'posthog-js'
 import {
@@ -12,11 +12,18 @@ import {
   type Letter,
 } from '@/lib/quiz/content'
 import { scoreMainQuiz } from '@/lib/quiz/scoring'
+import ResultActions from '@/components/quiz/result-actions'
+import type { StatusResponse } from '@/components/whitelist/types'
 
 type Stage =
   | { step: 'question'; index: number; selected: Letter | null }
   | { step: 'tiebreak'; tiedLetters: Letter[]; selected: Letter | null }
   | { step: 'submitting' }
+  // The result is shown in-place, not at a shareable URL — closing the
+  // route means there's nothing to bookmark, revisit, or guess. Once the
+  // visitor navigates away (or reloads), this state is gone for good; the
+  // progress-persistence effect below deliberately never saves it.
+  | { step: 'result'; slug: string }
 
 const TOTAL_MAIN_QUESTIONS = 6
 const RADIO_GROUP_NAME = 'quiz-option'
@@ -44,7 +51,6 @@ function Checkbox({ selected }: { selected: boolean }) {
 }
 
 export default function QuizPage() {
-  const router = useRouter()
   const [answers, setAnswers] = useState<Letter[]>([])
   const [stage, setStage] = useState<Stage>({
     step: 'question',
@@ -53,8 +59,30 @@ export default function QuizPage() {
   })
   const [error, setError] = useState<string | null>(null)
   const [selectionRequired, setSelectionRequired] = useState(false)
+  // True for a visitor who is already signed in and already whitelisted,
+  // but whose entry has no character yet — the "went straight to
+  // whitelist, never took the quiz" case this mode exists for. Checked
+  // once, independent of quiz progress, since it only depends on account
+  // state, not on anything answered here.
+  const [linkToWhitelist, setLinkToWhitelist] = useState(false)
+  const [linkStatus, setLinkStatus] = useState<
+    'idle' | 'saving' | 'saved' | 'error'
+  >('idle')
   const legendRef = useRef<HTMLLegendElement>(null)
   const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    fetch('/api/whitelist/status')
+      .then((res) => (res.ok ? (res.json() as Promise<StatusResponse>) : null))
+      .then((data) => {
+        if (data?.existingEntry && data.existingEntry.characterSlug === null) {
+          setLinkToWhitelist(true)
+        }
+      })
+      .catch(() => {
+        // Not linked — falls back to the normal quiz → signup handoff below.
+      })
+  }, [])
 
   // Rehydrate any in-progress attempt (refresh, accidental tab close) once,
   // on mount. Reading storage during the initial render would desync
@@ -80,9 +108,11 @@ export default function QuizPage() {
   // Persist progress after every change so a refresh or accidental tab
   // close doesn't cost the visitor all six answers. The transient
   // `submitting` stage is skipped so a crashed session never restores into
-  // a stuck loading screen.
+  // a stuck loading screen. `result` is skipped too, deliberately — a
+  // finished result is meant to disappear the moment the visitor leaves,
+  // not survive a reload.
   useEffect(() => {
-    if (stage.step === 'submitting') return
+    if (stage.step === 'submitting' || stage.step === 'result') return
     try {
       sessionStorage.setItem(
         QUIZ_STORAGE_KEY,
@@ -128,7 +158,7 @@ export default function QuizPage() {
       } catch {
         // Storage unavailable — nothing to clean up.
       }
-      router.push(`/quiz/result/${data.slug}`)
+      setStage({ step: 'result', slug: data.slug })
     } catch (err) {
       // The 429 case gets its own message — the generic one tells a
       // rate-limited visitor to do the one thing that can't work yet.
@@ -166,6 +196,30 @@ export default function QuizPage() {
       }
     }
   }
+
+  const saveCharacterLink = useCallback((slug: string) => {
+    setLinkStatus('saving')
+    fetch('/api/whitelist/character', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ characterSlug: slug }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('link failed')
+        setLinkStatus('saved')
+      })
+      .catch(() => setLinkStatus('error'))
+  }, [])
+
+  // Fires once, the moment this mode's result is ready — the whole point
+  // is that the visitor never has to do anything for it to happen ("sembari
+  // show character card ui"). Depends on the whole `stage` object (not
+  // e.g. `stage.step`), matching the persistence effect above, since a
+  // fresh object is exactly what marks a genuine transition into 'result'.
+  useEffect(() => {
+    if (stage.step !== 'result' || !linkToWhitelist) return
+    saveCharacterLink(stage.slug)
+  }, [stage, linkToWhitelist, saveCharacterLink])
 
   function handleSelect(letter: Letter) {
     setSelectionRequired(false)
@@ -233,6 +287,11 @@ export default function QuizPage() {
     setError(null)
   }
 
+  function handleRetake() {
+    setAnswers([])
+    setStage({ step: 'question', index: 0, selected: null })
+  }
+
   const canGoBack =
     stage.step === 'tiebreak' || (stage.step === 'question' && stage.index > 0)
 
@@ -278,6 +337,94 @@ export default function QuizPage() {
             Finding your Satwas...
           </p>
         </div>
+      </main>
+    )
+  }
+
+  // Shown once, right here, immediately after finishing — never at a URL
+  // of its own. There is nothing to link to: no `/quiz/result/[slug]`
+  // route exists, so a result can't be bookmarked, revisited, or guessed
+  // by anyone who didn't just take the quiz. Sharing happens only through
+  // the card-art download below, never through a link back to this view.
+  if (stage.step === 'result') {
+    const character = Object.values(CHARACTERS).find(
+      (c) => c.slug === stage.slug,
+    )
+    // Structurally unreachable — the server only ever returns a slug from
+    // this same CHARACTERS map — but retake rather than crash if it ever is.
+    if (!character) {
+      handleRetake()
+      return null
+    }
+
+    return (
+      <main className="home-container flex min-h-screen flex-col items-center justify-center bg-(--khaki-90) text-center">
+        {/* The card art already carries the name, animal, MBTI, instrument,
+            title, and quote as part of its illustration — an h1 stays for
+            heading navigation and SEO without duplicating that text visibly. */}
+        <h1 className="sr-only">
+          {character.name} — {character.title}
+        </h1>
+        <p className="font-mono text-xs tracking-widest text-(--neutral-30) uppercase">
+          You are
+        </p>
+        <Image
+          src={character.cardImage}
+          alt={`${character.name} — ${character.animal}, ${character.mbti}, ${character.title}. Plays ${character.instrument}.`}
+          className="mt-4 w-72 rounded-2xl border-2 border-(--primary-black) sm:w-96"
+          priority
+        />
+
+        {linkToWhitelist && (
+          <div className="mt-4" aria-live="polite">
+            {linkStatus === 'saving' && (
+              <p className="text-sm font-medium text-(--neutral-30)">
+                Saving your Satwas to your whitelist spot…
+              </p>
+            )}
+            {linkStatus === 'saved' && (
+              <p className="flex items-center justify-center gap-1.5 text-sm font-semibold text-(--primary-green)">
+                <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+                Saved to your whitelist spot
+              </p>
+            )}
+            {linkStatus === 'error' && (
+              <div className="flex flex-col items-center gap-2">
+                <p
+                  role="alert"
+                  className="text-sm font-semibold text-(--red-10)"
+                >
+                  Couldn&apos;t save your Satwas to your whitelist spot.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => saveCharacterLink(stage.slug)}
+                  className="cursor-pointer text-sm font-semibold text-(--primary-black) underline decoration-2 underline-offset-4 hover:text-(--primary-green) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <ResultActions
+          character={character}
+          linkedToWhitelist={linkToWhitelist}
+        />
+
+        {/* Retaking would imply the saved character above could change —
+            it can't (the API this mode uses is set-once), so the retake
+            path is hidden here rather than left to fail confusingly. */}
+        {!linkToWhitelist && (
+          <button
+            type="button"
+            onClick={handleRetake}
+            className="mt-6 cursor-pointer text-sm font-semibold text-(--primary-black) underline decoration-2 underline-offset-4 hover:text-(--primary-green) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black)"
+          >
+            Retake the quiz
+          </button>
+        )}
       </main>
     )
   }

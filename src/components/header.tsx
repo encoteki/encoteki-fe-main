@@ -38,8 +38,8 @@ const features = [
     title: 'Whitelist',
     description: 'Own the NFT',
     color: 'bg-[var(--green-90)]',
-    href: process.env.NEXT_PUBLIC_APP_MINT,
-    isExternal: true,
+    href: '/whitelist',
+    isExternal: false,
     Illustration: NFTCardIllustration,
   },
   {
