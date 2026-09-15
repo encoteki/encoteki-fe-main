@@ -2,17 +2,12 @@
 
 import { BrutalismButton } from '@/ui/buttons'
 import SectionHeading from '@/ui/heading/section-heading'
-import VerticalMarquee from '@/ui/vertical-marquee'
 import Link from 'next/link'
 import posthog from 'posthog-js'
 
 export default function Collections() {
   return (
-    <section className="home-container flex flex-col justify-start gap-12 bg-(--khaki-90) md:gap-16">
-      <div className="h-150 w-full bg-(--khaki-90)">
-        <VerticalMarquee />
-      </div>
-
+    <section className="home-container flex flex-col justify-start gap-12 bg-(--khaki-90) pt-0 md:gap-16 md:pt-0 xl:min-h-0 xl:pt-0">
       <SectionHeading
         title="The Satwas Band"
         titleClassName="font-black"

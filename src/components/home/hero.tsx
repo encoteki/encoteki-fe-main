@@ -33,7 +33,7 @@ export default function Hero() {
   })
 
   return (
-    <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-(--red-90) pt-16 md:pt-20">
+    <section className="relative flex w-full flex-col overflow-hidden bg-(--red-90) pt-16 md:pt-20">
       {/* Marquee strip */}
       <div className="w-full shrink-0 border-b-2 border-(--primary-black) bg-(--red-90) py-2 md:py-3">
         <TextMarquee
@@ -47,7 +47,7 @@ export default function Hero() {
       </div>
 
       {/* Hero content */}
-      <div className="flex w-full flex-1 items-end bg-linear-to-b from-(--blue-10) to-(--khaki-90) px-4 pb-12 sm:px-6 sm:pb-16 md:items-center md:px-12 lg:px-20">
+      <div className="flex w-full flex-1 items-end bg-linear-to-b from-(--blue-10) to-(--khaki-90) px-4 py-12 sm:px-6 sm:py-16 md:items-center md:px-12 lg:px-20">
         <HeroHeadline />
       </div>
     </section>

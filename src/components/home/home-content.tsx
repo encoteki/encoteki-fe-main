@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic'
 import Hero from '@/components/home/hero'
 
 // Below-fold sections: dynamically imported to reduce initial JS bundle & TBT
+const CollectionsGallery = dynamic(() => import('./collections-gallery'))
 const Collections = dynamic(() => import('./collections'))
 const Benefits = dynamic(() => import('@/components/home/benefits'))
 const About = dynamic(() => import('@/components/home/about'))
@@ -13,6 +14,7 @@ export default function HomeContent() {
   return (
     <>
       <Hero />
+      <CollectionsGallery />
       <Collections />
       <Benefits />
       <About />
