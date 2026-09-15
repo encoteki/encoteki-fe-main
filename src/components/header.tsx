@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, lazy, Suspense, useRef, useEffect } from 'react'
+import { useState, lazy, Suspense, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Encoteki from '@/assets/encoteki.logo.webp'
@@ -74,6 +74,58 @@ const features = [
 export default function Header() {
   const [isExpanded, setIsExpanded] = useState(false)
   const navRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  const toggleButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Same close pattern DealModal uses for its overlay: return focus to the
+  // control that opened this, rather than dropping it into the void once
+  // the nav collapses.
+  const closeMenu = useCallback(() => {
+    setIsExpanded(false)
+    toggleButtonRef.current?.focus()
+  }, [])
+
+  // Escape closes the expanded menu — it previously had no keyboard way to
+  // close at all besides re-clicking the hamburger or clicking the backdrop.
+  useEffect(() => {
+    if (!isExpanded) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenu()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [isExpanded, closeMenu])
+
+  // Focus trap — while expanded, Tab/Shift+Tab cycles within the header
+  // (logo, toggle, nav cards) instead of escaping into page content that
+  // sits behind/below the menu at breakpoints where it isn't full-height.
+  useEffect(() => {
+    if (!isExpanded || !headerRef.current) return
+    const container = headerRef.current
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
+    const trapFocus = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      const focusables =
+        container.querySelectorAll<HTMLElement>(focusableSelector)
+      if (focusables.length === 0) return
+
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', trapFocus)
+    return () => document.removeEventListener('keydown', trapFocus)
+  }, [isExpanded])
 
   // Stagger card entrance on expand
   useEffect(() => {
@@ -102,7 +154,7 @@ export default function Header() {
   return (
     <>
       <div
-        onClick={() => setIsExpanded(false)}
+        onClick={closeMenu}
         className={`fixed inset-0 z-9998 bg-[rgba(26,26,26,0.1)] backdrop-blur-sm transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${
           isExpanded
             ? 'pointer-events-auto opacity-100'
@@ -111,6 +163,7 @@ export default function Header() {
       />
 
       <header
+        ref={headerRef}
         className={`fixed top-0 right-0 left-0 z-9999 flex flex-col border-b-2 border-(--primary-black) bg-white px-4 transition-[height] duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] md:px-6 ${
           isExpanded ? 'h-screen md:h-125 lg:h-100' : 'h-16 md:h-20'
         }`}
@@ -128,6 +181,7 @@ export default function Header() {
           </Link>
 
           <button
+            ref={toggleButtonRef}
             onClick={() => {
               const opening = !isExpanded
               setIsExpanded(opening)

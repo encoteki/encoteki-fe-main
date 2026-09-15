@@ -60,10 +60,10 @@ export function WhitelistFlow({
     setRefcodeSkipped: gate.setSkipped,
     followClickedAt: dwell.followClickedAt,
     setFollowClickedAt: dwell.setFollowClickedAt,
-    repostClickedAt: dwell.repostClickedAt,
-    setRepostClickedAt: dwell.setRepostClickedAt,
-    likeClickedAt: dwell.likeClickedAt,
-    setLikeClickedAt: dwell.setLikeClickedAt,
+    likeRepostClickedAt: dwell.likeRepostClickedAt,
+    setLikeRepostClickedAt: dwell.setLikeRepostClickedAt,
+    commentClickedAt: dwell.commentClickedAt,
+    setCommentClickedAt: dwell.setCommentClickedAt,
     walletAddress,
     setWalletAddress,
   })
@@ -103,9 +103,13 @@ export function WhitelistFlow({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // No self-attest checkboxes in this UI — clicking Validate &
-          // Submit after opening the Follow/Repost/Like links is itself
+          // Submit after opening the Follow/Like & Repost links is itself
           // the attestation. The API still requires these three booleans
-          // and has no independent way to check them.
+          // and has no independent way to check them. The Comment task
+          // (dwell.comment, also required for canSubmit below) has no
+          // server-side counterpart at all — it's UI-only friction, not
+          // sent here, same spirit as these three but without even the
+          // pretense of a stored attestation.
           followAttested: true,
           retweetAttested: true,
           likeAttested: true,
@@ -251,9 +255,10 @@ export function WhitelistFlow({
             <p className="mt-1 text-small text-(--neutral-30)">
               {session ? (
                 <>
-                  Follow, repost, like, and submit your wallet address to claim
-                  your spot. Get {status?.guaranteedThreshold ?? 'a few'} people
-                  to do the same with your code and your mint is guaranteed.
+                  Follow, like &amp; repost, comment, and submit your wallet
+                  address to claim your spot. Get{' '}
+                  {status?.guaranteedThreshold ?? 'a few'} people to do the same
+                  with your code and your mint is guaranteed.
                 </>
               ) : (
                 'Complete a few tasks to join the Encoteki NFT whitelist.'

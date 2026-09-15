@@ -8,8 +8,8 @@ const DRAFT_STORAGE_KEY = 'encoteki-whitelist-draft'
 // useState initializer, to avoid a server/client hydration mismatch) and
 // persists it back on every change, so an accidental reload — or the
 // X-OAuth redirect round-trip — doesn't silently discard the referral code,
-// which Follow/Repost/Like links were opened, or the wallet address typed
-// so far.
+// which Follow/Like & Repost/Comment links were opened, or the wallet
+// address typed so far.
 export function useDraftPersistence({
   lockedReferralCode,
   refcodeInput,
@@ -20,10 +20,10 @@ export function useDraftPersistence({
   setRefcodeSkipped,
   followClickedAt,
   setFollowClickedAt,
-  repostClickedAt,
-  setRepostClickedAt,
-  likeClickedAt,
-  setLikeClickedAt,
+  likeRepostClickedAt,
+  setLikeRepostClickedAt,
+  commentClickedAt,
+  setCommentClickedAt,
   walletAddress,
   setWalletAddress,
 }: {
@@ -36,10 +36,10 @@ export function useDraftPersistence({
   setRefcodeSkipped: (value: boolean) => void
   followClickedAt: number | null
   setFollowClickedAt: (value: number) => void
-  repostClickedAt: number | null
-  setRepostClickedAt: (value: number) => void
-  likeClickedAt: number | null
-  setLikeClickedAt: (value: number) => void
+  likeRepostClickedAt: number | null
+  setLikeRepostClickedAt: (value: number) => void
+  commentClickedAt: number | null
+  setCommentClickedAt: (value: number) => void
   walletAddress: string
   setWalletAddress: (value: string) => void
 }) {
@@ -52,8 +52,8 @@ export function useDraftPersistence({
         refcodeVerified?: boolean
         refcodeSkipped?: boolean
         followClickedAt?: number | null
-        repostClickedAt?: number | null
-        likeClickedAt?: number | null
+        likeRepostClickedAt?: number | null
+        commentClickedAt?: number | null
         walletAddress?: string
       }
       // A locked code comes from the URL the applicant just followed, so it
@@ -66,11 +66,11 @@ export function useDraftPersistence({
       if (typeof draft.followClickedAt === 'number') {
         setFollowClickedAt(draft.followClickedAt)
       }
-      if (typeof draft.repostClickedAt === 'number') {
-        setRepostClickedAt(draft.repostClickedAt)
+      if (typeof draft.likeRepostClickedAt === 'number') {
+        setLikeRepostClickedAt(draft.likeRepostClickedAt)
       }
-      if (typeof draft.likeClickedAt === 'number') {
-        setLikeClickedAt(draft.likeClickedAt)
+      if (typeof draft.commentClickedAt === 'number') {
+        setCommentClickedAt(draft.commentClickedAt)
       }
       if (typeof draft.walletAddress === 'string') {
         setWalletAddress(draft.walletAddress)
@@ -96,8 +96,8 @@ export function useDraftPersistence({
           // recompute elapsed dwell time against the real click moment
           // rather than granting the task instantly or restarting it.
           followClickedAt,
-          repostClickedAt,
-          likeClickedAt,
+          likeRepostClickedAt,
+          commentClickedAt,
           walletAddress,
         }),
       )
@@ -109,8 +109,8 @@ export function useDraftPersistence({
     refcodeVerified,
     refcodeSkipped,
     followClickedAt,
-    repostClickedAt,
-    likeClickedAt,
+    likeRepostClickedAt,
+    commentClickedAt,
     walletAddress,
   ])
 

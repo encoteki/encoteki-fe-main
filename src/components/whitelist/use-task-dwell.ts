@@ -13,8 +13,13 @@ import { dwellStatus } from '@/lib/whitelist/task-dwell'
 // server/client hydration mismatch.
 export function useTaskDwell() {
   const [followClickedAt, setFollowClickedAt] = useState<number | null>(null)
-  const [repostClickedAt, setRepostClickedAt] = useState<number | null>(null)
-  const [likeClickedAt, setLikeClickedAt] = useState<number | null>(null)
+  // Repost and Like share one row/one dwell — the campaign still wants both
+  // actions, but presenting them as a single task instead of two identical
+  // "open the same post" buttons.
+  const [likeRepostClickedAt, setLikeRepostClickedAt] = useState<number | null>(
+    null,
+  )
+  const [commentClickedAt, setCommentClickedAt] = useState<number | null>(null)
   // Lazy initializer is safe even in this server-rendered component: every
   // clickedAt is null on first render, so every row derives "idle" and
   // server/client markup matches; the first tick (once a row is waiting)
@@ -22,11 +27,12 @@ export function useTaskDwell() {
   const [now, setNow] = useState(() => Date.now())
 
   const follow = dwellStatus(followClickedAt, now)
-  const repost = dwellStatus(repostClickedAt, now)
-  const like = dwellStatus(likeClickedAt, now)
+  const likeRepost = dwellStatus(likeRepostClickedAt, now)
+  const comment = dwellStatus(commentClickedAt, now)
   const anyWaiting =
-    follow === 'waiting' || repost === 'waiting' || like === 'waiting'
-  const allDone = follow === 'done' && repost === 'done' && like === 'done'
+    follow === 'waiting' || likeRepost === 'waiting' || comment === 'waiting'
+  const allDone =
+    follow === 'done' && likeRepost === 'done' && comment === 'done'
 
   // One shared interval drives all three countdowns, so there is a single
   // thing to clear. It only runs while at least one row is waiting, and
@@ -40,21 +46,22 @@ export function useTaskDwell() {
 
   return {
     followClickedAt,
-    repostClickedAt,
-    likeClickedAt,
+    likeRepostClickedAt,
+    commentClickedAt,
     follow,
-    repost,
-    like,
+    likeRepost,
+    comment,
     allDone,
     openFollow: () => setFollowClickedAt((current) => current ?? Date.now()),
-    openRepost: () => setRepostClickedAt((current) => current ?? Date.now()),
-    openLike: () => setLikeClickedAt((current) => current ?? Date.now()),
+    openLikeRepost: () =>
+      setLikeRepostClickedAt((current) => current ?? Date.now()),
+    openComment: () => setCommentClickedAt((current) => current ?? Date.now()),
     // Exposed for draft restore only — the persistence effect lives in
     // whitelist-flow.tsx because it also spans refcode-gate state and the
     // wallet field, so it can't live inside this single-concern hook.
     setFollowClickedAt,
-    setRepostClickedAt,
-    setLikeClickedAt,
+    setLikeRepostClickedAt,
+    setCommentClickedAt,
   }
 }
 
