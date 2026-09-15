@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { signOut } from 'next-auth/react'
 import { CHARACTERS } from '@/lib/quiz/content'
@@ -30,7 +30,8 @@ export function WhitelistedView({
   characterSlug: string | null
 }) {
   const [copied, setCopied] = useState(false)
-  const [sharing, setSharing] = useState(false)
+  const [cardFile, setCardFile] = useState<File | null>(null)
+  const [preparing, setPreparing] = useState(true)
   const hasCard = Boolean(characterSlug && REFERRAL_CARD_IMAGES[characterSlug])
   // This view replaces whatever screen was showing (sign-in, gate, or task
   // list) the moment a claim succeeds — move focus to its heading so that
@@ -46,52 +47,71 @@ export function WhitelistedView({
     signOut()
   }
 
-  // Shares the same JPEG the download button saves, via the Web Share
-  // API's native target picker — the OS decides what apps can accept an
-  // image file, and Instagram (if installed) is one of them. There's no
-  // way to open Instagram directly from a website, skipping that picker;
-  // this is the closest a web page gets. Falls back to a plain download
-  // whenever file sharing isn't available (most desktop browsers today) or
-  // the share attempt fails for a reason other than the visitor cancelling
-  // it.
-  async function handleShareToInstagram() {
+  // Pre-fetches the same JPEG the download button saves, as soon as the
+  // card is known — not on click. iOS Safari only treats navigator.share()
+  // as a direct response to the tap (and shows the share sheet) when
+  // nothing async has run between the gesture and the call; a fetch
+  // awaited inside the click handler burns that window, share() then
+  // throws silently, and the button falls straight through to a plain
+  // download with no share sheet ever appearing. Fetching ahead of time
+  // means the click handler can call share() with no await in front of it.
+  useEffect(() => {
+    if (!hasCard) return
+    let cancelled = false
     const cardHref = `/api/whitelist/card-image/${referralCode}`
     const fileName = `encoteki-whitelist-${referralCode}.jpg`
-    setSharing(true)
-
-    let file: File | null = null
-    try {
-      const res = await fetch(cardHref)
-      if (!res.ok) throw new Error('fetch failed')
-      const blob = await res.blob()
-      file = new File([blob], fileName, { type: blob.type || 'image/jpeg' })
-    } catch {
-      file = null
+    fetch(cardHref)
+      .then((res) =>
+        res.ok ? res.blob() : Promise.reject(new Error('fetch failed')),
+      )
+      .then((blob) => {
+        if (!cancelled) {
+          setCardFile(
+            new File([blob], fileName, { type: blob.type || 'image/jpeg' }),
+          )
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setPreparing(false)
+      })
+    return () => {
+      cancelled = true
     }
+  }, [hasCard, referralCode])
 
-    if (file && navigator.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file] })
-        setSharing(false)
-        return
-      } catch (err) {
+  // The OS decides what apps can accept an image file, and Instagram (if
+  // installed) is one of them — there's no way to open Instagram directly
+  // from a website, skipping that picker; this is the closest a web page
+  // gets. Falls back to a plain download whenever file sharing isn't
+  // available (most desktop browsers today), the pre-fetch above hasn't
+  // resolved yet, or the share attempt fails for a reason other than the
+  // visitor cancelling it.
+  function handleShareToInstagram() {
+    const cardHref = `/api/whitelist/card-image/${referralCode}`
+    const fileName = `encoteki-whitelist-${referralCode}.jpg`
+
+    if (cardFile && navigator.canShare?.({ files: [cardFile] })) {
+      navigator.share({ files: [cardFile] }).catch((err) => {
         // The visitor closed the share sheet themselves — a deliberate "no
         // thanks," not a failure, so don't follow it with a surprise
         // download.
-        if (err instanceof DOMException && err.name === 'AbortError') {
-          setSharing(false)
-          return
-        }
-      }
+        if (err instanceof DOMException && err.name === 'AbortError') return
+        triggerDownload(cardHref, fileName)
+      })
+      return
     }
 
+    triggerDownload(cardHref, fileName)
+  }
+
+  function triggerDownload(href: string, fileName: string) {
     const link = document.createElement('a')
-    link.href = cardHref
+    link.href = href
     link.download = fileName
     document.body.appendChild(link)
     link.click()
     link.remove()
-    setSharing(false)
   }
 
   async function handleCopy() {
@@ -239,11 +259,11 @@ export function WhitelistedView({
                   <button
                     type="button"
                     onClick={handleShareToInstagram}
-                    disabled={sharing}
+                    disabled={preparing}
                     className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap ${PRIMARY_BUTTON}`}
                   >
                     <InstagramIcon size="h-4 w-4" />
-                    {sharing ? 'Preparing…' : 'Share'}
+                    {preparing ? 'Preparing…' : 'Share'}
                   </button>
                   <a
                     href={`/api/whitelist/card-image/${referralCode}`}
