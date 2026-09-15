@@ -76,18 +76,18 @@ export function TaskListStep({
           onOpen={dwell.openFollow}
         />
         <TaskRow
-          label="Repost the announcement"
-          status={dwell.repost}
+          label="Like & repost the announcement"
+          status={dwell.likeRepost}
           href={status ? postUrl(status.targetPostId) : null}
-          buttonLabel="Repost"
-          onOpen={dwell.openRepost}
+          buttonLabel="Like & Repost"
+          onOpen={dwell.openLikeRepost}
         />
         <TaskRow
-          label="Like the post"
-          status={dwell.like}
+          label="Comment on the post"
+          status={dwell.comment}
           href={status ? postUrl(status.targetPostId) : null}
-          buttonLabel="Like"
-          onOpen={dwell.openLike}
+          buttonLabel="Comment"
+          onOpen={dwell.openComment}
         />
       </div>
 

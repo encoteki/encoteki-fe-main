@@ -1,7 +1,7 @@
 import { CheckIcon, XIcon } from './icons'
 import type { ValidateResponse } from './types'
 
-// One cell of the failure-state marks grid (Follow/Repost/Like/Wallet).
+// One cell of the failure-state marks grid (Follow/Like & Repost/Wallet).
 function Mark({ label, value }: { label: string; value: 'yes' | 'no' }) {
   return (
     <div>
@@ -56,14 +56,27 @@ export function ResultPanel({
           {/* The marks grid only means something for the generic "you
               didn't finish something" failure (reason === null) — every
               other reason (duplicate account, duplicate wallet, invalid
-              code) happens AFTER all four marks already passed, so showing
-              four green checks alongside a red error message would just
-              contradict the message instead of explaining it. */}
+              code) happens AFTER all marks already passed, so showing
+              green checks alongside a red error message would just
+              contradict the message instead of explaining it. Repost and
+              Like are a single task in the UI (TaskListStep) but still two
+              separate booleans in the API response — shown as one combined
+              mark here so this panel doesn't contradict that merged task
+              by splitting it back into two. The Comment task has no server
+              counterpart (see whitelist-flow.tsx's handleSubmit) so it
+              isn't listed here — reaching this panel at all already implies
+              it was completed, since canSubmit requires it. */}
           {!result.ok && result.reason === null && (
-            <dl className="grid grid-cols-4 gap-2 text-caption">
+            <dl className="grid grid-cols-3 gap-2 text-caption">
               <Mark label="Follow" value={result.marks.follow} />
-              <Mark label="Repost" value={result.marks.repost} />
-              <Mark label="Like" value={result.marks.like} />
+              <Mark
+                label="Like & Repost"
+                value={
+                  result.marks.repost === 'yes' && result.marks.like === 'yes'
+                    ? 'yes'
+                    : 'no'
+                }
+              />
               <Mark label="Wallet" value={result.marks.wallet} />
             </dl>
           )}
