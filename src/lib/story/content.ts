@@ -38,7 +38,16 @@ export interface StoryChapter {
   characters: string
   cover: StoryPage
   pages: StoryPage[]
+  locked?: boolean
 }
+
+// Chapter 5 publishes on its own schedule, separate from a code deploy —
+// flip NEXT_PUBLIC_STORY_CHAPTER_5_ACTIVE to "true" in the environment to
+// unlock it. Any other value (including unset) leaves it greyed out and
+// unclickable in the list. NEXT_PUBLIC_ because STORY_CHAPTERS is imported
+// by value into the client-rendered story page, not read server-side.
+const CHAPTER_5_ACTIVE =
+  process.env.NEXT_PUBLIC_STORY_CHAPTER_5_ACTIVE === 'true'
 
 export const STORY_CHAPTERS: StoryChapter[] = [
   {
@@ -142,6 +151,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     number: 5,
     title: 'The Convergence',
     characters: 'The whole band',
+    locked: !CHAPTER_5_ACTIVE,
     cover: {
       image: ch5Cover,
       alt: 'All six Satwas Band members reunite and play together on a jungle stage at sunrise',
