@@ -7,8 +7,10 @@
 const DEFAULT_MARQUEE_TEXTS = [
   'Live on Base',
   'Live on Arbitrum',
-  'Live on Lisk',
   'Live on Manta',
+  'Live on Robinhood',
+  'Live on Monad',
+  'Live on Ethereum',
 ]
 
 const DEFAULT_MARQUEE_SEPARATORS = ['Join Now!']
