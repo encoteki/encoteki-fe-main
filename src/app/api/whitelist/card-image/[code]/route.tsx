@@ -34,7 +34,7 @@ export async function GET(
 
   const { data: entry, error: entryError } = await supabaseServerClient()
     .from('whitelist_entries')
-    .select('character_slug')
+    .select('character_slug, x_username')
     .eq('id', referral.owner_entry_id)
     .maybeSingle()
   if (entryError) throw entryError
@@ -113,7 +113,7 @@ export async function GET(
           color: '#246234',
         }}
       >
-        {code.trim().toUpperCase()}
+        @{entry.x_username} | {code.trim().toUpperCase()}
       </div>
     </div>,
     {
