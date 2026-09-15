@@ -84,8 +84,13 @@ export default function StoryList({
             <button
               type="button"
               onClick={() => onSelect(chapter)}
-              aria-label={`Chapter ${chapter.number}: ${chapter.title}`}
-              className="group flex w-full cursor-pointer flex-col items-stretch gap-2 py-6 text-left transition-colors duration-200 outline-none hover:bg-(--khaki-80) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) sm:flex-row sm:gap-8 sm:py-8"
+              disabled={chapter.locked}
+              aria-label={
+                chapter.locked
+                  ? `Chapter ${chapter.number}: ${chapter.title} — coming soon`
+                  : `Chapter ${chapter.number}: ${chapter.title}`
+              }
+              className="group flex w-full cursor-pointer flex-col items-stretch gap-2 py-6 text-left transition-colors duration-200 outline-none hover:bg-(--khaki-80) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-black) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent sm:flex-row sm:gap-8 sm:py-8"
             >
               {/* Stacked above the image at narrow widths instead of
                   sharing a row with it — a fixed side column at any width
