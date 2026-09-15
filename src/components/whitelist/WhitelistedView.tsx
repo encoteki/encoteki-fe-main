@@ -7,7 +7,7 @@ import { CHARACTERS } from '@/lib/quiz/content'
 import { REFERRAL_CARD_IMAGES } from '@/lib/quiz/referral-cards'
 import { clearQuizCharacterForWhitelist } from '@/lib/quiz/character-handoff'
 import { PRIMARY_BUTTON } from './constants'
-import { CheckIcon, DownloadIcon, InstagramIcon, PawIcon } from './icons'
+import { CheckIcon, DownloadIcon, PawIcon, ShareIcon } from './icons'
 import { useFocusOnMount } from './use-focus-on-mount'
 
 // Shared by both "you already have a spot" paths: a returning applicant
@@ -80,14 +80,13 @@ export function WhitelistedView({
     }
   }, [hasCard, referralCode])
 
-  // The OS decides what apps can accept an image file, and Instagram (if
-  // installed) is one of them — there's no way to open Instagram directly
-  // from a website, skipping that picker; this is the closest a web page
-  // gets. Falls back to a plain download whenever file sharing isn't
-  // available (most desktop browsers today), the pre-fetch above hasn't
-  // resolved yet, or the share attempt fails for a reason other than the
-  // visitor cancelling it.
-  function handleShareToInstagram() {
+  // Hands the card off to the OS share sheet — the visitor picks whichever
+  // app they want (Instagram, messaging apps, anything else that accepts
+  // an image file), this isn't scoped to any one platform. Falls back to a
+  // plain download whenever file sharing isn't available (most desktop
+  // browsers today), the pre-fetch above hasn't resolved yet, or the share
+  // attempt fails for a reason other than the visitor cancelling it.
+  function handleShare() {
     const cardHref = `/api/whitelist/card-image/${referralCode}`
     const fileName = `encoteki-whitelist-${referralCode}.jpg`
 
@@ -133,7 +132,7 @@ export function WhitelistedView({
   // above the card — the confirmation itself is the payoff moment here, not
   // a form to orient into, so nothing needs to sit above it.
   return (
-    <main className="flex min-h-screen w-full animate-fade-in items-center justify-center bg-(--khaki-90) px-4 py-10 tablet:px-12 tablet:py-24 sm:px-6 sm:py-16">
+    <main className="flex min-h-screen w-full animate-fade-in items-center justify-center bg-(--khaki-90) px-4 pt-20 pb-10 tablet:px-12 tablet:pt-28 tablet:pb-24 sm:px-6 sm:pt-24 sm:pb-16">
       <div className="w-full max-w-md tablet:max-w-2xl">
         <div className="flex w-full flex-col items-center gap-3 rounded-4xl bg-white p-6 text-center shadow-lg tablet:p-8">
           <h1
@@ -258,11 +257,11 @@ export function WhitelistedView({
                 <div className="flex w-full items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleShareToInstagram}
+                    onClick={handleShare}
                     disabled={preparing}
                     className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap ${PRIMARY_BUTTON}`}
                   >
-                    <InstagramIcon size="h-4 w-4" />
+                    <ShareIcon size="h-4 w-4" />
                     {preparing ? 'Preparing…' : 'Share'}
                   </button>
                   <a

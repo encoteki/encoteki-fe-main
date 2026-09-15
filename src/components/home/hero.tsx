@@ -9,8 +9,10 @@ import { getMarqueeTexts } from '@/lib/marquee-config'
 
 import Base from '@/assets/chains/base.jpeg'
 import Arbitrum from '@/assets/chains/arbitrum.svg'
-import Lisk from '@/assets/chains/lisk.webp'
 import Manta from '@/assets/chains/manta.png'
+import Robinhood from '@/assets/chains/rh.png'
+import Monad from '@/assets/chains/monad.jpeg'
+import Eth from '@/assets/chains/eth.webp'
 
 export default function Hero() {
   const { texts, separators } = getMarqueeTexts()
@@ -18,8 +20,10 @@ export default function Hero() {
   const chainIcons: Record<string, { src: StaticImageData | string }> = {
     base: { src: Base },
     arbitrum: { src: Arbitrum },
-    lisk: { src: Lisk },
     manta: { src: Manta },
+    robinhood: { src: Robinhood },
+    monad: { src: Monad },
+    eth: { src: Eth },
   }
 
   const marqueeTexts = texts.map((text) => {
