@@ -67,10 +67,11 @@ export function PawIcon({
   )
 }
 
-// The camera-and-lens mark, not a generic "share" glyph — this button opens
-// Instagram specifically (via the Web Share API's target picker), so it
-// gets Instagram's own recognizable shape rather than a bare arrow.
-export function InstagramIcon({
+// The standard "share" glyph (arrow escaping an open tray) — this button
+// hands off to the OS share sheet, which can route to any app the visitor
+// picks, not just one platform, so it gets a generic share mark rather
+// than a specific app's logo.
+export function ShareIcon({
   className = '',
   size = 'h-3.5 w-3.5',
 }: {
@@ -88,9 +89,9 @@ export function InstagramIcon({
       className={`${size} ${className}`}
       aria-hidden="true"
     >
-      <rect x="3" y="3" width="18" height="18" rx="5.5" />
-      <circle cx="12" cy="12" r="4.2" />
-      <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+      <path d="M12 15V4" />
+      <path d="M7.5 8.5 12 4l4.5 4.5" />
+      <path d="M5 13v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
     </svg>
   )
 }
