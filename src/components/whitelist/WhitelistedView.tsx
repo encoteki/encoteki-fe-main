@@ -133,7 +133,7 @@ export function WhitelistedView({
   // above the card — the confirmation itself is the payoff moment here, not
   // a form to orient into, so nothing needs to sit above it.
   return (
-    <main className="flex min-h-screen w-full animate-fade-in items-center justify-center bg-(--khaki-90) px-4 py-10 tablet:px-12 tablet:py-24 sm:px-6 sm:py-16">
+    <main className="flex min-h-screen w-full animate-fade-in items-center justify-center bg-(--khaki-90) px-4 pt-20 pb-10 tablet:px-12 tablet:pt-28 tablet:pb-24 sm:px-6 sm:pt-24 sm:pb-16">
       <div className="w-full max-w-md tablet:max-w-2xl">
         <div className="flex w-full flex-col items-center gap-3 rounded-4xl bg-white p-6 text-center shadow-lg tablet:p-8">
           <h1
