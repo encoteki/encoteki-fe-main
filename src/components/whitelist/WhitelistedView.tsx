@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import posthog from 'posthog-js'
 import { signOut } from 'next-auth/react'
 import { CHARACTERS } from '@/lib/quiz/content'
 import { REFERRAL_CARD_IMAGES } from '@/lib/quiz/referral-cards'
 import { clearQuizCharacterForWhitelist } from '@/lib/quiz/character-handoff'
-import { PRIMARY_BUTTON } from './constants'
-import { CheckIcon, DownloadIcon, PawIcon, ShareIcon } from './icons'
+import { PRIMARY_BUTTON, ROUNDED_ICON_BUTTON } from './constants'
+import { CheckIcon, DownloadIcon, PawIcon, ShareIcon, XLogoIcon } from './icons'
 import { useFocusOnMount } from './use-focus-on-mount'
 
 // Shared by both "you already have a spot" paths: a returning applicant
@@ -86,7 +87,38 @@ export function WhitelistedView({
   // plain download whenever file sharing isn't available (most desktop
   // browsers today), the pre-fetch above hasn't resolved yet, or the share
   // attempt fails for a reason other than the visitor cancelling it.
+  // Deterministic X CTA: skips the OS share sheet entirely and opens X's
+  // web intent directly. X's intent URL has no way to attach an image (a
+  // platform limitation, not something worth working around here — see
+  // PRD-whitelist-share-cta.md's Non-Goals), so this is text + link only;
+  // the adjacent Share/Download buttons remain how a visitor gets the
+  // image if they want to attach it themselves. window.open must stay
+  // synchronous with the click (no await before it) or some browsers
+  // block the new tab.
+  function handleShareToX() {
+    posthog.capture('whitelist_share_clicked', {
+      channel: 'x',
+      character_slug: characterSlug,
+    })
+    const shareUrl = `${window.location.origin}/whitelist/refcode/${referralCode}`
+    const text =
+      "I just secured my spot on the Encoteki whitelist — join with my code and let's get in together:"
+    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`
+    window.open(intentUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  function handleDownloadClick() {
+    posthog.capture('whitelist_share_clicked', {
+      channel: 'download',
+      character_slug: characterSlug,
+    })
+  }
+
   function handleShare() {
+    posthog.capture('whitelist_share_clicked', {
+      channel: 'generic',
+      character_slug: characterSlug,
+    })
     const cardHref = `/api/whitelist/card-image/${referralCode}`
     const fileName = `encoteki-whitelist-${referralCode}.jpg`
 
@@ -257,19 +289,29 @@ export function WhitelistedView({
                 <div className="flex w-full items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleShare}
-                    disabled={preparing}
+                    onClick={handleShareToX}
                     className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap ${PRIMARY_BUTTON}`}
                   >
+                    <XLogoIcon size="h-4 w-4" />
+                    Share to X
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    disabled={preparing}
+                    aria-label="Share your card"
+                    title="Share your card"
+                    className={ROUNDED_ICON_BUTTON}
+                  >
                     <ShareIcon size="h-4 w-4" />
-                    {preparing ? 'Preparing…' : 'Share'}
                   </button>
                   <a
                     href={`/api/whitelist/card-image/${referralCode}`}
                     download={`encoteki-whitelist-${referralCode}.jpg`}
+                    onClick={handleDownloadClick}
                     aria-label="Download your card"
                     title="Download your card"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-(--khaki-70) bg-white text-(--neutral-10) shadow-sm transition-colors duration-200 outline-none hover:bg-(--green-90) focus-visible:ring-2 focus-visible:ring-(--primary-green) focus-visible:ring-offset-2 active:scale-95"
+                    className={ROUNDED_ICON_BUTTON}
                   >
                     <DownloadIcon size="h-4 w-4" />
                   </a>
