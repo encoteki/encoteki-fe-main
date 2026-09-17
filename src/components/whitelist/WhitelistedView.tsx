@@ -81,12 +81,6 @@ export function WhitelistedView({
     }
   }, [hasCard, referralCode])
 
-  // Hands the card off to the OS share sheet — the visitor picks whichever
-  // app they want (Instagram, messaging apps, anything else that accepts
-  // an image file), this isn't scoped to any one platform. Falls back to a
-  // plain download whenever file sharing isn't available (most desktop
-  // browsers today), the pre-fetch above hasn't resolved yet, or the share
-  // attempt fails for a reason other than the visitor cancelling it.
   // Deterministic X CTA: skips the OS share sheet entirely and opens X's
   // web intent directly. X's intent URL has no way to attach an image (a
   // platform limitation, not something worth working around here — see
@@ -114,6 +108,12 @@ export function WhitelistedView({
     })
   }
 
+  // Hands the card off to the OS share sheet — the visitor picks whichever
+  // app they want (Instagram, messaging apps, anything else that accepts
+  // an image file), this isn't scoped to any one platform. Falls back to a
+  // plain download whenever file sharing isn't available (most desktop
+  // browsers today), the pre-fetch above hasn't resolved yet, or the share
+  // attempt fails for a reason other than the visitor cancelling it.
   function handleShare() {
     posthog.capture('whitelist_share_clicked', {
       channel: 'generic',
